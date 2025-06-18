@@ -43,10 +43,10 @@ line-length = 120
 select = ["E", "F", "W", "B", "I", "A", "C90", "PERF", "TCH", "TID"]
 
 [tool.pyrefly]
-project-includes = ["**/*"]
+project-includes = ["src/**/*"]
 project-excludes = ['**/*venv/**\*']
 search_path = [
-    "src/**"
+    "."
 ]
 
 [dependency-groups]

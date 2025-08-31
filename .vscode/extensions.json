@@ -1,0 +1,6 @@
+{
+  "recommandations": [
+    "charliermarsh.ruff",
+    "meta.pyrefly"
+  ]
+}

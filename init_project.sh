@@ -7,5 +7,5 @@ pip install --user pdm uv
 pdm config use_uv true
 
 # Setup VSCode extensions
-code-server --install-extension charliermarsh.ruff meta.pyrefly
+code-server --install-extension charliermarsh.ruff meta.pyrefly ms-python.debugpy pamaron.pytest-runner
 code-server --uninstall-extension ms-python.flake8

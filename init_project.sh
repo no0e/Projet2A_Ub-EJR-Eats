@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Install the package managers
-pip install --user pdm uv
+pip install pdm uv
 
 # PDM configuration
 pdm config use_uv true

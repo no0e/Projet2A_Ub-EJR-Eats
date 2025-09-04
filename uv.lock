@@ -167,25 +167,25 @@ typing = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = "==0.116.1" },
-    { name = "psycopg2-binary", specifier = ">=2.9.9" },
-    { name = "pydantic", specifier = ">=2.8.2" },
-    { name = "pyjwt", specifier = ">=2.9.0" },
-    { name = "python-dotenv", specifier = ">=1.0.1" },
-    { name = "uvicorn", specifier = "==0.35.0" },
+    { name = "fastapi", specifier = ">=0.116.1" },
+    { name = "psycopg2-binary", specifier = ">=2.9.10" },
+    { name = "pydantic", specifier = ">=2.11.7" },
+    { name = "pyjwt", specifier = ">=2.10.1" },
+    { name = "python-dotenv", specifier = ">=1.1.1" },
+    { name = "uvicorn", specifier = ">=0.35.0" },
 ]
 
 [package.metadata.requires-dev]
-lint = [{ name = "ruff", specifier = ">=0.6.0" }]
+lint = [{ name = "ruff", specifier = ">=0.12.11" }]
 test = [
-    { name = "freezegun", specifier = ">=1.5.1" },
-    { name = "pytest", specifier = ">=8.3.2" },
+    { name = "freezegun", specifier = ">=1.5.5" },
+    { name = "pytest", specifier = ">=8.4.1" },
     { name = "pytest-cov", specifier = ">=5.0.0" },
 ]
 typing = [
-    { name = "pyrefly", specifier = ">=0.20.2" },
-    { name = "types-psycopg2", specifier = ">=2.9.21.20240819" },
-    { name = "types-requests", specifier = ">=2.32.0.20240905" },
+    { name = "pyrefly", specifier = ">=0.30.0" },
+    { name = "types-psycopg2", specifier = ">=2.9.21.20250809" },
+    { name = "types-requests", specifier = ">=2.32.4.20250809" },
 ]
 
 [[package]]

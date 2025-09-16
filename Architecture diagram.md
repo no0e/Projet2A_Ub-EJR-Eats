@@ -19,7 +19,7 @@ title: Quick Architecture overview
     USR3 <--> INT
         subgraph Python app 
             API<-->SVC<-->DAO
-            subgraph INT
+            subgraph INT[fa:fa-python Interface ]
                 API(fa:fa-lock API)
             end
             subgraph SVC [fa:fa-python Service / Controllers]

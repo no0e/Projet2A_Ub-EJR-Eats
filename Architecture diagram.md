@@ -36,7 +36,7 @@ title: Quick Architecture overview
 
   %% ==== Styles personnalisés ====
     classDef orange fill:#FF8C00,stroke:#333,stroke-width:2px,color:#fff;
-    classDef lightorange fill:#FFB65C,stroke:#333,stroke-width:2px,color:#000;
+    classDef lightorange fill:#FFB65C,stroke:#333,stroke-width:2px,color:#fff;
     classDef teal fill:#1CAABD,stroke:#333,stroke-width:2px,color:#fff;
 
     %% Attribution des couleurs

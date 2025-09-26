@@ -42,5 +42,5 @@ title: Quick Architecture overview
     %% Attribution des couleurs
     class USR1,USR2,USR3 orange
     class DB,MDB teal
-    class API,DAO,SVC,ORD,MEN,AUT,MAP, MDB lightorange
+    class API,DAO,SVC,ORD,MEN,AUT,MAP, MDBAPI lightorange
 ```

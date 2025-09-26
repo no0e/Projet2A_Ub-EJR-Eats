@@ -33,4 +33,14 @@ title: Quick Architecture overview
     DAO<--->DB
     MDBAPI <--> MDB
     SVC <--> MDBAPI
+
+  %% ==== Styles personnalisés ====
+    classDef orange fill:#FF8C00,stroke:#333,stroke-width:2px,color:#fff;
+    classDef lightorange fill:#FFB65C,stroke:#333,stroke-width:2px,color:#000;
+    classDef teal fill:#1CAABD,stroke:#333,stroke-width:2px,color:#fff;
+
+    %% Attribution des couleurs
+    class USR1,USR2,USR3 orange
+    class DB,MDB teal
+    class API,DAO,SVC,ORD,MEN,AUT,MAP lightorange
 ```

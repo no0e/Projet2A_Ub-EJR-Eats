@@ -1,11 +1,15 @@
+import User
 from pydantic import BaseModel
 
 
-class Customer(BaseModel):
+class Customer(BaseModel, User):
     username: str
-    surname: str
-    lastname: str
-    account_type: str
-    password: str
+    __firstname__: str
+    __lastname__: str
+    __account_type__: str
+    __password__: str
     salt: str
-    address: str
+
+    def __init__(self, username, firstname, lastname, password, salt):
+        super().__init__(username, firstname, lastname, password, salt)
+        self.__account_type__ = "Administrator"

@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 
 from .AdministratorController import administrator_router
 from .CustomerController import customer_router
-from .DriverController import driver_router
+from .DeliveryDriverController import deliverydriver_router
 from .MovieController import movie_router
 from .UserController import user_router
 
@@ -12,12 +12,8 @@ from .UserController import user_router
 def run_app():
     app = FastAPI(title="Projet Info 2A", description="Example project for ENSAI students")
 
-    app.include_router(user_router)
-
-    app.include_router(movie_router)
-
     app.include_router(customer_router)
-    app.include_router(driver_router)
+    app.include_router(deliverydriver_router)
     app.include_router(administrator_router)
 
     @app.get("/", include_in_schema=False)

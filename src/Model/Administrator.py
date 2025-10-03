@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class administrator(BaseModel):
+class Administrator(BaseModel):
     username: str
     surname: str
     lastname: str

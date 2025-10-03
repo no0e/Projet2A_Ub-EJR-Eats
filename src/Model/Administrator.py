@@ -2,7 +2,11 @@ import User
 from pydantic import BaseModel
 
 
+<<<<<<< HEAD
 class Administrator(BaseModel, User):
+=======
+class Administrator(BaseModel):
+>>>>>>> 905c3609387dc125116ba7d5475deafe15803420
     username: str
     __firstname__: str
     __lastname__: str

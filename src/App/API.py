@@ -12,6 +12,7 @@ from .UserController import user_router
 def run_app():
     app = FastAPI(title="Projet Info 2A", description="Example project for ENSAI students")
 
+    app.include_router(user_router)
     app.include_router(customer_router)
     app.include_router(deliverydriver_router)
     app.include_router(administrator_router)

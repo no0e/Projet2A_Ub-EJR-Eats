@@ -5,45 +5,51 @@ from pydantic import BaseModel
 
 class User(BaseModel, ABC):
     username: str
-    __firstname__: str
-    __lastname__: str
-    __account_type__: str
-    __password__: str
+    _firstname: str
+    _lastname: str
+    _account_type: str
+    _password: str
     salt: str
 
     def __init__(self, username, firstname, lastname, password, salt):
         self.username = username
-        self.__firstname__ = firstname
-        self.__lastname__ = lastname
-        self.__password__ = password
-        self.__account_type__ = None
+        self._firstname = firstname
+        self._lastname = lastname
+        self._password = password
+        self._account_type = None
         self.salt = salt
 
-    def get_firstname(self):
+    @property
+    def firstname(self):
         """ """
-        # TODO
+        return self._firstname
 
-    def get_lastname(self):
+    @property
+    def lastname(self):
         """ """
-        # TODO
+        return self._lastname
 
-    def get_password(self):
+    @property
+    def password(self):
+        """ """
+        return self._password
+
+    @abstractmethod
+    def account_type(self):
         """ """
         pass
 
-    @abstractmethod
-    def get_account_type(self):
+    @firstname.setter
+    def firstname(self, value):
         """ """
-        # TODO
+        self._firstname = value
 
-    def edit_firstname(self, firstname):
+    @lastname.setter
+    def edit_lastname(self, value):
         """ """
-        # TODO
+        self._lastname = value
 
-    def edit_lastname(self, lastname):
+    @password.setter
+    def edit_password(self, value):
         """ """
-        # TODO
-
-    def edit_password(self, password):
-        """ """
-        # TODO
+        self._password = value

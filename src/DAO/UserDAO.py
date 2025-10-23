@@ -5,7 +5,7 @@ from src.Model.User import User
 from .DBConnector import DBConnector
 
 
-class UserRepo:
+class UserDAO:
     db_connector: DBConnector
 
     def __init__(self, db_connector: DBConnector):

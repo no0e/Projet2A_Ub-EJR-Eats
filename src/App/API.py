@@ -5,7 +5,6 @@ from fastapi.responses import RedirectResponse
 from .AdministratorController import administrator_router
 from .CustomerController import customer_router
 from .DeliveryDriverController import deliverydriver_router
-from .MovieController import movie_router
 from .UserController import user_router
 
 

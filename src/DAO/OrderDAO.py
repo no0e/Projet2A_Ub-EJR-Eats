@@ -1,5 +1,5 @@
 import json
-from typing import List, Optional
+from typing import Optional
 
 from src.Model.Item import Item
 from src.Model.Order import Order

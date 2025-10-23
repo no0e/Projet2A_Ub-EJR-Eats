@@ -6,27 +6,74 @@ from .DBConnector import DBConnector
 
 
 class UserDAO:
+    """
+    Data Access Object (DAO) for interacting with the 'users' table in the database.
+    Provides methods to retrieve and insert user data.
+    """
+
     db_connector: DBConnector
 
     def __init__(self, db_connector: DBConnector):
+        """
+        Initialize the UserDAO with a database connector.
+
+        :param db_connector: Instance of DBConnector used to execute SQL queries.
+        """
         self.db_connector = db_connector
 
     def get_by_username(self, username: str) -> Optional[User]:
-        raw_user = self.db_connector.sql_query("SELECT * from users WHERE username=%s", [username], "one")
+        """
+        Retrieve a user from the database by their username.
+
+        :param username: The username of the user to retrieve.
+        :return: A User object if found, otherwise None.
+        """
+        raw_user = self.db_connector.sql_query("SELECT * FROM users WHERE username=%s", [username], "one")
+
         if raw_user is None:
             return None
-        # pyrefly: ignore
-        return User(**raw_user)
 
-    def insert_into_db(self, username: str, salt: str, hashed_password: str) -> User:
+        # Map database fields to User constructor arguments
+        return User(
+            username=raw_user["username"],
+            firstname=raw_user.get("firstname", ""),
+            lastname=raw_user.get("lastname", ""),
+            password=raw_user.get("password", ""),
+            salt=raw_user.get("salt", ""),
+        )
+
+    def insert_into_db(self, username: str, firstname: str, lastname: str, salt: str, hashed_password: str) -> User:
+        """
+        Insert a new user into the database and return a corresponding User object.
+
+        :param username: The username for the new user.
+        :param firstname: The user's first name.
+        :param lastname: The user's last name.
+        :param salt: The salt used for password hashing.
+        :param hashed_password: The hashed password.
+        :return: A User object representing the newly created user.
+        """
         raw_created_user = self.db_connector.sql_query(
             """
-        INSERT INTO users (id, username, salt, password)
-        VALUES (DEFAULT, %(username)s, %(salt)s, %(password)s)
-        RETURNING *;
-        """,
-            {"username": username, "salt": salt, "password": hashed_password},
+            INSERT INTO users (id, username, firstname, lastname, salt, password)
+            VALUES (DEFAULT, %(username)s, %(firstname)s, %(lastname)s, %(salt)s, %(password)s)
+            RETURNING *;
+            """,
+            {
+                "username": username,
+                "firstname": firstname,
+                "lastname": lastname,
+                "salt": salt,
+                "password": hashed_password,
+            },
             "one",
         )
-        # pyrefly: ignore
-        return User(**raw_created_user)
+
+        # Build and return a User instance from the inserted row
+        return User(
+            username=raw_created_user["username"],
+            firstname=raw_created_user.get("firstname", ""),
+            lastname=raw_created_user.get("lastname", ""),
+            password=raw_created_user.get("password", ""),
+            salt=raw_created_user.get("salt", ""),
+        )

@@ -9,4 +9,4 @@ class User(BaseModel, ABC):
     lastname: str
     password: str
     salt: str
-    account_type: str = "customer"
+    account_type: str

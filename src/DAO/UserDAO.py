@@ -40,6 +40,7 @@ class UserDAO:
             lastname=raw_user.get("lastname", ""),
             password=raw_user.get("password", ""),
             salt=raw_user.get("salt", ""),
+            account_type=raw_user.get("account_type", ""),
         )
 
     def insert_into_db(
@@ -80,4 +81,5 @@ class UserDAO:
             lastname=raw_created_user.get("lastname", ""),
             password=raw_created_user.get("password", ""),
             salt=raw_created_user.get("salt", ""),
+            account_type=raw_created_user.get("account_type", ""),
         )

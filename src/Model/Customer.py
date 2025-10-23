@@ -1,8 +1,7 @@
-import User
-from pydantic import BaseModel
+from src.Model.User import User
 
 
-class Customer(BaseModel, User):
+class Customer(User):
     username: str
     _firstname: str
     _lastname: str

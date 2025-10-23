@@ -9,10 +9,19 @@ class UserService:
     def __init__(self, user_repo: UserRepo):
         self.user_repo = user_repo
 
-    def create_user(self, username: str, password: str) -> User:
-        ## TODO
+    def create_user(self, user: User) -> User:
+        """"""
+        if self._username_exists(user.username):
+            raise ValueError("Username already taken.")
+        created_user = self.user_repo.insert_into_db(
+            user.username, user.firstname, user.lastname, user.salt, user.password
+        )
+        return User(**created_user)
 
-        return
+    def get_user(self, user_username: str) -> User | None:
+        """"""
+        return self.user_repo.get_by_username(user_username)
 
-    def get_user(self, user_id: int) -> User | None:
-        return self.user_repo.get_by_id(user_id)
+    def _username_exists(self, username: str) -> bool:
+        """ """
+        return self.user_repo.get_by_username(username) is not None

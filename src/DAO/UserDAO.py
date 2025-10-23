@@ -40,9 +40,12 @@ class UserDAO:
             lastname=raw_user.get("lastname", ""),
             password=raw_user.get("password", ""),
             salt=raw_user.get("salt", ""),
+            account_type=raw_user.get("account_type", ""),
         )
 
-    def insert_into_db(self, username: str, firstname: str, lastname: str, salt: str, hashed_password: str) -> User:
+    def insert_into_db(
+        self, username: str, firstname: str, lastname: str, salt: str, hashed_password: str, account_type: str
+    ) -> User:
         """
         Insert a new user into the database and return a corresponding User object.
 
@@ -51,12 +54,13 @@ class UserDAO:
         :param lastname: The user's last name.
         :param salt: The salt used for password hashing.
         :param hashed_password: The hashed password.
+        :param account_type: The type of account
         :return: A User object representing the newly created user.
         """
         raw_created_user = self.db_connector.sql_query(
             """
-            INSERT INTO users (id, username, firstname, lastname, salt, password)
-            VALUES (DEFAULT, %(username)s, %(firstname)s, %(lastname)s, %(salt)s, %(password)s)
+            INSERT INTO users (id, username, firstname, lastname, salt, password, account_type)
+            VALUES (DEFAULT, %(username)s, %(firstname)s, %(lastname)s, %(salt)s, %(password)s, %(account_type)s)
             RETURNING *;
             """,
             {
@@ -65,6 +69,7 @@ class UserDAO:
                 "lastname": lastname,
                 "salt": salt,
                 "password": hashed_password,
+                "account_type": account_type,
             },
             "one",
         )
@@ -76,4 +81,5 @@ class UserDAO:
             lastname=raw_created_user.get("lastname", ""),
             password=raw_created_user.get("password", ""),
             salt=raw_created_user.get("salt", ""),
+            account_type=raw_created_user.get("account_type", ""),
         )

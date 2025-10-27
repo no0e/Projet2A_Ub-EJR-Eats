@@ -1,26 +1,22 @@
-import Item
+from typing import Optional
+
 from pydantic import BaseModel
+
+from src.Model.Item import Item
 
 
 class Order(BaseModel):
-    id_order: int
+    id_order: Optional[int] = None
     username_customer: str
     username_delivery_driver: str
     address: str
-    items: list(Item)
-
-    def __init__(self, id_order, username_customer, username_delivery_driver, address, items):
-        self.id_order = id_order
-        self.username_customer = username_customer
-        self.username_delivery_driver = username_delivery_driver
-        self._address = address
-        self._items = items
+    items: list
 
     @property
     def address(self):
         """"""
         return self._address
-    
+
     @property
     def items(self):
         """"""

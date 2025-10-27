@@ -1,37 +1,24 @@
 from pydantic import BaseModel
-
+from typing import List
 
 class Delivery(BaseModel):
-    _id_delivery: int
-    _username_driv: int
-    _duration: int
-    _stops: list(str)
-
-    def __init__(self, id_delivery, username_driv, duration, stops):
-        self.id_delivery = id_delivery
-        self.username_driv = username_driv
-        self._duration = duration
-        self._stops = stops
-
+    id_delivery: int
+    username_driv: str
+    duration: int
+    stops: List[str]
 
     @property
-    def duration(self):
-        """"""
-        return self._duration
-
-    @property
-    def stops(self):
-        """"""
-        return self._stops
+    def duration(self) -> int:
+        return self.duration
 
     @duration.setter
-    def duration(self, value):
-        """"""
-        self._duration = value
+    def duration(self, value: int):
+        self.duration = value
+
+    @property
+    def stops(self) -> List[str]:
+        return self.stops
 
     @stops.setter
-    def stops(self, value):
-        """"""
-        self._stops = value
-
-
+    def stops(self, value: List[str]):
+        self.stops = value

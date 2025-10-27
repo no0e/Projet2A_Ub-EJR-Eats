@@ -9,14 +9,6 @@ class Item(BaseModel):
     stock: int
     exposed: bool
 
-    def __init__(self, id_item, name, price, category, stock):
-        self.id_item = id_item
-        self._name = name
-        self._price = price
-        self._category = category
-        self._stock = stock
-        self._exposed = False
-
     @property
     def name(self):
         """"""

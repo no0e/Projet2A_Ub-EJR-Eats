@@ -149,4 +149,4 @@ def test_delete_order():
     assert found_order is None
 
 if __name__ == "__main__":
-    pytest.main(["-v"])
+    pytest.main()

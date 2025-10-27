@@ -43,9 +43,7 @@ class UserDAO:
             account_type=raw_user.get("account_type", ""),
         )
 
-    def insert_into_db(
-        self, username: str, firstname: str, lastname: str, salt: str, hashed_password: str, account_type: str
-    ) -> User:
+    def create_user(self, user: User) -> bool:
         """
         Insert a new user into the database and return a corresponding User object.
 

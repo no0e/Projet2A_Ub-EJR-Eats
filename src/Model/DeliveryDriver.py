@@ -3,19 +3,13 @@ from src.Model.User import User
 
 class DeliveryDriver(User):
     username: str
-    _firstname: str
-    _lastname: str
-    _account_type: str
-    _password: str
+    firstname: str
+    lastname: str
+    account_type: str
+    password: str
     salt: str
-    _vehicle: str
-    _is_available: bool
-
-    def __init__(self, username, firstname, lastname, password, salt, vehicle):
-        super().__init__(username, firstname, lastname, password, salt)
-        self._account_type = "DeliveryDriver"
-        self._vehicle = vehicle
-        self._is_available = False
+    vehicle: str
+    is_available: bool
 
     @property
     def account_type(self):

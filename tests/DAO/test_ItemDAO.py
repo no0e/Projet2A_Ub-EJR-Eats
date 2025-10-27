@@ -182,4 +182,4 @@ def test_delete():
 
 
 if __name__ == "__main__":
-    pytest.main(["-v"])
+    pytest.main()

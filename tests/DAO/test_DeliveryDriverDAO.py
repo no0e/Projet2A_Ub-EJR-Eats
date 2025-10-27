@@ -1,7 +1,10 @@
+from typing import List, Optional
+
 import pytest
-from typing import Optional, List
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
+
 from src.Model.DeliveryDriver import DeliveryDriver
+
 
 class MockDBConnectorForDeliveryDriver:
     def __init__(self):
@@ -20,7 +23,7 @@ class MockDBConnectorForDeliveryDriver:
                 "_lastname": "Smith",
                 "_password": "hashed_password2",
                 "salt": "salt456",
-            }
+            },
         }
 
     def sql_query(self, query: str, data: list = None, return_type: str = "one"):
@@ -41,7 +44,7 @@ class MockDBConnectorForDeliveryDriver:
                         "_lastname": user["_lastname"],
                         "_password": user["_password"],
                         "salt": user["salt"],
-                        "is_available": driver["is_available"]
+                        "is_available": driver["is_available"],
                     }
                 return None
             elif "WHERE d.is_available = TRUE" in query:
@@ -49,15 +52,19 @@ class MockDBConnectorForDeliveryDriver:
                 for username, driver in self.delivery_drivers.items():
                     if driver["is_available"]:
                         user = self.users[username]
-                        available_drivers.append({
-                            "username": user["username"],
-                            "_firstname": user["_firstname"],
-                            "_lastname": user["_lastname"],
-                            "_password": user["_password"],
-                            "salt": user["salt"],
-                            "is_available": driver["is_available"]
-                        })
-                return available_drivers if return_type == "all" else available_drivers[0] if available_drivers else None
+                        available_drivers.append(
+                            {
+                                "username": user["username"],
+                                "_firstname": user["_firstname"],
+                                "_lastname": user["_lastname"],
+                                "_password": user["_password"],
+                                "salt": user["salt"],
+                                "is_available": driver["is_available"],
+                            }
+                        )
+                return (
+                    available_drivers if return_type == "all" else available_drivers[0] if available_drivers else None
+                )
 
         elif "UPDATE delivery_driver" in query:
             is_available, username = data
@@ -72,6 +79,7 @@ class MockDBConnectorForDeliveryDriver:
             return None
 
         return None
+
 
 def test_create():
     mock_db = MockDBConnectorForDeliveryDriver()
@@ -89,6 +97,7 @@ def test_create():
 
     result = driver_dao.create(driver)
     assert result is True
+
 
 def test_find_by_username():
     mock_db = MockDBConnectorForDeliveryDriver()
@@ -112,6 +121,7 @@ def test_find_by_username():
     assert found_driver.lastname == "Asm"
     assert found_driver.is_available is True
 
+
 def test_update():
     mock_db = MockDBConnectorForDeliveryDriver()
     driver_dao = DeliveryDriverDAO(mock_db)
@@ -134,6 +144,7 @@ def test_update():
     found_driver = driver_dao.find_by_username("driver1")
     assert found_driver.is_available is False
 
+
 def test_delete():
     mock_db = MockDBConnectorForDeliveryDriver()
     driver_dao = DeliveryDriverDAO(mock_db)
@@ -154,6 +165,7 @@ def test_delete():
 
     found_driver = driver_dao.find_by_username("driver1")
     assert found_driver is None
+
 
 def test_drivers_available():
     mock_db = MockDBConnectorForDeliveryDriver()
@@ -184,6 +196,7 @@ def test_drivers_available():
     assert len(available_drivers) == 1
     assert available_drivers[0].username == "driver1"
     assert available_drivers[0].is_available is True
+
 
 if __name__ == "__main__":
     pytest.main()

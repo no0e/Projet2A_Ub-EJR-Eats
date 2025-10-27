@@ -1,9 +1,12 @@
 import json
+from typing import List, Optional
+
 import pytest
-from typing import Optional, List
+
 from src.DAO.OrderDAO import OrderDAO
-from src.Model.Order import Order
 from src.Model.Item import Item
+from src.Model.Order import Order
+
 
 class MockDBConnectorForOrder:
     def __init__(self):
@@ -59,6 +62,7 @@ class MockDBConnectorForOrder:
 
         return None
 
+
 def test_create_order():
     mock_db = MockDBConnectorForOrder()
     order_dao = OrderDAO(mock_db)
@@ -73,6 +77,7 @@ def test_create_order():
 
     result = order_dao.create(order)
     assert result is True
+
 
 def test_find_order():
     mock_db = MockDBConnectorForOrder()
@@ -95,6 +100,7 @@ def test_find_order():
     assert found_order.address == "123 Main St"
     assert len(found_order.items) == 1
     assert found_order.items[0].id_item == 1
+
 
 def test_update_order():
     mock_db = MockDBConnectorForOrder()
@@ -128,6 +134,7 @@ def test_update_order():
     assert len(found_order.items) == 1
     assert found_order.items[0].id_item == 2
 
+
 def test_delete_order():
     mock_db = MockDBConnectorForOrder()
     order_dao = OrderDAO(mock_db)
@@ -147,6 +154,7 @@ def test_delete_order():
 
     found_order = order_dao.find_order(1)
     assert found_order is None
+
 
 if __name__ == "__main__":
     pytest.main()

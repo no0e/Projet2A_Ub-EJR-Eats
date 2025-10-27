@@ -1,5 +1,6 @@
 from src.Model.User import User
 
+
 class DeliveryDriver(User):
     username: str
     firstname: str

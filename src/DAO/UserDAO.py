@@ -33,7 +33,6 @@ class UserDAO:
         if raw_user is None:
             return None
 
-        # Map database fields to User constructor arguments
         return User(
             username=raw_user["username"],
             firstname=raw_user.get("firstname", ""),
@@ -45,15 +44,10 @@ class UserDAO:
 
     def create_user(self, user: User) -> bool:
         """
-        Insert a new user into the database and return a corresponding User object.
+        Insert a new user into the database .
 
-        :param username: The username for the new user.
-        :param firstname: The user's first name.
-        :param lastname: The user's last name.
-        :param salt: The salt used for password hashing.
-        :param hashed_password: The hashed password.
-        :param account_type: The type of account
-        :return: A User object representing the newly created user.
+        :param user: The User object to insert.
+        :return: True if the insertion succeeded , False otherwise.
         """
         raw_created_user = self.db_connector.sql_query(
             """
@@ -62,22 +56,66 @@ class UserDAO:
             RETURNING *;
             """,
             {
-                "username": username,
-                "firstname": firstname,
-                "lastname": lastname,
-                "salt": salt,
-                "password": hashed_password,
-                "account_type": account_type,
+                "username": user.username,
+                "firstname": user.firstname,
+                "lastname": user.lastname,
+                "salt": user.salt,
+                "password": user.password,
+                "account_type": user.account_type,
             },
             "one",
         )
 
-        # Build and return a User instance from the inserted row
-        return User(
-            username=raw_created_user["username"],
-            firstname=raw_created_user.get("firstname", ""),
-            lastname=raw_created_user.get("lastname", ""),
-            password=raw_created_user.get("password", ""),
-            salt=raw_created_user.get("salt", ""),
-            account_type=raw_created_user.get("account_type", ""),
+        return raw_created_user is not None
+
+    def update_user(self, user: User, new_firstname: str, new_lastname: str, new_password: str) -> bool:
+        """
+        Update an existing user's firstname, lastname, and password in the database.
+
+        :param user: The User object to update .
+        :param new_firstname: New first name.
+        :param new_lastname: New last name.
+        :param new_password: New password (hashed if needed).
+        :return: True if the update succeeded, False otherwise.
+        """
+        updated_rows = self.db_connector.sql_query(
+            """
+            UPDATE users
+            SET 
+                firstname = %(firstname)s,
+                lastname = %(lastname)s,
+                password = %(password)s
+            WHERE username = %(username)s
+            RETURNING *;
+            """,
+            {
+                "username": user.username,
+                "firstname": new_firstname,
+                "lastname": new_lastname,
+                "password": new_password,
+            },
+            "one",
         )
+
+        return updated_rows is not None
+
+    def delete_user(self, user: User) -> bool:
+        """
+        Delete an existing user from the database.
+
+        :param user: The User object to delete.
+        :return: True if the deletion succeeded, False otherwise.
+        """
+        deleted_row = self.db_connector.sql_query(
+            """
+            DELETE FROM users
+            WHERE username = %(username)s
+            RETURNING *;
+            """,
+            {
+                "username": user.username,
+            },
+            "one",
+        )
+
+        return deleted_row is not None

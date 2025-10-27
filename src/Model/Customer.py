@@ -9,5 +9,3 @@ class Customer(User):
     _password: str
     salt: str
     _address: str
-
-   

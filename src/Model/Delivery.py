@@ -1,5 +1,7 @@
-from pydantic import BaseModel
 from typing import List
+
+from pydantic import BaseModel
+
 
 class Delivery(BaseModel):
     id_delivery: int
@@ -7,18 +9,3 @@ class Delivery(BaseModel):
     duration: int
     stops: List[str]
 
-    @property
-    def duration(self) -> int:
-        return self.duration
-
-    @duration.setter
-    def duration(self, value: int):
-        self.duration = value
-
-    @property
-    def stops(self) -> List[str]:
-        return self.stops
-
-    @stops.setter
-    def stops(self, value: List[str]):
-        self.stops = value

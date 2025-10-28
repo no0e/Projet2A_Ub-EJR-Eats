@@ -3,7 +3,7 @@ import hashlib
 import secrets
 from typing import Optional
 
-from src.DAO.UserRepo import UserRepo
+from src.DAO.UserDAO import UserDAO
 from src.Model.User import User
 
 
@@ -38,7 +38,7 @@ def check_password_strength(password: str):
         raise Exception("Password length must be at least 8 characters")
 
 
-def validate_username_password(username: str, password: str, user_repo: UserRepo) -> User:
+def validate_username_password(username: str, password: str, user_repo: UserDAO) -> User:
     user_with_username: Optional[User] = user_repo.get_by_username(username=username)
     if hash_password(password, user_repo.salt) != user_with_username.password:
         return None

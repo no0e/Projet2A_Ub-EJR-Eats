@@ -1,27 +1,69 @@
 from typing import Optional
 
-from src.DAO.UserRepo import UserRepo
+from src.DAO.UserDAO import UserDAO
 from src.Model.User import User
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 
 
 class UserService:
-    def __init__(self, user_repo: UserRepo):
+    def __init__(self, user_repo: UserDAO):
         self.user_repo = user_repo
 
-    def create_user(self, user: User) -> User:
-        """"""
-        if self._username_exists(user.username):
+    def create_user(
+        self, username: str, firstname: str, lastname: str, password: str, salt: str, account_type="Customer"
+    ) -> User:
+        """Function that creates a user from its attributes.
+
+        Parameters
+        ----------
+        username : str
+            user's username
+        firstname : str
+            user's firstname
+        lastname : str
+            user's lastname
+        password : str
+            user's password
+        salt : str
+            user's unique salt
+        account_type : str
+            user's account type, by default "Customer"
+
+        Returns
+        -------
+        bool
+            True if the user has been well created, False otherwise
+        """
+        if self._username_exists(username):
             raise ValueError("Username already taken.")
-        created_user = self.user_repo.insert_into_db(
-            user.username, user.firstname, user.lastname, user.salt, user.password
-        )
-        return User(**created_user)
+        return self.user_repo.create_user(User(username, firstname, lastname, password, salt, account_type))
 
     def get_user(self, user_username: str) -> User | None:
-        """"""
+        """Function that gives a user by the username given.
+
+        Parameters
+        ----------
+        user_username : str
+            user's username to search
+
+        Returns
+        -------
+        User
+            Instance of the user with the assiociated username given.
+        """
         return self.user_repo.get_by_username(user_username)
 
     def _username_exists(self, username: str) -> bool:
-        """ """
+        """Function that checks if a given username is already existing in the database.
+
+        Parameters
+        ----------
+        username : str
+            username to check
+
+        Returns
+        -------
+        bool
+            True if the username is already existing, False otherwise.
+        """
         return self.user_repo.get_by_username(username) is not None

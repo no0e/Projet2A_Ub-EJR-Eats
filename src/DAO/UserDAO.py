@@ -51,16 +51,16 @@ class UserDAO:
         """
         raw_created_user = self.db_connector.sql_query(
             """
-            INSERT INTO users (id, username, firstname, lastname, salt, password, account_type)
-            VALUES (DEFAULT, %(username)s, %(firstname)s, %(lastname)s, %(salt)s, %(password)s, %(account_type)s)
+            INSERT INTO users (id, username, firstname, lastname, password, salt, account_type)
+            VALUES (DEFAULT, %(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
             RETURNING *;
             """,
             {
                 "username": user.username,
                 "firstname": user.firstname,
                 "lastname": user.lastname,
-                "salt": user.salt,
                 "password": user.password,
+                "salt": user.salt,
                 "account_type": user.account_type,
             },
             "one",

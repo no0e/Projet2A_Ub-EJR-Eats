@@ -1,11 +1,11 @@
 from src.Model.Item import Item
 
 
-class ItemService(Item):
+class ItemService:
     def __init__(self):
         self.items = []
 
-    def create_item(self, name, price, category, stock):
+    def create_item(self, name, price, category, stock, exposed=False):
         """Create a new item
 
         Parameters
@@ -46,19 +46,18 @@ class ItemService(Item):
         if any(item.name == new_name for item in self.items):
             raise TypeError("The new name is already attributed.")
         for item in self.items:
-            if old_name not in item["name"]:
-                raise TypeError("The researched item doesn't exist.")
-            else:
+            if item.name == old_name:
                 item.name = new_name
-            return item
+                return item
+        raise TypeError("The item to rename doesn't exist.")
 
     def delete_item(self, name_delete):
         for item in self.items:
             if item.name == name_delete:
                 self.items.remove(item)
-            return self.items
+                return self.items
 
-    def modify_price(self,name, new_price=int):
+    def modify_price(self, name, new_price=int):
         if new_price < 0:
             raise ValueError("The new price is not correct. It can't be neagtive.")
         for item in self.items:
@@ -66,24 +65,32 @@ class ItemService(Item):
                 item.price = new_price
                 return item
 
-    def modify_stock_item(name, new_stock):
+    def modify_stock_item(self, name, new_stock):
         if new_stock < 0:
             raise ValueError("The stock can't be neagtive")
-        for item in Item:
-            if name in item["name"]:
-                item["stock"] = new_stock
-        return Item
+        for item in self.items:
+            if item.name == name:
+                item.stock = new_stock
+                return item
 
-    def modify_category_item(name, new_category):
+    def modify_category_item(self, name, new_category):
         if new_category not in ("starter", "main course", "dessert", "drink"):
             raise TypeError(
                 "The category registered is not registered.\
-                 You must choose between: starter",
-                "main course",
-                "dessert",
-                "drink ",
+                 You must choose between: starter, main course, dessert,drink"
             )
-        for item in Item:
-            if name in item["name"]:
-                item["category"] = new_category
-        return Item
+        for item in self.items:
+            if item.name == name:
+                item.category = new_category
+                return item
+
+    def expose_item(self, name, exposed):
+        if exposed not in ("Yes", "No"):
+            raise TypeError("The answer should be Yes or No")
+        for item in self.items:
+            if item.name == name:
+                if exposed == "Yes":
+                    item.exposed = True
+                else:
+                    item.exposed = False
+                return item

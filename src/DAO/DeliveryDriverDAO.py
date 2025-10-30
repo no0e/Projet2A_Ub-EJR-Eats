@@ -55,9 +55,10 @@ class DeliveryDriverDAO:
         # Create DeliveryDriver object from joined data
         driver = DeliveryDriver(
             username=raw_driver["username"],
-            firstname=raw_driver["_firstname"],
-            lastname=raw_driver["_lastname"],
-            password=raw_driver["_password"],
+            firstname=raw_driver["firstname"],
+            lastname=raw_driver["lastname"],
+            account_type=raw_driver["account_type"],
+            password=raw_driver["password"],
             salt=raw_driver["salt"],
             vehicle="",  # You can adapt this if you keep vehicle info elsewhere or ignore
         )
@@ -126,9 +127,10 @@ class DeliveryDriverDAO:
         for raw_driver in raw_drivers:
             driver = DeliveryDriver(
                 username=raw_driver["username"],
-                firstname=raw_driver["_firstname"],
-                lastname=raw_driver["_lastname"],
-                password=raw_driver["_password"],
+                firstname=raw_driver["firstname"],
+                lastname=raw_driver["lastname"],
+                account_type=raw_driver["account_type"],
+                password=raw_driver["password"],
                 salt=raw_driver["salt"],
                 vehicle="",  # Adjust if needed
             )

@@ -7,7 +7,7 @@ from src.DAO.UserDAO import UserDAO
 from src.Model.User import User
 
 
-def hash_password(password: str, salt: str) -> str:
+def hash_password(password: str, salt: Optional[str] = None) -> str:
     """Function that hash a given password with its salt.
 
     Parameters
@@ -22,7 +22,10 @@ def hash_password(password: str, salt: str) -> str:
     str
         The hashed password with salt in str type.
     """
-    salt = base64.b64decode(salt)
+    if salt is None:
+        salt = base64.b64decode(create_salt())
+    else:
+        salt = base64.b64decode(salt)
     pwd_hash = hashlib.pbkdf2_hmac(
         "sha256",
         password.encode(),
@@ -42,7 +45,7 @@ def create_salt() -> str:
     str
         The salt generated.
     """
-    return secrets.token_hex(32)
+    return secrets.token_hex(128)
 
 
 def check_password_strength(password: str):

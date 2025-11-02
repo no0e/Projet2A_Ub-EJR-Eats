@@ -1,4 +1,3 @@
-import base64
 import hashlib
 import secrets
 from typing import Optional
@@ -20,21 +19,12 @@ def hash_password(password: str, salt: Optional[str] = None) -> str:
     Returns
     -------
     str
-        The hashed password with salt in str type.
+        The hashed password with in str type.
     """
     if salt is None:
-        salt = base64.b64decode(create_salt())
-    else:
-        salt = base64.b64decode(salt)
-    pwd_hash = hashlib.pbkdf2_hmac(
-        "sha256",
-        password.encode(),
-        salt,
-        100_000,
-    )
-    salt_b64 = base64.b64encode(salt).decode("utf-8")
-    hash_b64 = base64.b64encode(pwd_hash).decode("utf-8")
-    return f"{salt_b64}${hash_b64}"
+        salt = ""
+    combined = (salt + password).encode("utf-8")
+    return hashlib.sha256(combined).hexdigest()
 
 
 def create_salt() -> str:
@@ -74,10 +64,12 @@ def validate_username_password(username: str, password: str, user_repo: UserDAO)
 
     Returns
     -------
-    User | None
-        It returns the user if the password is the same, None otherwise.
+    User
+        It returns the user if found and if the password given is the same as the user's.
     """
-    user_with_username: Optional[User] = user_repo.get_by_username(username)
-    if hash_password(password, user_repo.salt) != user_with_username.password:
-        return None
-    return user_with_username
+    user: Optional[User] = user_repo.get_by_username(username=username)
+    if user is None:
+        raise Exception(f"user with username {username} not found")
+    if hash_password(password, user.salt) != user.password:
+        raise Exception("Incorrect password")
+    return user

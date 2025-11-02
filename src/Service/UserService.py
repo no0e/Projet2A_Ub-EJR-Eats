@@ -4,6 +4,7 @@ from src.Service.PasswordService import check_password_strength, create_salt, ha
 
 
 class UserService:
+    """Class with all Service methods of a user."""
     def __init__(self, user_repo: UserDAO):
         self.user_repo = user_repo
 

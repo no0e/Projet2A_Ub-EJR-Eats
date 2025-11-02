@@ -81,7 +81,7 @@ class UserDAO:
         updated_rows = self.db_connector.sql_query(
             """
             UPDATE users
-            SET 
+            SET
                 firstname = %(firstname)s,
                 lastname = %(lastname)s,
                 password = %(password)s

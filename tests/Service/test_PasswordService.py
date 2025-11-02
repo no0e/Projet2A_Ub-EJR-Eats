@@ -28,10 +28,12 @@ class MockUserRepo:
     def get_by_username(self, username: str) -> Optional[User]:
         if username == "janjak":
             return User(
-                id=4,
                 username="janjak",
+                firstname="Jean-Jacques",
+                lastname="John",
                 salt="jambon",
                 password="56d25b0190eb6fcdab76f20550aa3e85a37ee48d520ac70385ae3615deb7d53a",
+                account_type="Customer",
             )
         else:
             return None
@@ -42,7 +44,7 @@ user_repo = MockUserRepo()
 
 def test_validate_username_password_is_ok():
     janjak = validate_username_password("janjak", "soleil1234", user_repo)
-    assert janjak.id == 4
+    assert janjak.username == "janjak"
 
 
 def test_validate_username_password_unknown_user():

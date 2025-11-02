@@ -26,8 +26,8 @@ class UserService:
 
         Returns
         -------
-        bool
-            True if the user has been well created, False otherwise
+        User
+            Returns the user that has been created.
         """
         if self._username_exists(username):
             raise ValueError("Username already taken.")

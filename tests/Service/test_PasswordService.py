@@ -3,7 +3,7 @@ from typing import Optional
 import pytest
 
 from src.Model.User import User
-from src.Service.PasswordService import create_salt, hash_password, validate_username_password
+from src.Service.PasswordService import check_password_strength, create_salt, hash_password, validate_username_password
 
 
 def test_hash_password():
@@ -22,6 +22,12 @@ def test_hash_password_with_salt():
 def test_create_salt():
     salt = create_salt()
     assert len(salt) == 256
+
+
+def test_check_password_strength():
+    with pytest.raises(Exception) as exception_password:
+        check_password_strength("coucou")
+    assert str(exception_password.value) == "Password length must be at least 8 characters"
 
 
 class MockUserRepo:

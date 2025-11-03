@@ -5,6 +5,7 @@ from src.Service.PasswordService import check_password_strength, create_salt, ha
 
 class UserService:
     """Class with all Service methods of a user."""
+
     def __init__(self, user_repo: UserDAO):
         self.user_repo = user_repo
 
@@ -34,7 +35,24 @@ class UserService:
         check_password_strength(password)
         salt = create_salt()
         new_password = hash_password(password, salt)
-        return self.user_repo.create_user(User(username, firstname, lastname, new_password, salt, account_type))
+        self.user_repo.create_user(
+            User(
+                username=username,
+                firstname=firstname,
+                lastname=lastname,
+                password=new_password,
+                salt=salt,
+                account_type=account_type,
+            )
+        )
+        return User(
+            username=username,
+            firstname=firstname,
+            lastname=lastname,
+            password=new_password,
+            salt=salt,
+            account_type=account_type,
+        )
 
     def get_user(self, user_username: str) -> User | None:
         """Function that gives a user by the username given.

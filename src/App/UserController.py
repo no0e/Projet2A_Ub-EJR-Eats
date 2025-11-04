@@ -24,10 +24,7 @@ def create_user(username: str, password: str, firstname: str, lastname: str) -> 
         raise HTTPException(status_code=400, detail="Password too weak")
     try:
         user: User = user_service.create_user(
-            username=username,
-            password=password,
-            firstname=firstname,
-            lastname=lastname
+            username=username, password=password, firstname=firstname, lastname=lastname
         )
     except Exception as error:
         raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
@@ -42,9 +39,11 @@ def login(username: str, password: str) -> JWTResponse:
     try:
         user = validate_username_password(username=username, password=password, user_repo=user_repo)
     except Exception as error:
-        raise HTTPException(status_code=403, detail=f"Invalid username and password combination mais la vraie erreur est : {error}") from error
+        raise HTTPException(
+            status_code=403, detail=f"Invalid username and password combination mais la vraie erreur est : {error}"
+        ) from error
 
-    return jwt_service.encode_jwt(user.id)
+    return jwt_service.encode_jwt(user.username)
 
 
 @user_router.get("/me", dependencies=[Depends(JWTBearer())])

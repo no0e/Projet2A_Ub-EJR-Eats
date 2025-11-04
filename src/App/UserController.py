@@ -48,16 +48,18 @@ def login(username: str, password: str) -> JWTResponse:
 
 @user_router.get("/me", dependencies=[Depends(JWTBearer())])
 def get_user_own_profile(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> APIUser:
-    """
-    Get the authenticated user profile
-    """
     return get_user_from_credentials(credentials)
 
 
 def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIUser:
     token = credentials.credentials
-    user_id = int(jwt_service.validate_user_jwt(token))
-    user: User | None = user_repo.get_by_id(user_id)
+    try:
+        username = jwt_service.validate_user_jwt(token)  # renvoie le username
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=f"Invalid token: {e}") from e
+
+    user = user_repo.get_by_username(username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+
     return APIUser(username=user.username)

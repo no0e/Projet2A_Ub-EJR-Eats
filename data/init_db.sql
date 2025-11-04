@@ -18,7 +18,7 @@ CREATE TABLE users (
 -- administrator
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.administrator CASCADE;
-CREATE TABLE administrator (
+CREATE TABLE administrators (
   username_administrator VARCHAR UNIQUE NOT NULL,
   FOREIGN KEY (username_administrator) REFERENCES user(username)
 );
@@ -27,7 +27,7 @@ CREATE TABLE administrator (
 -- delivery_driver
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.delivery_driver CASCADE;
-CREATE TABLE delivery_driver (
+CREATE TABLE delivery_drivers (
     username_delivery_driver TEXT PRIMARY KEY REFERENCES users(username),
     vehicle TEXT,
     is_available BOOLEAN
@@ -36,7 +36,7 @@ CREATE TABLE delivery_driver (
 -- customer
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.customer CASCADE;
-CREATE TABLE customer (
+CREATE TABLE customers (
   username_customer VARCHAR UNIQUE NOT NULL,
   address VARCHAR,
   FOREIGN KEY (username_customer) REFERENCES user(username)
@@ -46,7 +46,7 @@ CREATE TABLE customer (
 -- delivery
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.delivery CASCADE;
-CREATE TABLE delivery (
+CREATE TABLE deliveries (
   id_delivery INTEGER UNIQUE NOT NULL PRIMARY KEY,
   username_delivery_driver VARCHAR,
   duration INTEGER,
@@ -59,7 +59,7 @@ CREATE TABLE delivery (
 -- item
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.item CASCADE;
-CREATE TABLE item (
+CREATE TABLE items (
   id_item INTEGER UNIQUE NOT NULL PRIMARY KEY,
   name_item VARCHAR,
   price FLOAT,
@@ -72,7 +72,7 @@ CREATE TABLE item (
 -- order_table
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.order_table CASCADE;
-CREATE TABLE order_table (
+CREATE TABLE orders (
   id_order INTEGER UNIQUE NOT NULL PRIMARY KEY,
   username_customer VARCHAR,
   username_delivery_driver VARCHAR,

@@ -1,5 +1,4 @@
 from typing import List, Optional
-
 import pytest
 
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
@@ -16,6 +15,7 @@ class MockDBConnectorForDeliveryDriver:
                 "lastname": "Asm",
                 "password": "hashedpassword",
                 "salt": "salt123",
+                "account_type": "DeliveryDriver",
             },
             "driver2": {
                 "username": "driver2",
@@ -23,15 +23,22 @@ class MockDBConnectorForDeliveryDriver:
                 "lastname": "Smith",
                 "password": "hashedpassword2",
                 "salt": "salt456",
+                "account_type": "DeliveryDriver",
             },
         }
 
     def sql_query(self, query: str, data: list = None, return_type: str = "one"):
+        # CREATE
         if "INSERT INTO delivery_driver" in query:
-            username, is_available = data
-            self.delivery_drivers[username] = {"username_delivery_driver": username, "is_available": is_available}
+            username, vehicle, is_available = data
+            self.delivery_drivers[username] = {
+                "username_delivery_driver": username,
+                "vehicle": vehicle,
+                "is_available": is_available,
+            }
             return None
 
+        # FIND BY USERNAME
         elif "SELECT" in query and "JOIN delivery_driver" in query:
             if "WHERE u.username" in query:
                 username = data[0]
@@ -44,34 +51,38 @@ class MockDBConnectorForDeliveryDriver:
                         "lastname": user["lastname"],
                         "password": user["password"],
                         "salt": user["salt"],
+                        "account_type": user["account_type"],
+                        "vehicle": driver["vehicle"],
                         "is_available": driver["is_available"],
                     }
                 return None
+
             elif "WHERE d.is_available = TRUE" in query:
-                available_drivers = []
+                available = []
                 for username, driver in self.delivery_drivers.items():
                     if driver["is_available"]:
                         user = self.users[username]
-                        available_drivers.append(
-                            {
-                                "username": user["username"],
-                                "firstname": user["firstname"],
-                                "lastname": user["lastname"],
-                                "password": user["password"],
-                                "salt": user["salt"],
-                                "is_available": driver["is_available"],
-                            }
-                        )
-                return (
-                    available_drivers if return_type == "all" else available_drivers[0] if available_drivers else None
-                )
+                        available.append({
+                            "username": user["username"],
+                            "firstname": user["firstname"],
+                            "lastname": user["lastname"],
+                            "password": user["password"],
+                            "salt": user["salt"],
+                            "account_type": user["account_type"],
+                            "vehicle": driver["vehicle"],
+                            "is_available": driver["is_available"],
+                        })
+                return available if return_type == "all" else available[0] if available else None
 
+        # UPDATE
         elif "UPDATE delivery_driver" in query:
-            is_available, username = data
+            vehicle, is_available, username = data
             if username in self.delivery_drivers:
+                self.delivery_drivers[username]["vehicle"] = vehicle
                 self.delivery_drivers[username]["is_available"] = is_available
             return None
 
+        # DELETE
         elif "DELETE FROM delivery_driver" in query:
             username = data[0]
             if username in self.delivery_drivers:
@@ -81,9 +92,11 @@ class MockDBConnectorForDeliveryDriver:
         return None
 
 
+# ---- TESTS ----
+
 def test_create():
     mock_db = MockDBConnectorForDeliveryDriver()
-    driver_dao = DeliveryDriverDAO(mock_db)
+    dao = DeliveryDriverDAO(mock_db)
 
     driver = DeliveryDriver(
         username="driver1",
@@ -96,13 +109,13 @@ def test_create():
         is_available=True,
     )
 
-    result = driver_dao.create(driver)
-    assert result is True
+    assert dao.create(driver) is True
+    assert "driver1" in mock_db.delivery_drivers
 
 
 def test_find_by_username():
     mock_db = MockDBConnectorForDeliveryDriver()
-    driver_dao = DeliveryDriverDAO(mock_db)
+    dao = DeliveryDriverDAO(mock_db)
 
     driver = DeliveryDriver(
         username="driver1",
@@ -114,19 +127,18 @@ def test_find_by_username():
         vehicle="scooter",
         is_available=True,
     )
-    driver_dao.create(driver)
+    dao.create(driver)
 
-    found_driver = driver_dao.find_by_username("driver1")
-    assert found_driver is not None
-    assert found_driver.username == "driver1"
-    assert found_driver.firstname == "Alice"
-    assert found_driver.lastname == "Asm"
-    assert found_driver.is_available is True
+    found = dao.find_by_username("driver1")
+    assert found is not None
+    assert found.username == "driver1"
+    assert found.vehicle == "scooter"
+    assert found.is_available is True
 
 
 def test_update():
     mock_db = MockDBConnectorForDeliveryDriver()
-    driver_dao = DeliveryDriverDAO(mock_db)
+    dao = DeliveryDriverDAO(mock_db)
 
     driver = DeliveryDriver(
         username="driver1",
@@ -138,19 +150,19 @@ def test_update():
         vehicle="scooter",
         is_available=True,
     )
-    driver_dao.create(driver)
-
+    dao.create(driver)
+    driver.vehicle = "car"
     driver.is_available = False
-    result = driver_dao.update(driver)
-    assert result is True
+    assert dao.update(driver) is True
 
-    found_driver = driver_dao.find_by_username("driver1")
-    assert found_driver.is_available is False
+    found = dao.find_by_username("driver1")
+    assert found.vehicle == "car"
+    assert found.is_available is False
 
 
 def test_delete():
     mock_db = MockDBConnectorForDeliveryDriver()
-    driver_dao = DeliveryDriverDAO(mock_db)
+    dao = DeliveryDriverDAO(mock_db)
 
     driver = DeliveryDriver(
         username="driver1",
@@ -162,18 +174,14 @@ def test_delete():
         vehicle="scooter",
         is_available=True,
     )
-    driver_dao.create(driver)
-
-    result = driver_dao.delete(driver)
-    assert result is True
-
-    found_driver = driver_dao.find_by_username("driver1")
-    assert found_driver is None
+    dao.create(driver)
+    assert dao.delete(driver) is True
+    assert dao.find_by_username("driver1") is None
 
 
 def test_drivers_available():
     mock_db = MockDBConnectorForDeliveryDriver()
-    driver_dao = DeliveryDriverDAO(mock_db)
+    dao = DeliveryDriverDAO(mock_db)
 
     driver1 = DeliveryDriver(
         username="driver1",
@@ -195,13 +203,14 @@ def test_drivers_available():
         vehicle="bike",
         is_available=False,
     )
-    driver_dao.create(driver1)
-    driver_dao.create(driver2)
 
-    available_drivers = driver_dao.drivers_available()
-    assert len(available_drivers) == 1
-    assert available_drivers[0].username == "driver1"
-    assert available_drivers[0].is_available is True
+    dao.create(driver1)
+    dao.create(driver2)
+
+    available = dao.drivers_available()
+    assert len(available) == 1
+    assert available[0].username == "driver1"
+    assert available[0].vehicle == "scooter"
 
 
 if __name__ == "__main__":

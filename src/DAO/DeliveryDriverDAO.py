@@ -1,84 +1,54 @@
-from typing import List, Optional
-
 from src.Model.DeliveryDriver import DeliveryDriver
+from src.DAO.UserDAO import UserDAO
 
-from .DBConnector import DBConnector
 
-
-class DeliveryDriverDAO:
-    """
-    DAO for DeliveryDriver with minimal delivery_driver table:
-    - username_delivery_driver (foreign key to user.username)
-    - is_available (bool)
-    """
-
-    def __init__(self, db_connector: DBConnector):
+class DeliveryDriverDAO(UserDAO):
+    def __init__(self, db_connector):
+        super().__init__(db_connector)
         self.db_connector = db_connector
 
     def create(self, driver: DeliveryDriver) -> bool:
-        """
-        Create a new entry in delivery_driver table for an existing user.
-        """
         try:
             self.db_connector.sql_query(
                 """
-                INSERT INTO delivery_driver (username_delivery_driver, is_available)
-                VALUES (%s, %s);
+                INSERT INTO delivery_driver (username_delivery_driver, vehicle, is_available)
+                VALUES (?, ?, ?)
                 """,
-                [driver.username, driver.is_available],
-                "none",
+                [driver.username, driver.vehicle, driver.is_available],
             )
             return True
         except Exception as e:
             print(f"[DeliveryDriverDAO] Error creating delivery driver: {e}")
             return False
 
-    def find_by_username(self, username: str) -> Optional[DeliveryDriver]:
-        """
-        Find delivery driver by username joining user and delivery_driver tables.
-        """
-        raw_driver = self.db_connector.sql_query(
-            """
-            SELECT u.username, u.firstname, u.lastname, 'DeliveryDriver' as account_type,
-                    u.password, u.salt,
-                   d.is_available
-            FROM user u
-            JOIN delivery_driver d ON u.username = d.username_delivery_driver
-            WHERE u.username = %s;
-            """,
-            [username],
-            "one",
-        )
-        if raw_driver is None:
+    def find_by_username(self, username: str):
+        try:
+            raw = self.db_connector.sql_query(
+                """
+                SELECT u.username, u.firstname, u.lastname, u.password, u.salt, 
+                       u.account_type, d.vehicle, d.is_available
+                FROM users u
+                JOIN delivery_driver d ON u.username = d.username_delivery_driver
+                WHERE u.username = ?
+                """,
+                [username],
+            )
+            if not raw:
+                return None
+            return DeliveryDriver(**raw)
+        except Exception as e:
+            print(f"[DeliveryDriverDAO] Error finding delivery driver: {e}")
             return None
 
-        # Create DeliveryDriver object from joined data
-        driver = DeliveryDriver(
-            username=raw_driver["username"],
-            firstname=raw_driver["firstname"],
-            lastname=raw_driver["lastname"],
-            account_type=raw_driver["account_type"],
-            password=raw_driver["password"],
-            salt=raw_driver["salt"],
-            vehicle="",  # You can adapt this if you keep vehicle info elsewhere or ignore
-        )
-        driver.is_available = raw_driver["is_available"]
-        return driver
-
     def update(self, driver: DeliveryDriver) -> bool:
-        """
-        Update is_available status in delivery_driver table.
-        User info updates are assumed to be handled elsewhere.
-        """
         try:
             self.db_connector.sql_query(
                 """
                 UPDATE delivery_driver
-                SET is_available = %s
-                WHERE username_delivery_driver = %s;
+                SET vehicle = ?, is_available = ?
+                WHERE username_delivery_driver = ?
                 """,
-                [driver.is_available, driver.username],
-                "none",
+                [driver.vehicle, driver.is_available, driver.username],
             )
             return True
         except Exception as e:
@@ -86,54 +56,32 @@ class DeliveryDriverDAO:
             return False
 
     def delete(self, driver: DeliveryDriver) -> bool:
-        """
-        Delete delivery driver record from delivery_driver table.
-        Does not delete user.
-        """
         try:
             self.db_connector.sql_query(
                 """
                 DELETE FROM delivery_driver
-                WHERE username_delivery_driver = %s;
+                WHERE username_delivery_driver = ?
                 """,
                 [driver.username],
-                "none",
             )
             return True
         except Exception as e:
             print(f"[DeliveryDriverDAO] Error deleting delivery driver: {e}")
             return False
 
-    def drivers_available(self) -> List[DeliveryDriver]:
-        """
-        Return all delivery drivers currently marked as available.
-        """
-        raw_drivers = self.db_connector.sql_query(
-            """
-            SELECT u.username, u.firstname, u.lastname, u.password, u.salt,
-                   'DeliveryDriver' as account_type,
-                   d.is_available
-            FROM user u
-            JOIN delivery_driver d ON u.username = d.username_delivery_driver
-            WHERE d.is_available = TRUE;
-            """,
-            [],
-            "all",
-        )
-        if not raw_drivers:
-            return []
-
-        drivers = []
-        for raw_driver in raw_drivers:
-            driver = DeliveryDriver(
-                username=raw_driver["username"],
-                firstname=raw_driver["firstname"],
-                lastname=raw_driver["lastname"],
-                account_type=raw_driver["account_type"],
-                password=raw_driver["password"],
-                salt=raw_driver["salt"],
-                vehicle="",  # Adjust if needed
+    def drivers_available(self):
+        try:
+            rows = self.db_connector.sql_query(
+                """
+                SELECT u.username, u.firstname, u.lastname, u.password, u.salt, 
+                       u.account_type, d.vehicle, d.is_available
+                FROM users u
+                JOIN delivery_driver d ON u.username = d.username_delivery_driver
+                WHERE d.is_available = TRUE
+                """,
+                return_type="all",
             )
-            driver.is_available = raw_driver["is_available"]
-            drivers.append(driver)
-        return drivers
+            return [DeliveryDriver(**r) for r in rows] if rows else []
+        except Exception as e:
+            print(f"[DeliveryDriverDAO] Error listing available drivers: {e}")
+            return []

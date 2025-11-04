@@ -29,24 +29,27 @@ class ItemDAO:
         :return: True if insertion succeeded, False otherwise.
         """
         try:
-            self.db_connector.sql_query(
-                """
-                INSERT INTO items (id_item, name_item, price, category, stock, exposed)
-                VALUES (DEFAULT, %(name)s, %(price)s, %(category)s, %(stock)s, %(exposed)s);
-                """,
-                {
-                    "name_item": item.name_item,
-                    "price": item.price,
-                    "category": item.category,
-                    "stock": item.stock,
-                    "exposed": item.exposed,
-                },
-                "none",
-            )
-            return True
+            raw_item = self.db_connector.sql_query(
+            """
+            INSERT INTO items (name_item, price, category, stock, exposed)
+            VALUES (%(name_item)s, %(price)s, %(category)s, %(stock)s, %(exposed)s)
+            RETURNING id_item;
+            """,
+            {
+                "name_item": item.name_item,
+                "price": item.price,
+                "category": item.category,
+                "stock": item.stock,
+                "exposed": item.exposed,
+            },
+            "one",
+        )
+            item.id_item = raw_item["id_item"]
+            return item
         except Exception as e:
             print(f"[ItemDAO] Error creating item: {e}")
-            return False
+            raise e  # ou print(e)
+
 
     def find_item(self, id_item: int) -> Optional[Item]:
         """
@@ -86,6 +89,26 @@ class ItemDAO:
             )
             for row in raw_items
         ]
+
+    def find_all_item(self) -> List[Item]:
+        """
+        Retrieve all items marked as exposed (available for customers).
+
+        :return: A list of Item objects that are exposed.
+        """
+        raw_items = self.db_connector.sql_query("SELECT * FROM items ", [], "all")
+
+        return [
+            Item(
+                id_item=row["id_item"],
+                name_item=row["name_item"],
+                price=row["price"],
+                category=row["category"],
+                stock=row["stock"],
+            )
+            for row in raw_items
+        ]
+
 
     def update(self, item: Item) -> bool:
         """

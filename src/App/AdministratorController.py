@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
 from src.Model.Administrator import Administrator
 from src.Service.ItemService import ItemService
-from src.Model.Item import Item
+from src.Model.Item import Item, ItemCreate
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
@@ -28,27 +28,15 @@ def View_Storage():
 item_service = ItemService()
 
 @administrator_router.post("/Storage/Create_Item", status_code=status.HTTP_201_CREATED)
-def Create_Item(item: Item):
+def Create_Item(item: ItemCreate, name_item: str, price : float, category : str, stock : int):
     try:
-        # Appel du service métier pour créer un nouvel item
-        new_item = item_service.create_item(
-            name=item.name,
-            price=item.price,
-            category=item.category,
-            stock=item.stock,
-            exposed=item.exposed,
-        )
-
-        # FastAPI sait convertir les objets Pydantic en JSON automatiquement
-        return {
-            "message": "Item created successfully ✅",
-            "item": new_item,
-        }
-
+        new_item = item_service.create_item(name_item, price, category, stock)
+        return {"message": "Item created successfully ✅", "item": new_item}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
-        # Si une erreur de validation survient
         raise HTTPException(status_code=400, detail=str(e))
 
-@administrator_router.patch("Storage/Replemish_Item", status_code=status.HTTP_200_OK)
+@administrator_router.patch("/Storage/Replemish_Item", status_code=status.HTTP_200_OK)
 def Replemish_Item():
     pass

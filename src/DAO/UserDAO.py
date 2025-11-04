@@ -23,7 +23,7 @@ class UserDAO:
 
     def get_by_username(self, username: str) -> Optional[User]:
         raw_user = self.db_connector.sql_query(
-            "SELECT * FROM user WHERE username=%s", [username], "one"
+            "SELECT * FROM users WHERE username=%s", [username], "one"
         )
         if raw_user is None:
             return None

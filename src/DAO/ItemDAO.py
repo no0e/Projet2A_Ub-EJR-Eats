@@ -31,11 +31,11 @@ class ItemDAO:
         try:
             self.db_connector.sql_query(
                 """
-                INSERT INTO items (id_item, name, price, category, stock, exposed)
+                INSERT INTO items (id_item, name_item, price, category, stock, exposed)
                 VALUES (DEFAULT, %(name)s, %(price)s, %(category)s, %(stock)s, %(exposed)s);
                 """,
                 {
-                    "name": item.name,
+                    "name_item": item.name_item,
                     "price": item.price,
                     "category": item.category,
                     "stock": item.stock,
@@ -62,7 +62,7 @@ class ItemDAO:
 
         return Item(
             id_item=raw_item["id_item"],
-            name=raw_item["name"],
+            name_item=raw_item["name_item"],
             price=raw_item["price"],
             category=raw_item["category"],
             stock=raw_item["stock"],
@@ -79,7 +79,7 @@ class ItemDAO:
         return [
             Item(
                 id_item=row["id_item"],
-                name=row["name"],
+                name_item=row["name_item"],
                 price=row["price"],
                 category=row["category"],
                 stock=row["stock"],
@@ -98,7 +98,7 @@ class ItemDAO:
             self.db_connector.sql_query(
                 """
                 UPDATE items
-                SET name = %(name)s,
+                SET name_item = %(name_item)s,
                     price = %(price)s,
                     category = %(category)s,
                     stock = %(stock)s,
@@ -107,7 +107,7 @@ class ItemDAO:
                 """,
                 {
                     "id_item": item.id_item,
-                    "name": item.name,
+                    "name_item": item.name_item,
                     "price": item.price,
                     "category": item.category,
                     "stock": item.stock,

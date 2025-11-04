@@ -24,7 +24,7 @@ class MockDBConnectorForItem:
                 "exposed": data["exposed"],
             }
             self.items[item_id] = item_data
-            return None
+            return {"id_item": item_id} 
 
         elif "SELECT * FROM items WHERE id_item =" in query:
             item_id = data[0]
@@ -73,8 +73,12 @@ def test_create_item():
     )
 
     result = item_dao.create_item(item)
-    assert result is True
-
+    assert result.id_item is not None
+    assert result.name_item == "Galette Saucisse"
+    assert result.price == 3.99
+    assert result.category == "Main dish"
+    assert result.stock == 50
+    assert result.exposed is True
 
 def test_find_item():
     mock_db = MockDBConnectorForItem()

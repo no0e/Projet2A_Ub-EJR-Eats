@@ -40,3 +40,4 @@ class DeliveryDriverService:
         )
         self.driver_repo.create(DeliveryDriver(username=username, vehicle=vehicle, is_available=False))
         return DeliveryDriver(username=username, vehicle=vehicle, is_available=False)
+

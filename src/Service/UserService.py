@@ -1,5 +1,6 @@
 from src.DAO.UserDAO import UserDAO
 from src.Model.User import User
+from src.Model.DeliveryDriver import DeliveryDriver
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 
 
@@ -83,3 +84,16 @@ class UserService:
             True if the username is already existing, False otherwise.
         """
         return self.user_repo.get_by_username(username) is not None
+
+
+     def drivers_available(self) -> list(DeliveryDriver):
+        """Function that give all the delivery drivers that are available.
+
+        Parameters
+        ----------
+
+        Returns
+        -------
+        bool
+            True if the username is already existing, False otherwise.
+        """

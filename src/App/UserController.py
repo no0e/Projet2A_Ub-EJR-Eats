@@ -30,7 +30,7 @@ def create_user(username: str, password: str, firstname: str, lastname: str) -> 
             lastname=lastname
         )
     except Exception as error:
-        raise HTTPException(status_code=409, detail=f"Username already exists mias la vraie erreur est : {error}")
+        raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
     return APIUser(username=user.username)
 
 
@@ -42,7 +42,7 @@ def login(username: str, password: str) -> JWTResponse:
     try:
         user = validate_username_password(username=username, password=password, user_repo=user_repo)
     except Exception as error:
-        raise HTTPException(status_code=403, detail="Invalid username and password combination") from error
+        raise HTTPException(status_code=403, detail=f"Invalid username and password combination mais la vraie erreur est : {error}") from error
 
     return jwt_service.encode_jwt(user.id)
 

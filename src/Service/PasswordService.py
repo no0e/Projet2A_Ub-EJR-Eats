@@ -70,6 +70,8 @@ def validate_username_password(username: str, password: str, user_repo: UserDAO)
     user: Optional[User] = user_repo.get_by_username(username=username)
     if user is None:
         raise Exception(f"user with username {username} not found")
-    if hash_password(password, user.salt) != user.password:
+    hashed_input = hash_password(password, user.salt)
+    if hashed_input != user.password:
         raise Exception("Incorrect password")
+
     return user

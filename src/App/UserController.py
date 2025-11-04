@@ -30,7 +30,7 @@ def create_user(username: str, password: str, firstname: str, lastname: str) -> 
             lastname=lastname
         )
     except Exception as error:
-        raise HTTPException(status_code=409, detail="Username already exists")
+        raise HTTPException(status_code=409, detail=f"Username already exists mias la vraie erreur est : {error}")
     return APIUser(username=user.username)
 
 

@@ -30,7 +30,7 @@ class UserService:
         User
             Returns the user that has been created.
         """
-        if self._username_exists(username):
+        if self.username_exists(username):
             raise ValueError("Username already taken.")
         check_password_strength(password)
         salt = create_salt()

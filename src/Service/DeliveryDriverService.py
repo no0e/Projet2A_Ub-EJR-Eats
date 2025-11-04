@@ -1,52 +1,28 @@
-from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
-from src.DAO.UserDAO import UserDAO
-from src.Model.DeliveryDriver import DeliveryDriver
-from src.Model.User import User
-from src.Service.UserService import UserService
+from typing import List
+
+from src.DAO.DeliveryDAO import DeliveryDAO
+from src.Model.Delivery import Delivery
+from src.Service.GoogleMapService import GoogleMap
 
 
 class DeliveryDriverService:
-    """Class with all Service methods of a delivery driver."""
+    def __init__(self, delivery_repo: DeliveryDAO, google_service: GoogleMap):
+        self.delivery_repo = delivery_repo
+        self.google_service = google_service
 
-    def __init__(self, driver_repo: DeliveryDriverDAO, user_repo: UserDAO):
-        self.driver_repo = driver_repo
-        self.user_repo = user_repo
+    def get_available_deliveries(self) -> List[Delivery]:
+        return self.delivery_repo.get_available_deliveries()
 
-    def create_deliverydriver(
-        self, username: str, firstname: str, lastname: str, password: str, vehicle: str
-    ) -> DeliveryDriver:
-        """Function that creates a delivery driver from its attributes.
+    def accept_delivery(self, delivery_id: int, driver_username: str) -> dict:
+        deliveries = self.delivery_repo.get_available_deliveries()
+        delivery = next((d for d in deliveries if d.id_delivery == delivery_id), None)
+        if not delivery:
+            raise ValueError("Delivery not available or already accepted")
 
-        Parameters
-        ----------
-        username : str
-            driver's username
-        firstname : str
-            driver's firstname
-        lastname : str
-            driver's lastname
-        password : str
-            driver's password
-        vehicle : str
-            type of vehicle the delivery driver is using
+        success = self.delivery_repo.accept_delivery(delivery_id, driver_username)
+        if not success:
+            raise ValueError("Delivery could not be accepted")
 
-        Returns
-        -------
-        DeliveryDriver
-            Returns the delivery driver that has been created.
-        """
-        self.user_repo.create_user(
-            username=username, firstname=firstname, lastname=lastname, password=password, account_type="DeliveryDriver"
-        )
-        self.driver_repo.create(DeliveryDriver(username=username, vehicle=vehicle, is_available=False))
-        return DeliveryDriver(username=username, vehicle=vehicle, is_available=False)
-
-    def update_vehicle(self, vehicle: str):
-        """Function that set the vehicle given in argument as the new vehicle of the driver.
-
-        Parameters
-        ----------
-        vehicle : str
-            type of vehicle the delivery driver wants to set
-        """
-        self.vehicle = vehicle
+        destination = delivery.stops[-1] if delivery.stops else {"lat": 0, "lng": 0}
+        link = self.google_service.generate_google_maps_link(destination)
+        return {"delivery_id": delivery_id, "google_maps_link": link}

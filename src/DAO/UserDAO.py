@@ -1,5 +1,8 @@
-from typing import Optional
+from typing import Optional, Union
 
+from src.Model.Administrator import Administrator
+from src.Model.Customer import Customer
+from src.Model.DeliveryDriver import DeliveryDriver
 from src.Model.User import User
 
 from .DBConnector import DBConnector
@@ -22,9 +25,7 @@ class UserDAO:
         self.db_connector = db_connector
 
     def get_by_username(self, username: str) -> Optional[User]:
-        raw_user = self.db_connector.sql_query(
-            "SELECT * FROM users WHERE username=%s", [username], "one"
-        )
+        raw_user = self.db_connector.sql_query("SELECT * FROM users WHERE username=%s", [username], "one")
         if raw_user is None:
             return None
 
@@ -32,29 +33,11 @@ class UserDAO:
             username=raw_user["username"],
             firstname=raw_user.get("firstname", ""),
             lastname=raw_user.get("lastname", ""),
-            password=raw_user.get("account_password", ""),
+            password=raw_user.get("password", ""),
             salt=raw_user.get("salt", ""),
             account_type=raw_user.get("account_type", ""),
         )
 
-    def create_user(self, user: User) -> bool:
-        raw_created_user = self.db_connector.sql_query(
-            """
-            INSERT INTO users (username, firstname, lastname, password, salt, account_type)
-            VALUES (%(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
-            RETURNING *;
-            """,
-            {
-                "username": user.username,
-                "firstname": user.firstname,
-                "lastname": user.lastname,
-                "password": user.password,
-                "salt": user.salt,
-                "account_type": user.account_type,
-            },
-            "one",
-        )
-        return raw_created_user is not None
 
     def update_user(self, user: User, new_firstname: str, new_lastname: str, new_password: str) -> bool:
         """

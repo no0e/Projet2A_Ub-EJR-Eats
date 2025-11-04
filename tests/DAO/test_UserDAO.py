@@ -111,6 +111,5 @@ def test_get_by_username():
     missing_user = dao.get_by_username("unknown")
     assert missing_user is None
 
-
 if __name__ == "__main__":
     pytest.main()

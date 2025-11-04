@@ -71,23 +71,6 @@ class UserService:
         """
         return self.user_repo.get_by_username(user_username)
 
-    def get_by_account_type(self, account_type: str) -> User | None:
-        """Function that gives a user by the username given.
-
-        Parameters
-        ----------
-        account_type : str
-            account type of users to search
-
-        Returns
-        -------
-        List of User
-            Instance of the user with the assiociated account_type given.
-        """
-        if account_type not in ["Administrator", "Customer", "DeliveryDriver"]:
-            raise ValueError(f"The type {account_type} does not exists.")
-        return self.user_repo.get_by_account_type(account_type)  
-
     def username_exists(self, username: str) -> bool:
         """Function that checks if a given username is already existing in the database.
 

@@ -40,3 +40,13 @@ class DeliveryDriverService:
         )
         self.driver_repo.create(DeliveryDriver(username=username, vehicle=vehicle, is_available=False))
         return DeliveryDriver(username=username, vehicle=vehicle, is_available=False)
+
+    def update_vehicle(self, vehicle: str):
+        """Function that set the vehicle given in argument as the new vehicle of the driver.
+
+        Parameters
+        ----------
+        vehicle : str
+            type of vehicle the delivery driver wants to set
+        """
+        self.vehicle = vehicle

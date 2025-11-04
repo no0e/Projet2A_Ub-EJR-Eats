@@ -12,8 +12,8 @@ class MockDBConnectorForOrder:
     def __init__(self):
         self.orders = {}
         self.items = {
-            1: {"id_item": 1, "name": "Item 1", "price": 10.0, "category": "dessert", "stock": 1, "exposed": False},
-            2: {"id_item": 2, "name": "Item 2", "price": 20.0, "category": "starter", "stock": 13, "exposed": True},
+            1: {"id_item": 1, "name_item": "Item 1", "price": 10.0, "category": "dessert", "stock": 1, "exposed": False},
+            2: {"id_item": 2, "name_item": "Item 2", "price": 20.0, "category": "starter", "stock": 13, "exposed": True},
         }
 
     def sql_query(self, query: str, data: dict = None, return_type: str = "one"):
@@ -67,7 +67,7 @@ def test_create_order():
     mock_db = MockDBConnectorForOrder()
     order_dao = OrderDAO(mock_db)
 
-    items = [Item(id_item=1, name="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
+    items = [Item(id_item=1, name_item="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
     order = Order(
         username_customer="alice",
         username_delivery_driver="bob",
@@ -83,7 +83,7 @@ def test_find_order():
     mock_db = MockDBConnectorForOrder()
     order_dao = OrderDAO(mock_db)
 
-    items = [Item(id_item=1, name="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
+    items = [Item(id_item=1, name_item="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
     order = Order(
         username_customer="alice",
         username_delivery_driver="bob",
@@ -106,7 +106,7 @@ def test_update_order():
     mock_db = MockDBConnectorForOrder()
     order_dao = OrderDAO(mock_db)
 
-    items = [Item(id_item=1, name="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
+    items = [Item(id_item=1, name_item="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
     order = Order(
         username_customer="alice",
         username_delivery_driver="bob",
@@ -115,7 +115,7 @@ def test_update_order():
     )
     order_dao.create(order)
 
-    updated_items = [Item(id_item=2, name="Item 2", price=20.0, category="starter", stock=13, exposed=True)]
+    updated_items = [Item(id_item=2, name_item="Item 2", price=20.0, category="starter", stock=13, exposed=True)]
     updated_order = Order(
         id_order=1,
         username_customer="alice_updated",
@@ -139,7 +139,7 @@ def test_delete_order():
     mock_db = MockDBConnectorForOrder()
     order_dao = OrderDAO(mock_db)
 
-    items = [Item(id_item=1, name="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
+    items = [Item(id_item=1, name_item="Item 1", price=10.0, category="dessert", stock=1, exposed=False)]
     order = Order(
         username_customer="alice",
         username_delivery_driver="bob",

@@ -17,7 +17,7 @@ class MockDBConnectorForItem:
             self.next_id += 1
             item_data = {
                 "id_item": item_id,
-                "name": data["name"],
+                "name_item": data["name_item"],
                 "price": data["price"],
                 "category": data["category"],
                 "stock": data["stock"],
@@ -41,7 +41,7 @@ class MockDBConnectorForItem:
             if item_id in self.items:
                 self.items[item_id].update(
                     {
-                        "name": data["name"],
+                        "name_item": data["name_item"],
                         "price": data["price"],
                         "category": data["category"],
                         "stock": data["stock"],
@@ -65,7 +65,7 @@ def test_create_item():
 
     item = Item(
         id_item=None,
-        name="Galette Saucisse",
+        name_item="Galette Saucisse",
         price=3.99,
         category="Main dish",
         stock=50,
@@ -82,7 +82,7 @@ def test_find_item():
 
     item = Item(
         id_item=None,
-        name="Galette Saucisse",
+        name_item="Galette Saucisse",
         price=3.99,
         category="Main dish",
         stock=50,
@@ -93,7 +93,7 @@ def test_find_item():
     found_item = item_dao.find_item(1)
     assert found_item is not None
     assert found_item.id_item == 1
-    assert found_item.name == "Galette Saucisse"
+    assert found_item.name_item == "Galette Saucisse"
     assert found_item.price == 3.99
     assert found_item.category == "Main dish"
     assert found_item.stock == 50
@@ -105,7 +105,7 @@ def test_find_all_exposed_item():
 
     item1 = Item(
         id_item=None,
-        name="Galette Saucisse",
+        name_item="Galette Saucisse",
         price=3.99,
         category="Main dish",
         stock=50,
@@ -113,7 +113,7 @@ def test_find_all_exposed_item():
     )
     item2 = Item(
         id_item=None,
-        name="Banh-Mi",
+        name_item="Banh-Mi",
         price=12.99,
         category="Main dish",
         stock=30,
@@ -124,7 +124,7 @@ def test_find_all_exposed_item():
 
     exposed_items = item_dao.find_all_exposed_item()
     assert len(exposed_items) == 1
-    assert exposed_items[0].name == "Galette Saucisse"
+    assert exposed_items[0].name_item == "Galette Saucisse"
 
 
 def test_update():
@@ -133,7 +133,7 @@ def test_update():
 
     item = Item(
         id_item=None,
-        name="Galette Saucisse",
+        name_item="Galette Saucisse",
         price=3.99,
         category="Main dish",
         stock=50,
@@ -143,7 +143,7 @@ def test_update():
 
     updated_item = Item(
         id_item=1,
-        name="Banh-Mi",
+        name_item="Banh-Mi",
         price=11.99,
         category="Main dish",
         stock=45,
@@ -154,7 +154,7 @@ def test_update():
     assert result is True
 
     found_item = item_dao.find_item(1)
-    assert found_item.name == "Banh-Mi"
+    assert found_item.name_item == "Banh-Mi"
     assert found_item.price == 11.99
     assert found_item.stock == 45
 
@@ -165,7 +165,7 @@ def test_delete():
 
     item = Item(
         id_item=None,
-        name="Galette Saucisse",
+        name_item="Galette Saucisse",
         price=3.99,
         category="Main dish",
         stock=50,
@@ -173,7 +173,7 @@ def test_delete():
     )
     item_dao.create_item(item)
 
-    item_to_delete = Item(id_item=1, name="", price=0, category="", stock=0, exposed=False)
+    item_to_delete = Item(id_item=1, name_item="", price=0, category="", stock=0, exposed=False)
     result = item_dao.delete(item_to_delete)
     assert result is True
 

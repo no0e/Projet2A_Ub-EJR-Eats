@@ -57,5 +57,5 @@ def test_get_user():
 
 
 def test_username_exists():
-    assert UserService(user_repo)._username_exists("janjak") is True
-    assert UserService(user_repo)._username_exists("janjok") is False
+    assert UserService(user_repo).username_exists("janjak") is True
+    assert UserService(user_repo).username_exists("janjok") is False

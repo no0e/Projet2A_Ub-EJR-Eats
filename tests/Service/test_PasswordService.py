@@ -63,3 +63,11 @@ def test_validate_username_password_incorrect_password():
     with pytest.raises(Exception) as exception_info:
         validate_username_password("janjak", "wrongpassword", user_repo)
     assert str(exception_info.value) == "Incorrect password"
+    assert validate_username_password("janjak", "soleil1234", user_repo) == User(
+        username="janjak",
+        firstname="Jean-Jacques",
+        lastname="John",
+        salt="jambon",
+        password="56d25b0190eb6fcdab76f20550aa3e85a37ee48d520ac70385ae3615deb7d53a",
+        account_type="Customer",
+    )

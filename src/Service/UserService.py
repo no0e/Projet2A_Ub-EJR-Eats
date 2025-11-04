@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.DAO.UserDAO import UserDAO
 from src.Model.User import User
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
@@ -83,3 +85,42 @@ class UserService:
             True if the username is already existing, False otherwise.
         """
         return self.user_repo.get_by_username(username) is not None
+
+    def delete_user(self, username: str):
+        """Function that delete a user from our data given their username.
+
+        Parameters
+        ----------
+        username : str
+            username of the user we want to delete.
+        """
+        self.user_repo.delete_user(self.get_user(username))
+
+    def update_user(self, username: str, firstname: Optional[str], lastname: Optional[str], password: Optional[str]):
+        """Function that update the user's attributes.
+
+        Parameters
+        ----------
+        username : str
+            user's username
+        firstname : str | None
+            user's firstname
+        lastname : str | None
+            user's lastname
+        password : str | None
+            user's password
+
+        Returns
+        -------
+        User
+            Returns the user with updated information.
+        """
+        if firstname is not None:
+            self.user_repo.get_user(username).firstname = firstname
+        if lastname is not None:
+            self.user_repo.get_user(username).lastname = lastname
+        if password is not None:
+            check_password_strength(password)
+            salt = create_salt()
+            self.user_repo.get_user(username).password = hash_password(password, salt)
+        return self.user_repo.get_user(username)

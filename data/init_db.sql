@@ -6,12 +6,12 @@ CREATE SCHEMA project_database;
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.user CASCADE;
 CREATE TABLE users (
-    username TEXT PRIMARY KEY,
-    firstname TEXT,
-    lastname TEXT,
-    password TEXT,
-    salt TEXT,
-    account_type TEXT
+    username VARCHAR PRIMARY KEY,
+    firstname VARCHAR,
+    lastname VARCHAR,
+    password VARCHAR,
+    salt VARCHAR,
+    account_type VARCHAR
 );
 
 --------------------------------------------------------------

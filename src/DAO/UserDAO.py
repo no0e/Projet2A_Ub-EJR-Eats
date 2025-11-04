@@ -22,14 +22,9 @@ class UserDAO:
         self.db_connector = db_connector
 
     def get_by_username(self, username: str) -> Optional[User]:
-        """
-        Retrieve a user from the database by their username.
-
-        :param username: The username of the user to retrieve.
-        :return: A User object if found, otherwise None.
-        """
-        raw_user = self.db_connector.sql_query("SELECT * FROM users WHERE username=%s", [username], "one")
-
+        raw_user = self.db_connector.sql_query(
+            "SELECT * FROM user WHERE username=%s", [username], "one"
+        )
         if raw_user is None:
             return None
 
@@ -37,22 +32,16 @@ class UserDAO:
             username=raw_user["username"],
             firstname=raw_user.get("firstname", ""),
             lastname=raw_user.get("lastname", ""),
-            password=raw_user.get("password", ""),
+            password=raw_user.get("account_password", ""),
             salt=raw_user.get("salt", ""),
             account_type=raw_user.get("account_type", ""),
         )
 
     def create_user(self, user: User) -> bool:
-        """
-        Insert a new user into the database .
-
-        :param user: The User object to insert.
-        :return: True if the insertion succeeded , False otherwise.
-        """
         raw_created_user = self.db_connector.sql_query(
             """
-            INSERT INTO users (id, username, firstname, lastname, password, salt, account_type)
-            VALUES (DEFAULT, %(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
+            INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+            VALUES (%(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
             RETURNING *;
             """,
             {
@@ -65,7 +54,6 @@ class UserDAO:
             },
             "one",
         )
-
         return raw_created_user is not None
 
     def update_user(self, user: User, new_firstname: str, new_lastname: str, new_password: str) -> bool:

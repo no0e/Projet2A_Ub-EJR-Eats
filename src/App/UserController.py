@@ -17,20 +17,21 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @user_router.post("/", status_code=status.HTTP_201_CREATED)
-def create_user(username: str, password: str) -> APIUser:
-    """
-    Performs validation on the username and password
-    """
+def create_user(username: str, password: str, firstname: str, lastname: str) -> APIUser:
     try:
         check_password_strength(password=password)
     except Exception:
-        raise HTTPException(status_code=400, detail="Password too weak") from Exception
+        raise HTTPException(status_code=400, detail="Password too weak")
     try:
-        user: User = user_service.create_user(username=username, password=password)
+        user: User = user_service.create_user(
+            username=username,
+            password=password,
+            firstname=firstname,
+            lastname=lastname
+        )
     except Exception as error:
-        raise HTTPException(status_code=409, detail="Username already exists") from error
-
-    return APIUser(id=user.id, username=user.username)
+        raise HTTPException(status_code=409, detail="Username already exists")
+    return APIUser(username=user.username)
 
 
 @user_router.post("/jwt", status_code=status.HTTP_201_CREATED)
@@ -60,4 +61,4 @@ def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIU
     user: User | None = user_repo.get_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return APIUser(id=user.id, username=user.username)
+    return APIUser(username=user.username)

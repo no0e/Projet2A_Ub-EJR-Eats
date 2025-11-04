@@ -1,8 +1,8 @@
 from typing import List, Optional
 
 import pytest
-from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 
+from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.DeliveryDriver import DeliveryDriver
 
 
@@ -12,16 +12,16 @@ class MockDBConnectorForDeliveryDriver:
         self.users = {
             "driver1": {
                 "username": "driver1",
-                "_firstname": "Alice",
-                "_lastname": "Asm",
-                "_password": "hashed_password",
+                "firstname": "Alice",
+                "lastname": "Asm",
+                "password": "hashedpassword",
                 "salt": "salt123",
             },
             "driver2": {
                 "username": "driver2",
-                "_firstname": "Jane",
-                "_lastname": "Smith",
-                "_password": "hashed_password2",
+                "firstname": "Jane",
+                "lastname": "Smith",
+                "password": "hashedpassword2",
                 "salt": "salt456",
             },
         }
@@ -40,9 +40,9 @@ class MockDBConnectorForDeliveryDriver:
                     driver = self.delivery_drivers[username]
                     return {
                         "username": user["username"],
-                        "_firstname": user["_firstname"],
-                        "_lastname": user["_lastname"],
-                        "_password": user["_password"],
+                        "firstname": user["firstname"],
+                        "lastname": user["lastname"],
+                        "password": user["password"],
                         "salt": user["salt"],
                         "is_available": driver["is_available"],
                     }
@@ -55,9 +55,9 @@ class MockDBConnectorForDeliveryDriver:
                         available_drivers.append(
                             {
                                 "username": user["username"],
-                                "_firstname": user["_firstname"],
-                                "_lastname": user["_lastname"],
-                                "_password": user["_password"],
+                                "firstname": user["firstname"],
+                                "lastname": user["lastname"],
+                                "password": user["password"],
                                 "salt": user["salt"],
                                 "is_available": driver["is_available"],
                             }
@@ -90,7 +90,7 @@ def test_create():
         firstname="Alice",
         lastname="Asm",
         account_type="DeliveryDriver",
-        password="hashed_password",
+        password="hashedpassword",
         salt="salt123",
         vehicle="scooter",
         is_available=True,
@@ -109,7 +109,7 @@ def test_find_by_username():
         firstname="Alice",
         lastname="Asm",
         account_type="DeliveryDriver",
-        password="hashed_password",
+        password="hashedpassword",
         salt="salt123",
         vehicle="scooter",
         is_available=True,
@@ -133,7 +133,7 @@ def test_update():
         firstname="Alice",
         lastname="Asm",
         account_type="DeliveryDriver",
-        password="hashed_password",
+        password="hashedpassword",
         salt="salt123",
         vehicle="scooter",
         is_available=True,
@@ -157,7 +157,7 @@ def test_delete():
         firstname="Alice",
         lastname="Asm",
         account_type="DeliveryDriver",
-        password="hashed_password",
+        password="hashedpassword",
         salt="salt123",
         vehicle="scooter",
         is_available=True,
@@ -180,7 +180,7 @@ def test_drivers_available():
         firstname="Alice",
         lastname="Asm",
         account_type="DeliveryDriver",
-        password="hashed_password",
+        password="hashedpassword",
         salt="salt123",
         vehicle="scooter",
         is_available=True,
@@ -190,7 +190,7 @@ def test_drivers_available():
         firstname="Jane",
         lastname="Smith",
         account_type="DeliveryDriver",
-        password="hashed_password2",
+        password="hashedpassword2",
         salt="salt456",
         vehicle="bike",
         is_available=False,

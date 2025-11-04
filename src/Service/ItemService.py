@@ -3,7 +3,7 @@ from src.Model.Item import Item
 
 class ItemService:
     def __init__(self):
-        self.items = []
+        self.items: list[Item] = []
 
     def create_item(self, name, price, category, stock, exposed=False):
         """Create a new item
@@ -38,7 +38,14 @@ class ItemService:
         if stock < 0:
             raise ValueError("The stock can't be negative")
 
-        new_item = Item(id_item, name, price, category, stock)
+        new_item = Item(
+            id_item=id_item,
+            name=name,
+            price=price,
+            category=category,
+            stock=stock,
+            exposed=exposed
+            )
         self.items.append(new_item)
         return new_item
 

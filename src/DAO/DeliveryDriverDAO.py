@@ -39,8 +39,8 @@ class DeliveryDriverDAO:
         """
         raw_driver = self.db_connector.sql_query(
             """
-            SELECT u.username, u._firstname, u._lastname, u._password, u.salt,
-                   'DeliveryDriver' as _account_type,
+            SELECT u.username, u.firstname, u.lastname, 'DeliveryDriver' as account_type,
+                    u.password, u.salt,
                    d.is_available
             FROM user u
             JOIN delivery_driver d ON u.username = d.username_delivery_driver
@@ -110,8 +110,8 @@ class DeliveryDriverDAO:
         """
         raw_drivers = self.db_connector.sql_query(
             """
-            SELECT u.username, u._firstname, u._lastname, u._password, u.salt,
-                   'DeliveryDriver' as _account_type,
+            SELECT u.username, u.firstname, u.lastname, u.password, u.salt,
+                   'DeliveryDriver' as account_type,
                    d.is_available
             FROM user u
             JOIN delivery_driver d ON u.username = d.username_delivery_driver

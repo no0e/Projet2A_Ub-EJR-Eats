@@ -1,13 +1,16 @@
 from src.DAO.UserDAO import UserDAO
+from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.User import User
+from src.Model.DeliveryDriver import DeliveryDriver
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 
 
 class UserService:
     """Class with all Service methods of a user."""
 
-    def __init__(self, user_repo: UserDAO):
+    def __init__(self, user_repo: UserDAO, driver_repo: DeliveryDriverDAO):
         self.user_repo = user_repo
+        self.driver_repo = driver_repo
 
     def create_user(self, username: str, firstname: str, lastname: str, password: str, account_type="Customer") -> User:
         """Function that creates a user from its attributes.
@@ -45,6 +48,8 @@ class UserService:
                 account_type=account_type,
             )
         )
+        if account_type == "DeliveryDriver":
+            self.driver_repo.create(DeliveryDriver(username))
         return User(
             username=username,
             firstname=firstname,
@@ -69,7 +74,7 @@ class UserService:
         """
         return self.user_repo.get_by_username(user_username)
 
-    def _username_exists(self, username: str) -> bool:
+    def username_exists(self, username: str) -> bool:
         """Function that checks if a given username is already existing in the database.
 
         Parameters

@@ -60,7 +60,7 @@ CREATE TABLE deliveries (
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.items CASCADE;
 CREATE TABLE items (
-  id_item INTEGER UNIQUE NOT NULL PRIMARY KEY,
+  id_item SERIAL PRIMARY KEY,
   name_item VARCHAR,
   price FLOAT,
   category VARCHAR,

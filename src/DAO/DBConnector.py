@@ -4,6 +4,8 @@ from typing import Literal, Optional, Union
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+from dotenv import load_dotenv
+load_dotenv()
 
 class DBConnector:
     def __init__(self, config=None):

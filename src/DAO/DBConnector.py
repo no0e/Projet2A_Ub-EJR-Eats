@@ -9,7 +9,7 @@ class DBConnector:
     def __init__(self, config=None):
         if config is not None:
             self.host = config["host"]
-            self.port = config["post"]
+            self.port = config["port"]  
             self.database = config["database"]
             self.user = config["user"]
             self.password = config["password"]
@@ -26,7 +26,7 @@ class DBConnector:
         self,
         query: str,
         data: Optional[Union[tuple, list, dict]] = None,
-        return_type: Union[Literal["one"], Literal["all"]] = "one",
+        return_type: Literal["one", "all", "none"] = "one",
     ):
         try:
             with psycopg2.connect(
@@ -40,11 +40,15 @@ class DBConnector:
             ) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(query, data)
+
                     if return_type == "one":
                         return cursor.fetchone()
-                    if return_type == "all":
+                    elif return_type == "all":
                         return cursor.fetchall()
+                    elif return_type == "none":
+                        connection.commit()
+                        return None
+
         except Exception as e:
-            print("ERROR")
-            print(e)
+            print("[DBConnector] Error executing query:", e)
             raise e

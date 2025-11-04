@@ -69,7 +69,7 @@ class UserService:
         """
         return self.user_repo.get_by_username(user_username)
 
-    def _username_exists(self, username: str) -> bool:
+    def username_exists(self, username: str) -> bool:
         """Function that checks if a given username is already existing in the database.
 
         Parameters

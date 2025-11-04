@@ -3,9 +3,9 @@ from .User import User
 
 class Administrator(User):
     username: str
-    firstname: str
-    lastname: str
-    account_type: str
-    password: str
+    _firstname: str
+    _lastname: str
+    _account_type: str
+    _password: str
     salt: str
 

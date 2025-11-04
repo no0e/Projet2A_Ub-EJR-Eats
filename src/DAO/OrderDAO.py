@@ -17,7 +17,7 @@ class OrderDAO:
     def __init__(self, db_connector: DBConnector):
         self.db_connector = db_connector
 
-    def create(self, order: Order) -> bool:
+    def create_order(self, order: Order) -> bool:
         """
         Create a new order with a list of item IDs.
 
@@ -25,8 +25,16 @@ class OrderDAO:
         :return: True if success.
         """
         try:
-            # Extract item IDs from Item objects
-            item_ids = [item.id_item for item in order.items]
+            if not isinstance(order.items, dict):
+                raise TypeError("Order.items must be a dictionary {id_item: quantity}.")
+
+            for key, value in order.items.items():
+                if not isinstance(key, int) or not isinstance(value, int):
+                    raise TypeError("All item IDs and quantities must be integers.")
+                if value <= 0:
+                    raise ValueError("Quantities must be positive integers.")
+
+            items_json = json.dumps(order.items)
 
             self.db_connector.sql_query(
                 """
@@ -37,7 +45,7 @@ class OrderDAO:
                     "username_customer": order.username_customer,
                     "username_delivery_driver": order.username_delivery_driver,
                     "address": order.address,
-                    "items": json.dumps(item_ids),
+                    "items": items_json,
                 },
                 "none",
             )

@@ -2,6 +2,7 @@ from src.Model.Item import Item
 from src.DAO.ItemDAO import ItemDAO
 from src.DAO.DBConnector import DBConnector
 
+
 class ItemService:
     def __init__(self):
         self.db_connector = DBConnector()  # connexion PostgreSQL via ton DBConnector
@@ -31,7 +32,7 @@ class ItemService:
 
         # Vérifier doublon
         all_exposed = self.item_dao.find_all_item()
-        if any(item.name_item.lower == name_item.lower for item in all_exposed):
+        if any(item.name_item.lower() == name_item.lower() for item in all_exposed):
             raise TypeError("The item name is already attributed.")
 
         # Créer l’item
@@ -51,7 +52,7 @@ class ItemService:
 
     def change_name_item(self, old_name, new_name):
         items = self.item_dao.find_all_exposed_item()
-        if any(item.name_item.lower == new_name.lower for item in items):
+        if any(item.name_item.lower() == new_name.lower() for item in items):
             raise TypeError("The new name is already attributed.")
 
         for item in items:
@@ -67,7 +68,7 @@ class ItemService:
     def delete_item(self, name_delete):
         items = self.item_dao.find_all_exposed_item()
         for item in items:
-            if item.name_item.lower == name_delete.lower:
+            if item.name_item.lower() == name_delete.lower():
                 success = self.item_dao.delete(item)
                 if not success:
                     raise ValueError("Failed to delete the item in the database.")
@@ -80,7 +81,7 @@ class ItemService:
 
         items = self.item_dao.find_all_exposed_item()
         for item in items:
-            if item.name_item.lower == name_item.lower:
+            if item.name_item.lower() == name_item.lower():
                 item.price = new_price
                 success = self.item_dao.update(item)
                 if not success:
@@ -95,7 +96,7 @@ class ItemService:
             raise ValueError("The stock can't be negative.")
         items = self.item_dao.find_all_exposed_item()
         for item in items:
-            if item.name_item.lower == name_item.lower:
+            if item.name_item.lower() == name_item.lower():
                 item.stock = new_stock
                 success = self.item_dao.update(item)
                 if not success:
@@ -111,7 +112,7 @@ class ItemService:
 
         items = self.item_dao.find_all_exposed_item()
         for item in items:
-            if item.name_item.lower == name_item.lower:
+            if item.name_item.lower() == name_item.lower():
                 item.category = new_category
                 success = self.item_dao.update(item)
                 if not success:
@@ -127,7 +128,7 @@ class ItemService:
 
         items = self.item_dao.find_all_exposed_item()
         for item in items:
-            if item.name_item.lower == name_item.lower:
+            if item.name_item.lower() == name_item.lower():
                 item.exposed = True if exposed == "Yes" else False
                 success = self.item_dao.update(item)
                 if not success:

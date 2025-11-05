@@ -49,7 +49,7 @@ def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "ad
     if attribute == "vehicle":
         if user_service.get_user(username).account_type != "DeliveryDriver":
             raise ValueError("Only delivery drivers have a vehicle.")
-        d_service.get_customer(username).address = new_value
+        driver_service.get_customer(username).address = new_value
 
 @administrator_router.patch("/Edit_Menu", status_code=status.HTTP_200_OK)
 def Edit_Menu():

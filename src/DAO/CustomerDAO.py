@@ -8,18 +8,16 @@ class CustomerDAO(UserDAO):
         self.db = db_connector
 
     def create(self, customer: Customer) -> bool:
-        try:
-            self.db.sql_query(
-                """
-                INSERT INTO project_database.customers (username_customer)
-                VALUES (%s)
-                """,
-                [customer.username],
-            )
-            return True
-        except Exception as e:
-            print(f"[CustomerDAO] Error creating customer: {e}")
-            return False
+        raw_created_customer = self.db.sql_query(
+            """
+            INSERT INTO customers (username_customer, address)
+            VALUES (%(username_customer)s, %(address)s)
+            RETURNING *;
+            """,
+            {"username_customer": customer.username, "address": customer.address},
+            "one",
+        )
+        return raw_created_customer is not None
 
     def find_by_username(self, username: str):
         query = """

@@ -44,7 +44,7 @@ class ResetDatabase(metaclass=Singleton):
                 with connection.cursor() as cursor:
                     cursor.execute(create_schema)
                     cursor.execute(init_db_as_string)
-                    # cursor.execute(pop_db_as_string)
+                    cursor.execute(pop_db_as_string)
         except Exception as e:
             logging.info(e)
             raise

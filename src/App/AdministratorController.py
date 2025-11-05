@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
+from src.App.Auth_utils import require_account_type
 from src.Model.Administrator import Administrator
 from src.Model.APIUser import APIUser
 from src.Model.Item import Item, ItemCreate
@@ -10,6 +11,10 @@ from src.Service.PasswordService import check_password_strength
 from .init_app import admin_service, jwt_service, user_repo, user_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
+
+# remplacer cette ligne par :
+# administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"], dependencies=[Depends(require_account_type("Admin"))])
+# pour limiter les actions aux admin
 
 
 @administrator_router.post("/Create_Accounts", status_code=status.HTTP_201_CREATED)
@@ -40,9 +45,6 @@ def Edit_Menu():
 @administrator_router.get("/Storage/View", status_code=status.HTTP_200_OK)
 def View_Storage():
     pass
-
-
-
 
 
 @administrator_router.post("/Storage/Create_Item", status_code=status.HTTP_201_CREATED)

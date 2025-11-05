@@ -1,17 +1,31 @@
 from typing import Optional, Union
 
 from src.DAO.AdministratorDAO import AdministratorDAO
+from src.DAO.CustomerDAO import CustomerDAO
+from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.UserDAO import UserDAO
-from src.Model.User import User
+from src.Model.Administrator import Administrator
+from src.Model.Customer import Customer
 from src.Model.DeliveryDriver import DeliveryDriver
+from src.Model.User import User
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
+from src.Service.UserService import UserService
 
 
 class AdministratorService:
     """Class with all Service methods of a user."""
 
-    def __init__(self, user_repo: UserDAO):
+    def __init__(
+        self,
+        user_repo: UserDAO,
+        admin_repo: AdministratorDAO,
+        driver_repo: DeliveryDriverDAO,
+        customer_repo: CustomerDAO,
+    ):
         self.user_repo = user_repo
+        self.admin_repo = admin_repo
+        self.driver_repo = driver_repo
+        self.customer_repo = customer_repo
 
     def create_user(self, username: str, firstname: str, lastname: str, password: str, account_type: str) -> User:
         """Function that creates a user from its attributes.
@@ -34,27 +48,11 @@ class AdministratorService:
         User
             Returns the user that has been created.
         """
-        if self.username_exists(username):
-            raise ValueError("Username already taken.")
-        check_password_strength(password)
-        salt = create_salt()
-        new_password = hash_password(password, salt)
-        self.user_repo.create_user(
-            User(
-                username=username,
-                firstname=firstname,
-                lastname=lastname,
-                password=new_password,
-                salt=salt,
-                account_type=account_type,
-            )
-        )
-        return User(
+        return UserService(self.user_repo, self.admin_repo, self.customer_repo, self.driver_repo).create_user(
             username=username,
             firstname=firstname,
             lastname=lastname,
-            password=new_password,
-            salt=salt,
+            password=password,
             account_type=account_type,
         )
 
@@ -127,13 +125,9 @@ class AdministratorService:
             self.user_repo.get_user(username).password = hash_password(password, salt)
         return self.user_repo.get_user(username)
 
-
     def drivers_available(self) -> list(DeliveryDriver):
         delivery_drivers = self.user_repo.get_by_account_type("DeliveryDriver")
         available_delivery_drivers = [
-            delivery_driver
-            for delivery_driver in delivery_drivers
-            if delivery_driver.is_available
+            delivery_driver for delivery_driver in delivery_drivers if delivery_driver.is_available
         ]
         return available_delivery_drivers
-

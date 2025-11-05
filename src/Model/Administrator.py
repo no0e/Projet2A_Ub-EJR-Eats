@@ -5,7 +5,6 @@ class Administrator(User):
     username: str
     firstname: str
     lastname: str
-    account_type: str
     password: str
     salt: str
-
+    account_type: str

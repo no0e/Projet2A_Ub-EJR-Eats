@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Dict
 
 from pydantic import BaseModel
 
@@ -10,4 +10,4 @@ class Order(BaseModel):
     username_customer: str
     username_delivery_driver: str
     address: str
-    items: list[Item]
+    items: Dict[int, int]

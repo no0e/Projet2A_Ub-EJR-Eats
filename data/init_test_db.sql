@@ -77,7 +77,7 @@ CREATE TABLE project_test_database.orders (
   username_customer VARCHAR,
   username_delivery_driver VARCHAR,
   address VARCHAR,
-  items items[],
+  items JSONB,
   date_order DATE,
   time_order TIME,
   FOREIGN KEY (username_customer) REFERENCES project_test_database.users(username),

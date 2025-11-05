@@ -8,18 +8,18 @@ VALUES
 ('ernesto1', 'hardpwd123', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
 ('fabriccio', 'mysuperpwd', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator');
 
-INSERT INTO project_database.administrators  (username) 
+INSERT INTO project_database.administrators  (username_administrator) 
 VALUES
 ('aliceasm'),
 ('fabriccio');
 
-INSERT INTO project_database.customers  (username, address) 
+INSERT INTO project_database.customers  (username_customer, address) 
 VALUES
 ('bobbia', '13 Main St.'),
 ('charliz', '4 Salty Spring Av.'),
 ('drdavid', 'Flat 5, Beverly Hills');
 
-INSERT INTO project_database.delivery_drivers (username, vehicle, is_available)
+INSERT INTO project_database.delivery_drivers (username_delivery_driver, vehicle, is_available)
 VALUES
 ('ernesto', 'car', False),
 ('ernesto1', 'foot', True);
@@ -32,11 +32,11 @@ VALUES
 
 INSERT INTO project_database.orders (id_order, username_customer, username_delivery_driver, address, items)
 VALUES 
-(1, 'bobbia', 'ernesto1', '13 Main St.', {1:10}),
-(2, 'bobbia', 'ernesto', '13 Main St.', {1:39}),
-(3, 'charliz', 'ernesto1', '4 Salty Spring Av.', {1:39, 3:2});
+(1, 'bobbia', 'ernesto1', '13 Main St.', '{"1":10}'::jsonb),
+(2, 'bobbia', 'ernesto', '13 Main St.', '{"1":39}'::jsonb),
+(3, 'charliz', 'ernesto1', '4 Salty Spring Av.', '{"1":39, "3":2}'::jsonb);
 
-INSERT INTO project_database.deliveries (id_delivery, username_driv, duration, stops)
+INSERT INTO project_database.deliveries (id_delivery, username_delivery_driver, duration, stops)
 VALUES 
-(1, 'ernesto', '50', ['13 Main St.', '4 Salty Spring Av.']),
-(1, 'ernesto1', '15', ['13 Main St.']);
+(1, 'ernesto', '50', ARRAY['13 Main St.', '4 Salty Spring Av.']),
+(2, 'ernesto1', '15', ARRAY['13 Main St.']);

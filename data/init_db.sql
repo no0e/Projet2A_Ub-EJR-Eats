@@ -20,7 +20,7 @@ CREATE TABLE project_database.users (
 DROP TABLE IF EXISTS project_database.administrators CASCADE;
 CREATE TABLE project_database.administrators (
   username_administrator VARCHAR UNIQUE NOT NULL,
-  FOREIGN KEY (username_administrator) REFERENCES users(username)
+  FOREIGN KEY (username_administrator) REFERENCES project_database.users(username)
 );
 
 --------------------------------------------------------------
@@ -28,7 +28,7 @@ CREATE TABLE project_database.administrators (
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.delivery_drivers CASCADE;
 CREATE TABLE project_database.delivery_drivers (
-    username_delivery_driver TEXT PRIMARY KEY REFERENCES users(username),
+    username_delivery_driver TEXT PRIMARY KEY REFERENCES project_database.users(username),
     vehicle TEXT,
     is_available BOOLEAN
 );
@@ -39,7 +39,7 @@ DROP TABLE IF EXISTS project_database.customers CASCADE;
 CREATE TABLE project_database.customers (
   username_customer VARCHAR UNIQUE NOT NULL,
   address VARCHAR,
-  FOREIGN KEY (username_customer) REFERENCES users(username)
+  FOREIGN KEY (username_customer) REFERENCES project_database.users(username)
 );
 
 --------------------------------------------------------------
@@ -52,7 +52,7 @@ CREATE TABLE project_database.deliveries (
   duration INTEGER,
   stops VARCHAR[],
   is_accepted BOOLEAN,
-  FOREIGN KEY (username_delivery_driver) REFERENCES users(username)
+  FOREIGN KEY (username_delivery_driver) REFERENCES project_database.users(username)
 );
 
 --------------------------------------------------------------
@@ -80,6 +80,6 @@ CREATE TABLE project_database.orders (
   items items[],
   date_order DATE,
   time_order TIME,
-  FOREIGN KEY (username_customer) REFERENCES users(username),
-  FOREIGN KEY (username_delivery_driver) REFERENCES users(username)
+  FOREIGN KEY (username_customer) REFERENCES project_database.users(username),
+  FOREIGN KEY (username_delivery_driver) REFERENCES project_database.users(username)
 );

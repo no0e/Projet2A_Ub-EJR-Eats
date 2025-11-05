@@ -11,10 +11,6 @@ from .UserController import user_router
 
 
 def run_app(reset_db=False):
-    if reset_db:
-        db_connector = DBConnector()
-        db_connector.execute_sql_file("data/init_db.sql")
-        print("Database was reset.")
 
     app = FastAPI(title="Projet Info 2A", description="Example project for ENSAI students")
 

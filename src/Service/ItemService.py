@@ -123,7 +123,7 @@ class ItemService:
 
 
     def expose_item(self, name_item, exposed):
-        if exposed not in ("Yes", "No"):
+        if exposed not in (lower("Yes"), lower("No")):
             raise TypeError("The answer should be 'Yes' or 'No'.")
 
         items = self.item_dao.find_all_exposed_item()
@@ -137,7 +137,7 @@ class ItemService:
 
         raise TypeError("The item to update doesn't exist.")
 
-    def change_availability(self, name_item):
+    def change_availability(self, name_item, change_availability):
         """ Change if an item is available or not
 
         Parameters
@@ -149,14 +149,17 @@ class ItemService:
         -----
         Bool
         """
+        if change_availability.lower() != "yes":
+            raise TypeError("If you want to change if the item is exposed you must enter: yes")
         items = self.item_dao.find_all_item()
         for item in items:
             if item.name_item.lower()== name_item:
                 item.exposed = not item.exposed
                 return {
-                'success': True,
-                'message': f"Availability of '{item.name_item}' has been changed to {'available' if item.exposed else 'unavailable'}.",
-                'item': item  # L'élément mis à jour
-            }
+                 'success': True,
+                  'message': f"Availability of '{item.name_item}' has been changed to {'available' if item.exposed else 'unavailable'}.",
+                  'item': item  # L'élément mis à jour
+                }
 
         raise TypeError("The item to update doesn't exist.")
+        

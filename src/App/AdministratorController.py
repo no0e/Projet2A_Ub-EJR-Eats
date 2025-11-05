@@ -74,11 +74,20 @@ def Create_Item(item: ItemCreate, name_item: str, price: float, category: str, s
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@administrator_router.patch("/Storage/Change_Item", status_code=status.HTTP_200_OK)
-def Change_Item(name_item):
+@administrator_router.patch("/Storage/Edit_Item", status_code=status.HTTP_200_OK)
+def Edit_Item(name_item, new_name, change_availability ):
     try:
-        changes = item_service.change_availability(name_item)
-        return changes
+        if name_item and change_availability:
+            changes = item_service.change_availability(name_item, change_availability)
+            return changes
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    try:
+        item_new_name= item_service.change_name_item(name_item, new_name)
+        return item_new_name
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:

@@ -54,6 +54,3 @@ if __name__ == "__main__":
     ResetDatabase().lancer()
     ResetDatabase().lancer(True)
     print("Database was reset.")
-    #to run it, enter :
-    #pdm run python -m  src.Utils.reset_db
-    #in the command line

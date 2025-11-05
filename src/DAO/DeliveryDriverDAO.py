@@ -8,18 +8,20 @@ class DeliveryDriverDAO(UserDAO):
         self.db = db_connector
 
     def create(self, driver: DeliveryDriver) -> bool:
-        try:
-            self.db.sql_query(
-                """
-                INSERT INTO project_database.delivery_drivers (username_delivery_driver, vehicle, is_available)
-                VALUES (%s, %s, %s)
-                """,
-                [driver.username, driver.vehicle, driver.is_available],
-            )
-            return True
-        except Exception as e:
-            print(f"[DeliveryDriverDAO] Error creating delivery driver: {e}")
-            return False
+        raw_created_driver = self.db.sql_query(
+            """
+            INSERT INTO delivery_drivers (username_delivery_driver, vehicle, is_available)
+            VALUES (%(username_delivery_driver)s, %(vehicle)s, %(is_available)s)
+            RETURNING *;
+            """,
+            {
+                "username_delivery_driver": driver.username,
+                "vehicle": driver.vehicle,
+                "is_available": driver.is_available,
+            },
+            "one",
+        )
+        return raw_created_driver is not None
 
     def find_by_username(self, username: str):
         query = """

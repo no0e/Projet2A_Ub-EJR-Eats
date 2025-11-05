@@ -80,10 +80,6 @@ class CustomerServices:
             the price of the cart
         """
         items = self.item_dao.find_all_exposed_item()
-        cart = get_cart_for_user(username)
-        if cart is None:
-            cart = {}
-            active_carts[username] = cart
         for item in items:
             if item.name_item.lower() == name_item.lower():
                 if number_item > item.stock:
@@ -116,7 +112,6 @@ class CustomerServices:
         cart: dict
             the new cart
         """
-        cart = get_cart_for_user(username)
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
             if item.name_item.lower() == name_item.lower():

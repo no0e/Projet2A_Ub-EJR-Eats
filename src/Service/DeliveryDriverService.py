@@ -2,6 +2,7 @@ from typing import List
 
 from src.DAO.DeliveryDAO import DeliveryDAO
 from src.Model.Delivery import Delivery
+from src.Model.DeliveryDriver import DeliveryDriver
 from src.Service.GoogleMapService import GoogleMap
 
 
@@ -9,6 +10,39 @@ class DeliveryDriverService:
     def __init__(self, delivery_repo: DeliveryDAO, google_service: GoogleMap):
         self.delivery_repo = delivery_repo
         self.google_service = google_service
+
+    def get_driver(self, username: str) -> DeliveryDriver | None:
+        """Function that gives a delivery driver by the username given.
+
+        Parameters
+        ----------
+        username : str
+            driver's username to search
+
+        Returns
+        -------
+        DeliveryDriver
+            Instance of the delivery driver with the assiociated username given.
+        """
+        return self.delivery_repo.find_by_username(username)
+
+    def update_customer(self, username: str, address: str):
+        """Function that update the customer's address.
+
+        Parameters
+        ----------
+        username : str
+            customer's username
+        address : str
+            customer's address
+
+        Returns
+        -------
+        User
+            Returns the customer with updated information.
+        """
+        self.customer_dao_repo.get_customer(username).address = address
+        return self.customer_dao.get_customer(username)
 
     def get_available_deliveries(self) -> List[Delivery]:
         return self.delivery_repo.get_available_deliveries()

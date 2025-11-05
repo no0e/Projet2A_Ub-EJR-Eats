@@ -25,8 +25,7 @@ class DeliveryDriverDAO(UserDAO):
 
     def find_by_username(self, username: str):
         query = """
-            SELECT u.username, u.firstname, u.lastname, u.password, u.salt, u.account_type,
-                   d.vehicle, d.is_available
+            SELECT u.username, d.vehicle, d.is_available
             FROM project_database.users u
             JOIN project_database.delivery_drivers d ON u.username = d.username_delivery_driver
             WHERE u.username = %s
@@ -52,8 +51,7 @@ class DeliveryDriverDAO(UserDAO):
 
     def drivers_available(self):
         query = """
-            SELECT u.username, u.firstname, u.lastname, u.password, u.salt, u.account_type,
-                   d.vehicle, d.is_available
+            SELECT u.username, d.vehicle, d.is_available
             FROM project_database.users u
             JOIN project_database.delivery_drivers d ON u.username = d.username_delivery_driver
             WHERE d.is_available = TRUE

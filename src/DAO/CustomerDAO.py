@@ -21,7 +21,7 @@ class CustomerDAO(UserDAO):
 
     def find_by_username(self, username: str):
         query = """
-            SELECT u.username, u.firstname, u.lastname, u.password, u.salt, u.account_type, c.adress
+            SELECT u.username, c.adress
             FROM project_database.users u
             JOIN project_database.customers c a ON u.username = c.username
             WHERE u.username = %s
@@ -29,31 +29,31 @@ class CustomerDAO(UserDAO):
         raw = self.db.sql_query(query, [username], return_type="one")
         return Customer(**raw) if raw else None
 
-    def update_customer(self, customer: Customer, new_firstname: str, new_lastname: str, new_password: str) -> bool:
+    def update_customer(self, username: str, address: str) -> bool:
         """
-        Update an existing user's firstname, lastname, and password in the database.
+        Update an existing customer's address.
 
-        :param user: The User object to update .
-        :param new_firstname: New first name.
-        :param new_lastname: New last name.
-        :param new_password: New password (hashed if needed).
-        :return: True if the update succeeded, False otherwise.
+        Parameters
+        ---
+        username: str
+            customer's username
+        address: str
+            new customer's address we want to set in the database
+
+        Return
+        ---
+        bool
         """
         updated_rows = self.db_connector.sql_query(
             """
-            UPDATE users
-            SET
-                firstname = %(firstname)s,
-                lastname = %(lastname)s,
-                password = %(password)s
-            WHERE username = %(username)s
+            UPDATE customers
+            SET address = %(address)s
+            WHERE customer_username = %(username)s
             RETURNING *;
             """,
             {
-                "username": Customer.username,
-                "firstname": new_firstname,
-                "lastname": new_lastname,
-                "password": new_password,
+                "customer_username": Customer.username,
+                "address": Customer.address
             },
             "one",
         )

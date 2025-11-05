@@ -3,19 +3,29 @@ from typing import Literal, Optional
 from fastapi import APIRouter, HTTPException, status
 
 from src.App.Auth_utils import require_account_type
+from src.DAO.DBConnector import DBConnector
+from src.DAO.DeliveryDAO import DeliveryDAO
 from src.Model.Administrator import Administrator
 from src.Model.APIUser import APIUser
 from src.Model.Item import Item, ItemCreate
 from src.Model.User import User
+from src.Service.DeliveryDriverService import DeliveryDriverService
+from src.Service.GoogleMapService import GoogleMap
 from src.Service.ItemService import ItemService
 from src.Service.PasswordService import check_password_strength
-from src.Service.DeliveryDriverService import DeliveryDriverService
 
 from .init_app import admin_service, customer_service, jwt_service, user_repo, user_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
+db_connector = DBConnector()
+
+driver_repo = DeliveryDAO(db_connector)
+google_map_service = GoogleMap()
+
+driver_service = DeliveryDriverService(delivery_repo=driver_repo, google_service=google_map_service)
 item_service = ItemService()
+driver_service = DeliveryDriverService(driver_repo, google_map_service)
 # remplacer cette ligne par :
 # administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"], dependencies=[Depends(require_account_type("Admin"))])
 # pour limiter les actions aux admin
@@ -52,6 +62,7 @@ def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "ad
         if user_service.get_user(username).account_type != "DeliveryDriver":
             raise ValueError("Only delivery drivers have a vehicle.")
         driver_service.get_customer(username).address = new_value
+
 
 @administrator_router.patch("/Edit_Menu", status_code=status.HTTP_200_OK)
 def Edit_Menu():

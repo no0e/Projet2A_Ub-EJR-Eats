@@ -70,11 +70,15 @@ def Cart(
     try:
         order = customer_service.validate_cart(cart, username_customer, validate, adress)
         return order
-    
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.get("/add to cart")
+@customer_router.get("/add to cart", status_code=status.HTTP_200_OK)
 def order_items(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
     item: List[str] = Query(..., description="Item name"),
     quantity: List[int] = Query(..., description="Quantity for each item"),
 ):
@@ -86,6 +90,7 @@ def order_items(
     try:
         cart = customer_service.add_item_cart(username_customer, cart, item, quantity)
         return cart
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:

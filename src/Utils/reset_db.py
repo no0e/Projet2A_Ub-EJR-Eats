@@ -1,14 +1,12 @@
-from src.DAO.DBConnector import DBConnector
-from src.Utils.log_decorator import log
-from src.Utils.singleton import Singleton
-
 import logging
 import os
 from unittest import mock
 
 import dotenv
 
-
+from src.DAO.DBConnector import DBConnector
+from src.Utils.log_decorator import log
+from src.Utils.singleton import Singleton
 
 
 class ResetDatabase(metaclass=Singleton):

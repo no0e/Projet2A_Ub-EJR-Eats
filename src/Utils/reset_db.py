@@ -21,7 +21,7 @@ class ResetDatabase(metaclass=Singleton):
 
         if test_dao:
             mock.patch.dict(os.environ, {"POSTGRES_SCHEMA": "projet_test_dao"}).start()
-            init_data_path = "data/init_db_test.sql"
+            init_data_path = "data/init_test_db.sql"
             pop_data_path = "data/pop_db_test.sql"
         else:
             init_data_path = "data/init_db.sql"

@@ -28,7 +28,7 @@ def create_user(username: str, password: str, firstname: str, lastname: str) -> 
             username=username, password=password, firstname=firstname, lastname=lastname
         )
     except Exception as error:
-        raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
+        raise HTTPException(status_code=409, detail=f"{error}")
     return APIUser(username=user.username, account_type="Customer")
 
 

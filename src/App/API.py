@@ -2,13 +2,20 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 
+from src.DAO.DBConnector import DBConnector
+
 from .AdministratorController import administrator_router
 from .CustomerController import customer_router
 from .DeliveryDriverController import deliverydriver_router
 from .UserController import user_router
 
 
-def run_app():
+def run_app(reset_db=False):
+    if reset_db:
+        db_connector = DBConnector()
+        db_connector.execute_sql_file("data/init_db.sql")
+        print("Database was reset.")
+
     app = FastAPI(title="Projet Info 2A", description="Example project for ENSAI students")
 
     app.include_router(user_router)

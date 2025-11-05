@@ -51,7 +51,7 @@ class ItemService:
         return new_item
 
     def change_name_item(self, old_name, new_name):
-        items = self.item_dao.find_all_exposed_item()
+        items = self.item_dao.find_all_item()
         if any(item.name_item.lower() == new_name.lower() for item in items):
             raise TypeError("The new name is already attributed.")
 

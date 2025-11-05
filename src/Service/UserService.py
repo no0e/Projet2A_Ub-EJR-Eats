@@ -1,6 +1,12 @@
 from typing import Optional
 
+from src.DAO.AdministratorDAO import AdministratorDAO
+from src.DAO.CustomerDAO import CustomerDAO
+from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.UserDAO import UserDAO
+from src.Model.Administrator import Administrator
+from src.Model.Customer import Customer
+from src.Model.DeliveryDriver import DeliveryDriver
 from src.Model.User import User
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 
@@ -8,10 +14,27 @@ from src.Service.PasswordService import check_password_strength, create_salt, ha
 class UserService:
     """Class with all Service methods of a user."""
 
-    def __init__(self, user_repo: UserDAO):
+    def __init__(
+        self,
+        user_repo: UserDAO,
+        admin_repo: AdministratorDAO,
+        driver_repo: DeliveryDriverDAO,
+        customer_repo: CustomerDAO,
+    ):
         self.user_repo = user_repo
+        self.admin_repo = admin_repo
+        self.driver_repo = driver_repo
+        self.customer_repo = customer_repo
 
-    def create_user(self, username: str, firstname: str, lastname: str, password: str, account_type="Customer") -> User:
+    def create_user(
+        self,
+        username: str,
+        firstname: str,
+        lastname: str,
+        password: str,
+        address="Default address",
+        account_type="Customer",
+    ) -> User:
         """Function that creates a user from its attributes.
 
         Parameters
@@ -24,8 +47,11 @@ class UserService:
             user's lastname
         password : str
             user's password
+        address : str
+            user's address needed to create a customer account, by default "Default address"
         account_type : str
             user's account type, by default "Customer"
+
 
         Returns
         -------
@@ -47,6 +73,42 @@ class UserService:
                 account_type=account_type,
             )
         )
+        if account_type == "Administrator":
+            self.admin_repo.create(
+                Administrator(
+                    username=username,
+                    firstname=firstname,
+                    lastname=lastname,
+                    password=new_password,
+                    salt=salt,
+                    account_type="Administrator",
+                )
+            )
+        elif account_type == "DeliveryDriver":
+            self.driver_repo.create(
+                DeliveryDriver(
+                    username=username,
+                    firstname=firstname,
+                    lastname=lastname,
+                    password=new_password,
+                    salt=salt,
+                    account_type="DeliveryDriver",
+                    vehicle="Car",
+                    is_available=False,
+                )
+            )
+        else:
+            self.customer_repo.create(
+                Customer(
+                    username=username,
+                    firstname=firstname,
+                    lastname=lastname,
+                    password=new_password,
+                    salt=salt,
+                    account_type="Customer",
+                    address=address,
+                )
+            )
         return User(
             username=username,
             firstname=firstname,

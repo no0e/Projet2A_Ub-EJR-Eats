@@ -5,7 +5,7 @@ VALUES
 ('charliz', 'chachacha', 'Charles', 'Chic', 'saltysalt', 'Customer'),
 ('drdavid', '!pwd!mypwd', 'David', 'Douze', 'pepper', 'Customer'),
 ('ernesto', 'hardpwd123', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
-('ernesto2', 'hardpwd123', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
+('ernesto1', 'hardpwd123', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
 ('fabriccio', 'mysuperpwd', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator');
 
 INSERT INTO administrators  (username) 

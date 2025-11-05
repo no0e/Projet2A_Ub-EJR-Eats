@@ -50,22 +50,22 @@ class CustomerService:
         self.customer_dao_repo.get_customer(username).address = address
         return self.customer_dao.get_customer(username)
 
-    def View_menu(self):
+    def view_menu(self):
         """See all the item disponible
 
         Return
         ----
-        list
+        menu: list
             a list of all the exposed items
         """
-
-        return self.item_dao.find_all_exposed_item()
+        menu = self.item_dao.find_all_exposed_item()
+        return menu
 
     def get_cart_for_user(self, username: str):
         """Retourne le panier de l'utilisateur associé à son token"""
         return self.active_carts.get(username)
 
-    def add_item_cart(self, username, cart, name_items: List[str], number_items: List[int]):
+    def add_item_cart(self, username, cart, name_items: List[str], quantities : List[int]) ->dict:
         """add the quantity of the item choose into the cart
 
         parameters
@@ -81,30 +81,31 @@ class CustomerService:
             the price of the cart
         """
         items = self.item_dao.find_all_exposed_item()
-        for name_item, number_item in zip(name_items, number_items):
-            items = self.item_dao.find_all_exposed_item()
-            item_found = False
+        items_dict = {item.name_item.lower(): item for item in items}
+        for name_item, quantity in zip(name_items, quantities):
+            name_item = name_item.lower() 
+            if name_item not in items_dict:
+                raise ValueError(f"Item '{name_item}' not found or not available.")
 
-        for item in items:
-            if item.name_item.lower() == name_item.lower():
-                item_found = True
-                if number_item > item.stock:
-                    raise ValueError(f"The quantity requested for {name_item} exceeds available stock.")
+            item = items_dict[name_item]
 
-                if item.id_item in cart:
-                    raise TypeError(f"the item {item} is already in the cart")
-                else:
-                    cart[item.id_item] = number_item
-                break
+            if quantity > item.stock:
+                raise ValueError(f"The quantity requested for '{name_item}' exceeds available stock.")
 
-        if not item_found:
-            raise ValueError(f"Item '{name_item}' not found or not available.")
 
-        price_cart = 0.0
-        for item in items:
             if item.id_item in cart:
-                price_cart = price_cart + item.price * number_item
-        return f"price of the cart{price_cart}, and your cart {cart}"
+                raise ValueError(f"The item '{name_item}' is already in the cart.")
+            else:
+                cart[item.id_item] = quantity
+
+
+        price_cart = sum(item.price * cart[item.id_item] for item in items if item.id_item in cart)
+
+
+        return {
+            "price_cart": price_cart,
+            "cart": cart
+        }
 
     def modify_cart(self, cart, name_item: str, new_number_item: int):
         """modify the cart by changing the quatity wanted of an item

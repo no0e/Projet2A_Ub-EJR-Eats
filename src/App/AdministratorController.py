@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 
 from src.App.Auth_utils import require_account_type
 from src.DAO.DBConnector import DBConnector
@@ -71,14 +71,28 @@ def Edit_Menu():
 
 @administrator_router.get("/Storage/View", status_code=status.HTTP_200_OK)
 def View_Storage():
-    pass
+    try:
+        storage=item_service.view_storage()
+        print("Storage fetched:", storage)
+        return storage
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))    
+
 
 
 @administrator_router.post("/Storage/Create_Item", status_code=status.HTTP_201_CREATED)
-def Create_Item(item: ItemCreate, name_item: str, price: float, category: str, stock: int):
+def Create_Item(
+    item: ItemCreate,
+    name_item: str,
+    price: float,
+    stock: int,
+    category: str = Query(..., description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
+    ):
     try:
         new_item = item_service.create_item(name_item, price, category, stock)
-        return {"message": "Item created successfully ✅", "item": new_item}
+        return {"message": "Item created successfully ", "item": new_item}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
@@ -86,19 +100,35 @@ def Create_Item(item: ItemCreate, name_item: str, price: float, category: str, s
 
 
 @administrator_router.patch("/Storage/Edit_Item", status_code=status.HTTP_200_OK)
-def Edit_Item(name_item, new_name, change_availability ):
+def Edit_Item(name_item, new_name: str = None, change_availability: str =None, new_price:float =None, new_stock :int =None, new_category: str= Query(None, description="Type of item", enum=["starter", "main course", "dessert", "drink"])):
     try:
         if name_item and change_availability:
             changes = item_service.change_availability(name_item, change_availability)
             return changes
+        if name_item and new_name:
+            changes = item_service.change_name_item(name_item, new_name)
+            return changes
+        if name_item and new_price:
+            changes = item_service.modify_price(name_item, new_price)
+            return changes
+        if name_item and new_stock:
+            changes = item_service.modify_stock_item(name_item, new_stock)
+            return changes
+        if name_item and new_category:
+            changes= item_service.modify_category_item(name_item, new_category)
+            return changes
+
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+   
+@administrator_router.patch("/Storage/Delete_Item", status_code=status.HTTP_200_OK)
+def Delete_Item(name_item):
     try:
-        item_new_name= item_service.change_name_item(name_item, new_name)
-        return item_new_name
+        item_deleted = item_service.delete_item(name_item)
+        return item_deleted
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:

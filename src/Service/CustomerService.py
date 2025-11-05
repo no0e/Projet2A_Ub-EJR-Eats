@@ -5,6 +5,7 @@ from src.DAO.ItemDAO import ItemDAO
 from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Model.Order import Order
+from typing import List
 
 
 class CustomerService:
@@ -64,7 +65,7 @@ class CustomerService:
         """Retourne le panier de l'utilisateur associé à son token"""
         return self.active_carts.get(username)
 
-    def add_item_cart(self, username, cart, name_item: str, number_item: int):
+    def add_item_cart(self, username, cart, name_items: List[str], number_items: List[int]):
         """add the quantity of the item choose into the cart
 
         parameters
@@ -80,14 +81,24 @@ class CustomerService:
             the price of the cart
         """
         items = self.item_dao.find_all_exposed_item()
+        for name_item, number_item in zip(name_items, number_items):
+            items = self.item_dao.find_all_exposed_item()
+            item_found = False
+
         for item in items:
             if item.name_item.lower() == name_item.lower():
+                item_found = True
                 if number_item > item.stock:
-                    raise ValueError("The number of {name_item} wanted is not available")
-                cart[item.id_item] = cart.get(item.id_item, 0) + number_item
+                    raise ValueError(f"The quantity requested for {name_item} exceeds available stock.")
+
+                if item.id_item in cart:
+                    raise TypeError(f"the item {item} is already in the cart")
+                else:
+                    cart[item.id_item] = number_item
                 break
-        else:
-            raise TypeError("{name_item} was not found among the items proposed")
+
+        if not item_found:
+            raise ValueError(f"Item '{name_item}' not found or not available.")
 
         price_cart = 0.0
         for item in items:

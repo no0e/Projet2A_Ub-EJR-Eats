@@ -30,14 +30,14 @@ class ItemService:
         if stock < 0:
             raise ValueError("Stock can't be negative.")
 
-        # Vérifier doublon
+        
         all_exposed = self.item_dao.find_all_item()
         if any(item.name_item.lower() == name_item.lower() for item in all_exposed):
             raise TypeError("The item name is already attributed.")
 
-        # Créer l’item
+        
         new_item = Item(
-            id_item=None,  # PostgreSQL générera automatiquement
+            id_item=None,  
             name_item=name_item,
             price=price,
             category=category,
@@ -152,9 +152,11 @@ class ItemService:
         items = self.item_dao.find_all_item()
         for item in items:
             if item.name_item.lower()== name_item:
-                if item.exposed == True:
-                    item.exposed = False
-                else:
-                    item.exposed = True
+                item.exposed = not item.exposed
+                return {
+                'success': True,
+                'message': f"Availability of '{item.name_item}' has been changed to {'available' if item.exposed else 'unavailable'}.",
+                'item': item  # L'élément mis à jour
+            }
 
         raise TypeError("The item to update doesn't exist.")

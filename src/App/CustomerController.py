@@ -70,10 +70,7 @@ def Cart(
     try:
         order = customer_service.validate_cart(cart, username_customer, validate, adress)
         return order
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except (TypeError, ValueError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
+    
 
 
 @customer_router.get("/add to cart")
@@ -81,9 +78,18 @@ def order_items(
     item: List[str] = Query(..., description="Item name"),
     quantity: List[int] = Query(..., description="Quantity for each item"),
 ):
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
+    cart = get_cart_for_user(username_customer)
     if len(item) != len(quantity):
         return {"error": "Items and quantities must match"}
-    return {"order": [{"item": i, "quantity": q} for i, q in zip(item, quantity)]}
+    try:
+        cart = customer_service.add_item_cart(username_customer, cart, item, quantity)
+        return cart
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @customer_router.post("/Order", status_code=status.HTTP_200_OK)

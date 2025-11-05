@@ -9,11 +9,13 @@ from src.Model.Item import Item, ItemCreate
 from src.Model.User import User
 from src.Service.ItemService import ItemService
 from src.Service.PasswordService import check_password_strength
+from src.Service.DeliveryDriverService import DeliveryDriverService
 
 from .init_app import admin_service, customer_service, jwt_service, user_repo, user_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
+item_service = ItemService()
 # remplacer cette ligne par :
 # administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"], dependencies=[Depends(require_account_type("Admin"))])
 # pour limiter les actions aux admin
@@ -64,7 +66,6 @@ def View_Storage():
 @administrator_router.post("/Storage/Create_Item", status_code=status.HTTP_201_CREATED)
 def Create_Item(item: ItemCreate, name_item: str, price: float, category: str, stock: int):
     try:
-        item_service = ItemService()
         new_item = item_service.create_item(name_item, price, category, stock)
         return {"message": "Item created successfully ✅", "item": new_item}
     except Exception as e:
@@ -73,6 +74,12 @@ def Create_Item(item: ItemCreate, name_item: str, price: float, category: str, s
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@administrator_router.patch("/Storage/Replemish_Item", status_code=status.HTTP_200_OK)
-def Replemish_Item():
-    pass
+@administrator_router.patch("/Storage/Change_Item", status_code=status.HTTP_200_OK)
+def Change_Item(name_item):
+    try:
+        changes = item_service.change_availability(name_item)
+        return changes
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -1,21 +1,22 @@
-from typing import Annotated
+from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 
 from src.App.Auth_utils import get_user_from_credentials, require_account_type
 from src.App.JWTBearer import JWTBearer
 from src.Model.Customer import Customer
-from src.Service.CustomerService import CustomerServices
+from src.Service.CustomerService import CustomerService
 
 customer_router = APIRouter(prefix="/customer", tags=["Customer"])
 # remplacer cette ligne par :
 # customer_router = APIRouter(prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))])
 # pour limiter les actions aux customer
-customer_service = CustomerServices
+customer_service = CustomerService
 
 
 active_carts = {}
+
 
 def get_cart_for_user(username: str):
     """Retourne le panier de l'utilisateur associé à son token"""
@@ -73,6 +74,16 @@ def Cart(
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@customer_router.get("/add to cart")
+def order_items(
+    item: List[str] = Query(..., description="Item name"),
+    quantity: List[int] = Query(..., description="Quantity for each item"),
+):
+    if len(item) != len(quantity):
+        return {"error": "Items and quantities must match"}
+    return {"order": [{"item": i, "quantity": q} for i, q in zip(item, quantity)]}
 
 
 @customer_router.post("/Order", status_code=status.HTTP_200_OK)

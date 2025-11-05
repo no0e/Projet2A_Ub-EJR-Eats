@@ -7,7 +7,7 @@ from src.Model.Customer import Customer
 from src.Model.Order import Order
 
 
-class CustomerServices:
+class CustomerService:
     def __init__(self):
         self.db_connector = DBConnector()
         self.item_dao = ItemDAO(self.db_connector)

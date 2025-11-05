@@ -7,7 +7,7 @@ from src.Model.User import User
 from src.Service.ItemService import ItemService
 from src.Service.PasswordService import check_password_strength
 
-from .init_app import jwt_service, user_repo, user_service, admin_service
+from .init_app import admin_service, jwt_service, user_repo, user_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
@@ -19,15 +19,11 @@ def Create_Accounts(username: str, password: str, firstname: str, lastname: str,
     except Exception:
         raise HTTPException(status_code=400, detail="Password too weak")
     try:
-        user: User = user_service.create_user(
-            username=username, password=password, firstname=firstname, lastname=lastname
+        user: User = admin_service.create_user(
+            username=username, password=password, firstname=firstname, lastname=lastname, account_type=account_type
         )
     except Exception as error:
-        raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
-    if account_type == "Administrator":
-        admin: Administrator = admin_service.create_user(
-            username=username, password=password, firstname=firstname, lastname=lastname
-        )
+        raise HTTPException(status_code=409, detail=f"Username already exists but the true value is : {error}")
     return APIUser(username=user.username)
 
 

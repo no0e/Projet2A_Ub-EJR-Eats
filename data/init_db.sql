@@ -5,7 +5,7 @@ CREATE SCHEMA project_database;
 -- user
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.users CASCADE;
-CREATE TABLE users (
+CREATE TABLE project_database.users (
     username VARCHAR PRIMARY KEY,
     firstname VARCHAR,
     lastname VARCHAR,
@@ -18,7 +18,7 @@ CREATE TABLE users (
 -- administrator
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.administrators CASCADE;
-CREATE TABLE administrators (
+CREATE TABLE project_database.administrators (
   username_administrator VARCHAR UNIQUE NOT NULL,
   FOREIGN KEY (username_administrator) REFERENCES users(username)
 );
@@ -27,7 +27,7 @@ CREATE TABLE administrators (
 -- delivery_driver
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.delivery_drivers CASCADE;
-CREATE TABLE delivery_drivers (
+CREATE TABLE project_database.delivery_drivers (
     username_delivery_driver TEXT PRIMARY KEY REFERENCES users(username),
     vehicle TEXT,
     is_available BOOLEAN
@@ -36,7 +36,7 @@ CREATE TABLE delivery_drivers (
 -- customer
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.customers CASCADE;
-CREATE TABLE customers (
+CREATE TABLE project_database.customers (
   username_customer VARCHAR UNIQUE NOT NULL,
   address VARCHAR,
   FOREIGN KEY (username_customer) REFERENCES users(username)
@@ -46,7 +46,7 @@ CREATE TABLE customers (
 -- delivery
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.deliveries CASCADE;
-CREATE TABLE deliveries (
+CREATE TABLE project_database.deliveries (
   id_delivery INTEGER UNIQUE NOT NULL PRIMARY KEY,
   username_delivery_driver VARCHAR,
   duration INTEGER,
@@ -59,7 +59,7 @@ CREATE TABLE deliveries (
 -- item
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.items CASCADE;
-CREATE TABLE items (
+CREATE TABLE project_database.items (
   id_item SERIAL PRIMARY KEY,
   name_item VARCHAR,
   price FLOAT,
@@ -72,7 +72,7 @@ CREATE TABLE items (
 -- order_table
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.orders CASCADE;
-CREATE TABLE orders (
+CREATE TABLE project_database.orders (
   id_order INTEGER UNIQUE NOT NULL PRIMARY KEY,
   username_customer VARCHAR,
   username_delivery_driver VARCHAR,

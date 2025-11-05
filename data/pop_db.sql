@@ -25,15 +25,18 @@ VALUES
 ('ernesto1', 'foot', True);
 
 INSERT INTO project_database.items (id_item, name_item, price, category, stock, exposed)
-VALUES (1, 'galette saucisse', 3.2, 'main dish', 102, True),
-VALUES (2, 'vegetarian galette', 3, 'main dish', 30, True),
-VALUES (3, 'cola', 2, 'drink', 501, True);
+VALUES 
+(1, 'galette saucisse', 3.2, 'main dish', 102, True),
+(2, 'vegetarian galette', 3, 'main dish', 30, True),
+(3, 'cola', 2, 'drink', 501, True);
 
 INSERT INTO project_database.orders (id_order, username_customer, username_delivery_driver, address, items)
-VALUES (1, 'bobbia', 'ernesto1', '13 Main St.', {1:10}),
-VALUES (2, 'bobbia', 'ernesto', '13 Main St.', {1:39}),
-VALUES (3, 'charliz', 'ernesto1', '4 Salty Spring Av.', {1:39, 3:2});
+VALUES 
+(1, 'bobbia', 'ernesto1', '13 Main St.', {1:10}),
+(2, 'bobbia', 'ernesto', '13 Main St.', {1:39}),
+(3, 'charliz', 'ernesto1', '4 Salty Spring Av.', {1:39, 3:2});
 
 INSERT INTO project_database.deliveries (id_delivery, username_driv, duration, stops)
-VALUES (1, 'ernesto', '50', ['13 Main St.', '4 Salty Spring Av.']),
-VALUES (1, 'ernesto1', '15', ['13 Main St.']);
+VALUES 
+(1, 'ernesto', '50', ['13 Main St.', '4 Salty Spring Av.']),
+(1, 'ernesto1', '15', ['13 Main St.']);

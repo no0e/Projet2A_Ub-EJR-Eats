@@ -42,12 +42,13 @@ def View_Storage():
     pass
 
 
-item_service = ItemService()
+
 
 
 @administrator_router.post("/Storage/Create_Item", status_code=status.HTTP_201_CREATED)
 def Create_Item(item: ItemCreate, name_item: str, price: float, category: str, stock: int):
     try:
+        item_service = ItemService()
         new_item = item_service.create_item(name_item, price, category, stock)
         return {"message": "Item created successfully ✅", "item": new_item}
     except Exception as e:

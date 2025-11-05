@@ -56,7 +56,7 @@ class CustomerServices():
         for item in items:
             if item.id_item in cart:
                 price_cart= price_cart + item.price*number_item
-        return price_cart
+        return f"price of the cart{price_cart}, and your cart {cart}"
 
     def modify_cart(self, cart,  name_item : str, new_number_item : int):
         """modify the cart by changing the quatity wanted of an item
@@ -129,7 +129,7 @@ class CustomerServices():
             success = self.order_dao.create_order(order)
             if not success:
                 raise ValueError("Failed to create order in the database.")
-            return order
+            return f"You validated your cart, there your {order}"
 
         raise TypeError ("If you want to validate your cart you must enter: yes")
 

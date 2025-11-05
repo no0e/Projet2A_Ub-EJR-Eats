@@ -1,6 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Annotated
 
-from src.App.Auth_utils import require_account_type
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
+
+from src.App.Auth_utils import get_user_from_credentials, require_account_type
+from src.App.JWTBearer import JWTBearer
 from src.Model.Customer import Customer
 from src.Service.CustomerService import CustomerServices
 
@@ -8,11 +12,15 @@ customer_router = APIRouter(prefix="/customer", tags=["Customer"])
 # remplacer cette ligne par :
 # customer_router = APIRouter(prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))])
 # pour limiter les actions aux customer
+customer_service = CustomerServices
+
+
+def create_cart():
+    pass
 
 
 @customer_router.get("/Menu", status_code=status.HTTP_201_CREATED)
 def View_menu():
-    customer_service = CustomerServices
     try:
         menu = customer_service.View_menu()
         return menu
@@ -23,9 +31,16 @@ def View_menu():
 
 
 @customer_router.post("/Cart", status_code=status.HTTP_200_OK)
-def Cart(name_item: str, number_item: int, new_number_item: int, validate: str, adress: str):
-    customer_service = CustomerServices
-
+def Cart(
+    name_item: str,
+    number_item: int,
+    new_number_item: int,
+    validate: str,
+    adress: str,
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
+):
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
     try:
         new_cart = customer_service.add_item_cart(cart, name_item, number_item)
         return new_cart

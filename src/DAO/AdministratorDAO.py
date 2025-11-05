@@ -8,18 +8,18 @@ class AdministratorDAO(UserDAO):
         self.db = db_connector
 
     def create(self, administrator: Administrator) -> bool:
-        try:
-            self.db.sql_query(
-                """
-                INSERT INTO project_database.administrators (username_administrator)
-                VALUES (%s)
-                """,
-                [administrator.username],
-            )
-            return True
-        except Exception as e:
-            print(f"[AdministratorDAO] Error creating administrator: {e}")
-            return False
+        raw_created_admin = self.db.sql_query(
+            """
+            INSERT INTO administrators (username_administrator)
+            VALUES (%(username_administrator)s)
+            RETURNING *;
+            """,
+            {
+                "username_administrator": administrator.username,
+            },
+            "one",
+        )
+        return raw_created_admin is not None
 
     def find_by_username(self, username: str):
         query = """
@@ -31,7 +31,9 @@ class AdministratorDAO(UserDAO):
         raw = self.db.sql_query(query, [username], return_type="one")
         return Administrator(**raw) if raw else None
 
-    def update_administrator(self, administrator: Administrator, new_firstname: str, new_lastname: str, new_password: str) -> bool:
+    def update_administrator(
+        self, administrator: Administrator, new_firstname: str, new_lastname: str, new_password: str
+    ) -> bool:
         """
         Update an existing user's firstname, lastname, and password in the database.
 

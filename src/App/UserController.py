@@ -18,17 +18,17 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @user_router.post("/", status_code=status.HTTP_201_CREATED)
-def create_user(username: str, password: str, firstname: str, lastname: str) -> APIUser:
+def create_user(username: str, password: str, firstname: str, lastname: str, address: str) -> APIUser:
     try:
         check_password_strength(password=password)
     except Exception:
         raise HTTPException(status_code=400, detail="Password too weak")
     try:
         user: User = user_service.create_user(
-            username=username, password=password, firstname=firstname, lastname=lastname
+            username=username, password=password, firstname=firstname, lastname=lastname, address=address
         )
     except Exception as error:
-        raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
+        raise HTTPException(status_code=409, detail=f"{error}")
     return APIUser(username=user.username, account_type="Customer")
 
 

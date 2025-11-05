@@ -1,3 +1,5 @@
+from typing import Literal, Optional
+
 from fastapi import APIRouter, HTTPException, status
 
 from src.App.Auth_utils import require_account_type
@@ -8,7 +10,7 @@ from src.Model.User import User
 from src.Service.ItemService import ItemService
 from src.Service.PasswordService import check_password_strength
 
-from .init_app import admin_service, jwt_service, user_repo, user_service
+from .init_app import admin_service, jwt_service, user_repo, user_service, customer_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
@@ -18,7 +20,13 @@ administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"]
 
 
 @administrator_router.post("/Create_Accounts", status_code=status.HTTP_201_CREATED)
-def Create_Accounts(username: str, password: str, firstname: str, lastname: str, account_type: str) -> APIUser:
+def Create_Accounts(
+    username: str,
+    password: str,
+    firstname: str,
+    lastname: str,
+    account_type: Literal["Administrator", "DeliveryDriver", "Customer"],
+) -> APIUser:
     try:
         check_password_strength(password=password)
     except Exception:
@@ -29,12 +37,19 @@ def Create_Accounts(username: str, password: str, firstname: str, lastname: str,
         )
     except Exception as error:
         raise HTTPException(status_code=409, detail=f"{error}")
-    return APIUser(username=user.username, account_type="Customer")
+    return APIUser(username=user.username, account_type=account_type)
 
 
 @administrator_router.patch("/Edit_Accounts", status_code=status.HTTP_200_OK)
-def Edit_Accounts():
-    pass
+def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "address", "vehicle"], new_value: str):
+    if attribute == "address":
+        if user_service.get_user(username).account_type != "Customer":
+            raise ValueError("Only customers have an address.")
+        customer_service.get_user(username).account_type
+    if attribute == "vehicle" and user_service.get_user(username).account_type != "DeliveryDriver":
+        raise ValueError("Only delivery drivers have a vehicle.")
+    
+
 
 
 @administrator_router.patch("/Edit_Menu", status_code=status.HTTP_200_OK)

@@ -6,6 +6,7 @@ from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.UserDAO import UserDAO
 from src.Service.AdministratorService import AdministratorService
+from src.Service.CustomerService import CustomerService
 from src.Service.JWTService import JwtService
 from src.Service.UserService import UserService
 
@@ -19,3 +20,4 @@ customer_repo = CustomerDAO(db_connector)
 jwt_service = JwtService()
 user_service = UserService(user_repo, admin_repo, driver_repo, customer_repo)
 admin_service = AdministratorService(user_repo, admin_repo, driver_repo, customer_repo)
+customer_service = CustomerService()

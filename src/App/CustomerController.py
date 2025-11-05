@@ -15,8 +15,11 @@ customer_router = APIRouter(prefix="/customer", tags=["Customer"])
 customer_service = CustomerServices
 
 
-def create_cart():
-    pass
+active_carts = {}
+
+def get_cart_for_user(username: str):
+    """Retourne le panier de l'utilisateur associé à son token"""
+    return active_carts.get(username)
 
 
 @customer_router.get("/Menu", status_code=status.HTTP_201_CREATED)
@@ -41,6 +44,7 @@ def Cart(
 ):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
+    cart = get_cart_for_user(username_customer)
     try:
         new_cart = customer_service.add_item_cart(cart, name_item, number_item)
         return new_cart

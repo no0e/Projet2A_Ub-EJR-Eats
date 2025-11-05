@@ -3,6 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 
+from src.App.Auth_utils import get_user_from_credentials, require_account_type
 from src.App.JWTBearer import JWTBearer
 from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDAO import DeliveryDAO
@@ -21,8 +22,9 @@ user_dao = UserDAO(db_connector)
 delivery_service = DeliveryService(delivery_dao)
 driver_service = DeliveryDriverService(driver_dao, user_dao)
 
-# Router
-deliverydriver_router = APIRouter(prefix="/delivery_driver", tags=["DeliveryDriver"])
+deliverydriver_router = APIRouter(
+    prefix="/delivery_driver", tags=["DeliveryDriver"], dependencies=[Depends(require_account_type("Delivery_driver"))]
+)
 
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
@@ -40,7 +42,7 @@ def accept_delivery(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
 ):
     """Permet au livreur connecté d'accepter une livraison."""
-    username_driver = credentials.subject  # fourni par JWTBearer
+    username_driver = get_user_from_credentials(credentials).username
     try:
         result = delivery_service.accept_delivery(id_delivery, username_driver)
         return result
@@ -59,10 +61,9 @@ def edit_profile(
     if vehicule.lower() not in allowed_vehicles:
         raise HTTPException(status_code=400, detail=f"Invalid vehicle type. Must be one of {allowed_vehicles}")
 
-    username_driver = credentials.subject  # récupéré via JWT
+    driver = get_user_from_credentials(credentials)
     try:
-        driver_service.update_vehicle(username_driver, vehicule.lower())
-        driver_service.update_availiability(username_driver, is_available)
+        driver_dao.update(driver, vehicule.lower(), is_available)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}")
 

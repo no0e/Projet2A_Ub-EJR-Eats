@@ -1,0 +1,40 @@
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
+
+from src.App.JWTBearer import JWTBearer
+from src.Model.APIUser import APIUser
+from src.Service.JWTService import jwt_service
+
+from .init_app import jwt_service, user_repo
+
+
+def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIUser:
+    token = credentials.credentials
+    try:
+        payload = jwt_service.decode_jwt(token)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail=f"Invalid token: {e}") from e
+
+    username = payload.get("username")
+    account_type = payload.get("account_type")
+    if not username or not account_type:
+        raise HTTPException(status_code=403, detail="Token missing required information")
+
+    user = user_repo.get_by_username(username)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return APIUser(username=user.username, account_type=user.account_type)
+
+
+def require_account_type(required_account_type: str):
+    def wrapper(credentials: HTTPAuthorizationCredentials = Depends(JWTBearer())):
+        payload = jwt_service.decode_jwt(credentials.credentials)
+        user_account_type = payload.get("account_type")
+        if user_account_type != required_account_type:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail=f"Access denied for role '{user_account_type}'"
+            )
+        return payload
+
+    return wrapper

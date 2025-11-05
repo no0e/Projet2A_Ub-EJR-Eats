@@ -7,6 +7,7 @@ from src.Model.APIUser import APIUser
 from src.Model.JWTResponse import JWTResponse
 from src.Service.PasswordService import check_password_strength, validate_username_password
 
+from .Auth_utils import get_user_from_credentials
 from .init_app import jwt_service, user_repo, user_service
 from .JWTBearer import JWTBearer
 
@@ -28,7 +29,7 @@ def create_user(username: str, password: str, firstname: str, lastname: str) -> 
         )
     except Exception as error:
         raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
-    return APIUser(username=user.username)
+    return APIUser(username=user.username, account_type="Customer")
 
 
 @user_router.post("/jwt", status_code=status.HTTP_201_CREATED)
@@ -43,23 +44,9 @@ def login(username: str, password: str) -> JWTResponse:
             status_code=403, detail=f"Invalid username and password combination mais la vraie erreur est : {error}"
         ) from error
 
-    return jwt_service.encode_jwt(user.username)
+    return jwt_service.encode_jwt(user.username, user.account_type)
 
 
 @user_router.get("/me", dependencies=[Depends(JWTBearer())])
 def get_user_own_profile(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> APIUser:
     return get_user_from_credentials(credentials)
-
-
-def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIUser:
-    token = credentials.credentials
-    try:
-        username = jwt_service.validate_user_jwt(token)  # renvoie le username
-    except Exception as e:
-        raise HTTPException(status_code=403, detail=f"Invalid token: {e}") from e
-
-    user = user_repo.get_by_username(username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return APIUser(username=user.username)

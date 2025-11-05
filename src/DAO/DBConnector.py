@@ -28,7 +28,7 @@ class DBConnector:
         self,
         query: str,
         data: Optional[Union[tuple, list, dict]] = None,
-        return_type: Union[Literal["one"], Literal["all"]] = "one",
+        return_type: Optional[Literal["one", "all"]] = None,
     ):
         try:
             with psycopg2.connect(
@@ -42,10 +42,13 @@ class DBConnector:
             ) as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(query, data)
+                    connection.commit()
                     if return_type == "one":
                         return cursor.fetchone()
-                    if return_type == "all":
+                    elif return_type == "all":
                         return cursor.fetchall()
+                    else:
+                        return True
         except Exception as e:
             print("ERROR")
             print(e)

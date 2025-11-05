@@ -80,6 +80,6 @@ CREATE TABLE orders (
   items items[],
   date_order DATE,
   time_order TIME,
-  FOREIGN KEY (username_customer) REFERENCES users(username),
+  FOREIGN KEY (username_customer) REFERENCES users(username) ,
   FOREIGN KEY (username_delivery_driver) REFERENCES users(username)
 );

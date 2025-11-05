@@ -19,7 +19,7 @@ class DeliveryDriverService:
         if not delivery:
             raise ValueError("Delivery not available or already accepted")
 
-        success = self.delivery_repo.accept_delivery(delivery_id, driver_username)
+        success = self.delivery_repo.set_delivery_accepted(delivery_id, driver_username)
         if not success:
             raise ValueError("Delivery could not be accepted")
 

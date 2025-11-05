@@ -25,14 +25,12 @@ class DeliveryService:
         if delivery.is_accepted:
             raise ValueError("Delivery already accepted")
 
-        # Marquer comme acceptée dans la BDD
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
 
-        # Obtenir l’adresse de destination
         if not delivery.stops or len(delivery.stops) == 0:
             raise ValueError("No delivery stops found")
 
-        destination_address = delivery.stops[-1]  # dernier stop = destination finale
+        destination_address = delivery.stops[-1]  # final stop
         destination_coords = self.google_map.geocoding_address(destination_address)
         google_maps_link = self.google_map.generate_google_maps_link(destination_coords)
 

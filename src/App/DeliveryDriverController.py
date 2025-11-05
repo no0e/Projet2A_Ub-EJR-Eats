@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 
 from src.App.Auth_utils import get_user_from_credentials, require_account_type
@@ -29,7 +29,7 @@ deliverydriver_router = APIRouter(
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
 def view_available_deliveries():
-    """Liste toutes les livraisons non encore acceptées."""
+    """List of all non accepeted dilivery"""
     deliveries = delivery_service.get_available_deliveries()
     return {"available_deliveries": deliveries}
 
@@ -41,10 +41,11 @@ def accept_delivery(
     id_delivery: int,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
 ):
-    """Permet au livreur connecté d'accepter une livraison."""
+    """TO accept a delivery as a delivery driver by typing its Id"""
     username_driver = get_user_from_credentials(credentials).username
+    vehicle_driver = get_user_from_credentials(credentials).vehicule
     try:
-        result = delivery_service.accept_delivery(id_delivery, username_driver)
+        result = delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
         return result
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error))
@@ -52,23 +53,20 @@ def accept_delivery(
 
 @deliverydriver_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])
 def edit_profile(
-    vehicule: str,
-    is_available: bool,
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
+    vehicle: str = Query(..., description="Type of vehicle", enum=["driving", "walking", "bicycling"]),
+    is_available: bool = Query(..., description="Driver availability"),
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ):
-    """Modifie le type de véhicule ou la disponibilité du livreur connecté."""
-    allowed_vehicles = ["foot", "bike", "car"]
-    if vehicule.lower() not in allowed_vehicles:
-        raise HTTPException(status_code=400, detail=f"Invalid vehicle type. Must be one of {allowed_vehicles}")
+    """Edit the vehicle type or availability status of the connected delivery driver."""
 
     driver = get_user_from_credentials(credentials)
     try:
-        driver_dao.update(driver, vehicule.lower(), is_available)
+        driver_dao.update(driver, vehicle, is_available)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}")
 
     return {
         "detail": "Profile updated successfully",
-        "vehicle": vehicule.lower(),
+        "vehicle": vehicle,
         "is_available": is_available,
     }

@@ -1,22 +1,56 @@
+from src.DAO.CustomerDAO import CustomerDAO
+from src.DAO.DBConnector import DBConnector
+from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.ItemDAO import ItemDAO
 from src.DAO.OrderDAO import OrderDAO
-from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
-from src.DAO.CustomerDAO import CustomerDAO
+from src.Model.Customer import Customer
 from src.Model.Order import Order
-from src.DAO.DBConnector import DBConnector
 
 
-class CustomerServices():
-
+class CustomerServices:
     def __init__(self):
         self.db_connector = DBConnector()
         self.item_dao = ItemDAO(self.db_connector)
         self.deliverydriver_dao = DeliveryDriverDAO(self.db_connector)
         self.customer_dao = CustomerDAO(self.db_connector)
         self.order_dao = OrderDAO(self.db_connector)
+        self.active_carts = {}
+
+    def get_customer(self, username: str) -> Customer | None:
+        """Function that gives a customer by the username given.
+
+        Parameters
+        ----------
+        username : str
+            customer's username to search
+
+        Returns
+        -------
+        Customer
+            Instance of the customer with the assiociated username given.
+        """
+        return self.customer_dao.find_by_username(username)
+
+    def update_customer(self, username: str, address: str):
+        """Function that update the customer's address.
+
+        Parameters
+        ----------
+        username : str
+            customer's username
+        address : str
+            customer's address
+
+        Returns
+        -------
+        User
+            Returns the customer with updated information.
+        """
+        self.customer_dao_repo.get_customer(username).address = address
+        return self.customer_dao.get_customer(username)
 
     def View_menu(self):
-        """ See all the item disponible
+        """See all the item disponible
 
         Return
         ----
@@ -26,9 +60,12 @@ class CustomerServices():
 
         return self.item_dao.find_all_exposed_item()
 
+    def get_cart_for_user(self, username: str):
+        """Retourne le panier de l'utilisateur associé à son token"""
+        return self.active_carts.get(username)
 
-    def add_item_cart(self, cart, name_item : str, number_item : int):
-        """ add the quantity of the item choose into the cart
+    def add_item_cart(self, username, cart, name_item: str, number_item: int):
+        """add the quantity of the item choose into the cart
 
         parameters
         -----
@@ -55,10 +92,10 @@ class CustomerServices():
         price_cart = 0.0
         for item in items:
             if item.id_item in cart:
-                price_cart= price_cart + item.price*number_item
+                price_cart = price_cart + item.price * number_item
         return f"price of the cart{price_cart}, and your cart {cart}"
 
-    def modify_cart(self, cart,  name_item : str, new_number_item : int):
+    def modify_cart(self, cart, name_item: str, new_number_item: int):
         """modify the cart by changing the quatity wanted of an item
 
         Parameters
@@ -77,9 +114,9 @@ class CustomerServices():
         """
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
-            if item.name_item.lower()== name_item.lower():
+            if item.name_item.lower() == name_item.lower():
                 id_item = item.id_item
-                if new_number_item > item.stock :
+                if new_number_item > item.stock:
                     raise ValueError("The quantity requested exceeds the stock available.")
                 if item.id_item not in cart:
                     raise TypeError(f"{name_item} is not in the cart")
@@ -106,13 +143,12 @@ class CustomerServices():
         """
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
-            if item.name_item.lower()== name_item.lower():
+            if item.name_item.lower() == name_item.lower():
                 id_item = item.id_item
                 if item.id_item not in cart:
                     raise TypeError(f"{name_item} is not in the cart")
                 del cart[id_item]
                 return cart
-
 
     def validate_cart(self, cart, username_customer, validate, adress):
         customer = self.customer_dao.get_by_username(username_customer)
@@ -120,28 +156,11 @@ class CustomerServices():
             if adress is None:
                 adress = customer.adress
             order = Order(
-                id_order =None,
-                username_customer = str,
-                username_delivery_driver = None,
-                address = adress,
-                items= cart
+                id_order=None, username_customer=str, username_delivery_driver=None, address=adress, items=cart
             )
             success = self.order_dao.create_order(order)
             if not success:
                 raise ValueError("Failed to create order in the database.")
             return f"You validated your cart, there your {order}"
 
-        raise TypeError ("If you want to validate your cart you must enter: yes")
-
-
-
-
-
-
-
-
-
-
-
-
-
+        raise TypeError("If you want to validate your cart you must enter: yes")

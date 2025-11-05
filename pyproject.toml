@@ -35,6 +35,7 @@ lint = "ruff check"
 format = "ruff format"
 test = "pytest tests --cov=src"
 start = "pdm run __main__.py"
+reset = "src/Utils/reset_db.py"
 typecheck = "pyrefly check"
 
 [tool.ruff]

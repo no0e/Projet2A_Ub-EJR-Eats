@@ -62,7 +62,7 @@ class CustomerDAO(UserDAO):
 
         return updated_rows is not None
 
-    def delete(self, customer : Customer) -> bool:
+    def delete(self, customer: Customer) -> bool:
         self.db.sql_query(
             "DELETE FROM project_database.customers WHERE username_customer = %s",
             [customer.username],

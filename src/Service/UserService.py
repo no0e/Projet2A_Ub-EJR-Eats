@@ -77,22 +77,12 @@ class UserService:
             self.admin_repo.create(
                 Administrator(
                     username=username,
-                    firstname=firstname,
-                    lastname=lastname,
-                    password=new_password,
-                    salt=salt,
-                    account_type="Administrator",
                 )
             )
         elif account_type == "DeliveryDriver":
             self.driver_repo.create(
                 DeliveryDriver(
                     username=username,
-                    firstname=firstname,
-                    lastname=lastname,
-                    password=new_password,
-                    salt=salt,
-                    account_type="DeliveryDriver",
                     vehicle="Car",
                     is_available=False,
                 )
@@ -101,11 +91,6 @@ class UserService:
             self.customer_repo.create(
                 Customer(
                     username=username,
-                    firstname=firstname,
-                    lastname=lastname,
-                    password=new_password,
-                    salt=salt,
-                    account_type="Customer",
                     address=address,
                 )
             )

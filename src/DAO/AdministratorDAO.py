@@ -32,7 +32,7 @@ class AdministratorDAO(UserDAO):
 
     def delete(self, administrator: Administrator) -> bool:
         self.db.sql_query(
-            "DELETE FROM project_database.administrators WHERE username_administrator = %s",
+            "DELETE FROM administrators WHERE username_administrator = %s",
             [administrator.username],
         )
         return True

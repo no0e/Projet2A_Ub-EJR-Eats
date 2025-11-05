@@ -21,10 +21,9 @@ class CustomerDAO(UserDAO):
 
     def find_by_username(self, username: str):
         query = """
-            SELECT u.username, c.adress
-            FROM project_database.users u
-            JOIN project_database.customers c a ON u.username = c.username
-            WHERE u.username = %s
+            SELECT username, adress
+            FROM customers
+            WHERE username = %s
         """
         raw = self.db.sql_query(query, [username], return_type="one")
         return Customer(**raw) if raw else None
@@ -51,10 +50,7 @@ class CustomerDAO(UserDAO):
             WHERE customer_username = %(username)s
             RETURNING *;
             """,
-            {
-                "customer_username": Customer.username,
-                "address": Customer.address
-            },
+            {"customer_username": Customer.username, "address": Customer.address},
             "one",
         )
 
@@ -62,7 +58,7 @@ class CustomerDAO(UserDAO):
 
     def delete(self, customer: Customer) -> bool:
         self.db.sql_query(
-            "DELETE FROM project_database.customers WHERE username_customer = %s",
+            "DELETE FROM customers WHERE username_customer = %s",
             [customer.username],
         )
         return True

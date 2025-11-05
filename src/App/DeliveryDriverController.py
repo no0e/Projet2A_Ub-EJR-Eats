@@ -29,7 +29,7 @@ deliverydriver_router = APIRouter(
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
 def view_available_deliveries():
-    """Liste toutes les livraisons non encore acceptées."""
+    """List of all non accepeted dilivery"""
     deliveries = delivery_service.get_available_deliveries()
     return {"available_deliveries": deliveries}
 
@@ -41,7 +41,7 @@ def accept_delivery(
     id_delivery: int,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
 ):
-    """Permet au livreur connecté d'accepter une livraison."""
+    """TO accept a delivery as a delivery driver by typing its Id"""
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = get_user_from_credentials(credentials).vehicule
     try:

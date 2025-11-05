@@ -2,8 +2,8 @@ from typing import Optional, Union
 
 from src.DAO.AdministratorDAO import AdministratorDAO
 from src.DAO.UserDAO import UserDAO
-from src.Model.User import User
 from src.Model.DeliveryDriver import DeliveryDriver
+from src.Model.User import User
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 
 
@@ -127,13 +127,9 @@ class AdministratorService:
             self.user_repo.get_user(username).password = hash_password(password, salt)
         return self.user_repo.get_user(username)
 
-
     def drivers_available(self) -> list(DeliveryDriver):
         delivery_drivers = self.user_repo.get_by_account_type("DeliveryDriver")
         available_delivery_drivers = [
-            delivery_driver
-            for delivery_driver in delivery_drivers
-            if delivery_driver.is_available
+            delivery_driver for delivery_driver in delivery_drivers if delivery_driver.is_available
         ]
         return available_delivery_drivers
-

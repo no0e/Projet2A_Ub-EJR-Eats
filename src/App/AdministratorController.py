@@ -7,7 +7,7 @@ from src.Model.User import User
 from src.Service.ItemService import ItemService
 from src.Service.PasswordService import check_password_strength
 
-from .init_app import jwt_service, user_repo, user_service
+from .init_app import jwt_service, user_repo, user_service, admin_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
@@ -24,6 +24,10 @@ def Create_Accounts(username: str, password: str, firstname: str, lastname: str,
         )
     except Exception as error:
         raise HTTPException(status_code=409, detail=f"Username already exists mais la vraie erreur est : {error}")
+    if account_type == "Administrator":
+        admin: Administrator = admin_service.create_user(
+            username=username, password=password, firstname=firstname, lastname=lastname
+        )
     return APIUser(username=user.username)
 
 

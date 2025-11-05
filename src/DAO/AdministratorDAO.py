@@ -11,7 +11,7 @@ class AdministratorDAO(UserDAO):
         raw_created_admin = self.db.sql_query(
             """
             INSERT INTO administrators (username_administrator)
-            VALUES (%(username_delivery_driver)s)
+            VALUES (%(username_administrator)s)
             RETURNING *;
             """,
             {

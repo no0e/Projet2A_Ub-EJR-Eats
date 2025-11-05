@@ -57,7 +57,7 @@ class UserDAO:
         )
         return raw_created_user is not None
 
-    def update_user(self, user: User, new_firstname: str, new_lastname: str, new_password: str) -> bool:
+    def update_user(self, username: str, new_firstname: str, new_lastname: str, new_password: str) -> bool:
         """
         Update an existing user's firstname, lastname, and password in the database.
 

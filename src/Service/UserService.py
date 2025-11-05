@@ -91,6 +91,9 @@ class UserService:
             self.customer_repo.create(
                 Customer(
                     username=username,
+                    firstname=firstname,
+                    lastname=lastname,
+                    
                     address=address,
                 )
             )
@@ -162,12 +165,22 @@ class UserService:
         User
             Returns the user with updated information.
         """
-        if firstname is not None:
-            self.user_repo.get_user(username).firstname = firstname
-        if lastname is not None:
-            self.user_repo.get_user(username).lastname = lastname
-        if password is not None:
+        new_firstname: str
+        new_lastname: str
+        new_password: str
+        if firstname is None:
+            new_firstname = self.get_user(username).firstname
+        else:
+            new_firstname = firstname
+        if lastname is None:
+            new_lastname = self.get_user(username).lastname
+        else:
+            new_lastname = lastname
+        if password is None:
+            new_password = self.get_user(username).password
+        else:
             check_password_strength(password)
             salt = create_salt()
-            self.user_repo.get_user(username).password = hash_password(password, salt)
+            new_password = hash_password(password, salt)
+        self.user_repo.update_user(username, new_firstname, new_lastname, new_password)
         return self.user_repo.get_user(username)

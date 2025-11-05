@@ -10,7 +10,7 @@ from src.Model.User import User
 from src.Service.ItemService import ItemService
 from src.Service.PasswordService import check_password_strength
 
-from .init_app import admin_service, jwt_service, user_repo, user_service, customer_service
+from .init_app import admin_service, customer_service, jwt_service, user_repo, user_service
 
 administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
 
@@ -45,12 +45,11 @@ def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "ad
     if attribute == "address":
         if user_service.get_user(username).account_type != "Customer":
             raise ValueError("Only customers have an address.")
-        customer_service.get_user(username).account_type
-    if attribute == "vehicle" and user_service.get_user(username).account_type != "DeliveryDriver":
-        raise ValueError("Only delivery drivers have a vehicle.")
-    
-
-
+        customer_service.get_customer(username).address = new_value
+    if attribute == "vehicle":
+        if user_service.get_user(username).account_type != "DeliveryDriver":
+            raise ValueError("Only delivery drivers have a vehicle.")
+        d_service.get_customer(username).address = new_value
 
 @administrator_router.patch("/Edit_Menu", status_code=status.HTTP_200_OK)
 def Edit_Menu():

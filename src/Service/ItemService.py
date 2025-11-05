@@ -136,3 +136,25 @@ class ItemService:
                 return item
 
         raise TypeError("The item to update doesn't exist.")
+
+    def change_availability(self, name_item):
+        """ Change if an item is available or not
+
+        Parameters
+        ----
+        name_item: str
+            the item that need to be updated
+
+        Returns
+        -----
+        Bool
+        """
+        items = self.item_dao.find_all_item()
+        for item in items:
+            if item.name_item.lower()== name_item:
+                if item.exposed == True:
+                    item.exposed = False
+                else:
+                    item.exposed = True
+
+        raise TypeError("The item to update doesn't exist.")

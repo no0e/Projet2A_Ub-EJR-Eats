@@ -203,17 +203,3 @@ class GoogleMap:
             url += f"&waypoints={waypoints}"
 
         return url
-
-
-gm = GoogleMap()
-destinations = [
-    {"lat": 48.051, "lng": -1.741},
-    {"lat": 48.07, "lng": -1.74},
-    {"lat": 48.08, "lng": -1.72},
-]
-result = gm.get_directions(destinations, mode="bicycling")
-print(result)
-
-
-link = gm.generate_google_maps_link(destinations, mode="bicycling")
-print(link)

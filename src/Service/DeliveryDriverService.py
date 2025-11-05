@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from src.DAO.DeliveryDAO import DeliveryDAO
 from src.Model.Delivery import Delivery
@@ -26,7 +26,7 @@ class DeliveryDriverService:
         """
         return self.delivery_repo.find_by_username(username)
 
-    def update_customer(self, username: str, address: str):
+    def update_driver(self, username: str, vehicle: Optional[str], is_available: Optional[bool]):
         """Function that update the customer's address.
 
         Parameters
@@ -41,7 +41,7 @@ class DeliveryDriverService:
         User
             Returns the customer with updated information.
         """
-        self.customer_dao_repo.get_customer(username).address = address
+        self.customer_dao_repo.update_customer(username)
         return self.customer_dao.get_customer(username)
 
     def get_available_deliveries(self) -> List[Delivery]:

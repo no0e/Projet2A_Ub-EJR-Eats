@@ -39,6 +39,7 @@ def Cart(
     adress: str,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
 ):
+    
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     try:

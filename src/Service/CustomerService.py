@@ -14,6 +14,7 @@ class CustomerServices():
         self.deliverydriver_dao = DeliveryDriverDAO(self.db_connector)
         self.customer_dao = CustomerDAO(self.db_connector)
         self.order_dao = OrderDAO(self.db_connector)
+        self.active_carts = {}
 
     def View_menu(self):
         """ See all the item disponible
@@ -26,8 +27,14 @@ class CustomerServices():
 
         return self.item_dao.find_all_exposed_item()
 
+    
 
-    def add_item_cart(self, cart, name_item : str, number_item : int):
+    def get_cart_for_user(self, username: str):
+        """Retourne le panier de l'utilisateur associé à son token"""
+        return self.active_carts.get(username)
+
+
+    def add_item_cart(self, username, cart, name_item : str, number_item : int):
         """ add the quantity of the item choose into the cart
 
         parameters
@@ -43,6 +50,10 @@ class CustomerServices():
             the price of the cart
         """
         items = self.item_dao.find_all_exposed_item()
+        cart = get_cart_for_user(username)
+        if cart is None:
+            cart = {}
+            active_carts[username] = cart
         for item in items:
             if item.name_item.lower() == name_item.lower():
                 if number_item > item.stock:
@@ -75,6 +86,7 @@ class CustomerServices():
         cart: dict
             the new cart
         """
+        cart = get_cart_for_user(username)
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
             if item.name_item.lower()== name_item.lower():

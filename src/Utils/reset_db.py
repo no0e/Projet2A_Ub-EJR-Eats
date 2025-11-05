@@ -21,17 +21,16 @@ class ResetDatabase(metaclass=Singleton):
 
         if test_dao:
             mock.patch.dict(os.environ, {"POSTGRES_SCHEMA": "projet_test_dao"}).start()
+            init_data_path = "data/init_db_test.sql"
             pop_data_path = "data/pop_db_test.sql"
         else:
+            init_data_path = "data/init_db.sql"
             pop_data_path = "data/pop_db.sql"
 
         dotenv.load_dotenv()
 
-        schema = os.environ["POSTGRES_SCHEMA"]
 
-        create_schema = f"DROP SCHEMA IF EXISTS {schema} CASCADE; CREATE SCHEMA {schema};"
-
-        init_db = open("data/init_db.sql", encoding="utf-8")
+        init_db = open(init_data_path, encoding="utf-8")
         init_db_as_string = init_db.read()
         init_db.close()
 
@@ -39,12 +38,11 @@ class ResetDatabase(metaclass=Singleton):
         pop_db_as_string = pop_db.read()
         pop_db.close()
 
+        db_connector = DBConnector()
+
         try:
-            with DBConnector().connection as connection:
-                with connection.cursor() as cursor:
-                    cursor.execute(create_schema)
-                    cursor.execute(init_db_as_string)
-                    cursor.execute(pop_db_as_string)
+            db_connector.sql_query(init_db_as_string)
+            db_connector.sql_query(pop_db_as_string)
         except Exception as e:
             logging.info(e)
             raise
@@ -55,3 +53,7 @@ class ResetDatabase(metaclass=Singleton):
 if __name__ == "__main__":
     ResetDatabase().lancer()
     ResetDatabase().lancer(True)
+    print("Database was reset.")
+    #to run it, enter :
+    #pdm run python -m  src.Utils.reset_db
+    #in the command line

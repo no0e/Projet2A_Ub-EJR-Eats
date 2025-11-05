@@ -2,10 +2,11 @@ import os
 from typing import Literal, Optional, Union
 
 import psycopg2
+from dotenv import load_dotenv
 from psycopg2.extras import RealDictCursor
 
-from dotenv import load_dotenv
 load_dotenv()
+
 
 class DBConnector:
     def __init__(self, config=None):
@@ -50,3 +51,34 @@ class DBConnector:
             print("ERROR")
             print(e)
             raise e
+
+    def execute_sql_file(self, file_path: str):
+        """
+        Executes a SQL file using the current database connection.
+
+        Args:
+            file_path (str): Path to the SQL file to execute.
+        """
+        try:
+            with open(file_path, "r") as sql_file:
+                sql_commands = sql_file.read()
+
+                with psycopg2.connect(
+                    host=self.host,
+                    port=self.port,
+                    database=self.database,
+                    user=self.user,
+                    password=self.password,
+                    options=f"-c search_path={self.schema}",
+                ) as connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(sql_commands)
+                        connection.commit()
+
+            print(f"Successfully executed {file_path}")
+        except FileNotFoundError:
+            print(f"Error: File {file_path} not found.")
+            raise
+        except psycopg2.Error as e:
+            print(f"Error executing {file_path}: {e}")
+            raise

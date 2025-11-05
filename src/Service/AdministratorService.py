@@ -48,7 +48,7 @@ class AdministratorService:
         User
             Returns the user that has been created.
         """
-        return UserService(self.user_repo, self.admin_repo, self.customer_repo, self.driver_repo).create_user(
+        return UserService(self.user_repo, self.admin_repo, self.driver_repo, self.customer_repo).create_user(
             username=username,
             firstname=firstname,
             lastname=lastname,
@@ -125,9 +125,11 @@ class AdministratorService:
             self.user_repo.get_user(username).password = hash_password(password, salt)
         return self.user_repo.get_user(username)
 
+    """
     def drivers_available(self) -> list(DeliveryDriver):
         delivery_drivers = self.user_repo.get_by_account_type("DeliveryDriver")
         available_delivery_drivers = [
             delivery_driver for delivery_driver in delivery_drivers if delivery_driver.is_available
         ]
         return available_delivery_drivers
+    """

@@ -131,7 +131,7 @@ class UserService:
         User
             Instance of the user with the assiociated username given.
         """
-        return self.user_repo.get_user(user_username)
+        return self.user_repo.get_by_username(user_username)
 
     def username_exists(self, username: str) -> bool:
         """Function that checks if a given username is already existing in the database.
@@ -146,7 +146,7 @@ class UserService:
         bool
             True if the username is already existing, False otherwise.
         """
-        return self.user_repo.get_user(username) is not None
+        return self.user_repo.get_by_username(username) is not None
 
     def delete_user(self, username: str):
         """Function that delete a user from our data given their username.
@@ -156,7 +156,7 @@ class UserService:
         username : str
             username of the user we want to delete.
         """
-        self.user_repo.delete_user(self.get_user(username))
+        self.user_repo.delete_user(self.get_by_username(username))
 
     def update_user(
         self,

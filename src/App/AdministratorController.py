@@ -153,9 +153,9 @@ def Delete_Item(name_item):
 
 @administrator_router.patch("/Storage/Edit_Profile", status_code=status.HTTP_200_OK)
 def edit_Profile(
-    firstname: str = Query(..., description="First name"),
-    lastname: str = Query(..., description="Last name"),
-    password: str = Query(..., description="Password"),
+    firstname: Optional[str] = Query(None, description="First name"),
+    lastname: Optional[str] = Query(None, description="Last name"),
+    password: Optional[str] = Query(None, description="Password"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ):
     """Edit the attributes of the connected administrator."""

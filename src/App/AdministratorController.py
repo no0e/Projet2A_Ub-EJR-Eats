@@ -112,14 +112,14 @@ def Create_Item(
 def Edit_Item(
     name_item,
     new_name: str = None,
-    change_availability: str = None,
+    availability: bool = Query(None, description="Is the item available ?", enum=[True, False]),
     new_price: float = None,
     new_stock: int = None,
     new_category: str = Query(None, description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
 ):
     try:
-        if name_item and change_availability:
-            changes = item_service.change_availability(name_item, change_availability)
+        if name_item and availability:
+            changes = item_service.change_availability(name_item, availability)
             return changes
         if name_item and new_name:
             changes = item_service.change_name_item(name_item, new_name)

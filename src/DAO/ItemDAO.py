@@ -13,15 +13,19 @@ class ItemDAO:
 
     db_connector: DBConnector
 
-    def __init__(self, db_connector: DBConnector):
+    def __init__(self, db_connector: DBConnector, test:bool = False):
         """
         Initialize the ItemDAO with a database connector.
 
         :param db_connector: Instance of DBConnector used to execute SQL queries.
         """
         self.db_connector = db_connector
+        if test:
+            self.schema = "project_test_database"
+        else:
+            self.schema = "project_database" 
 
-    def create_item(self, item: Item, test:bool = False) -> bool:
+    def create_item(self, item: Item) -> bool:
         """
         Insert a new item into the database.
 
@@ -29,13 +33,9 @@ class ItemDAO:
         :return: True if insertion succeeded, False otherwise.
         """
         try:
-            if test:
-                schema = "project_test_database"
-            else:
-                schema = "project_database"
             raw_item = self.db_connector.sql_query(
             """
-            INSERT INTO """+schema+""".items (name_item, price, category, stock, exposed)
+            INSERT INTO """+self.schema+""".items (name_item, price, category, stock, exposed)
             VALUES (%(name_item)s, %(price)s, %(category)s, %(stock)s, %(exposed)s)
             RETURNING id_item;
             """,
@@ -57,7 +57,7 @@ class ItemDAO:
     def update_item_exposed(self, id_item, exposed):
         """Met à jour l'exposition de l'item dans la base de données"""
         query = """
-        UPDATE project_database.items
+        UPDATE """+self.schema+""".items
         SET exposed = %s
         WHERE id_item = %s
         """
@@ -71,7 +71,7 @@ class ItemDAO:
         :return: An Item object if found, otherwise None.
         """
         raw_item = self.db_connector.sql_query(
-            "SELECT * FROM project_database.items WHERE id_item = %s;", [id_item], "one"
+            "SELECT * FROM "+self.schema+".items WHERE id_item = %s;", [id_item], "one"
         )
 
         if raw_item is None:
@@ -93,7 +93,7 @@ class ItemDAO:
         :return: An Item object if found, otherwise None.
         """
         raw_item = self.db_connector.sql_query(
-            "SELECT * FROM project_database.items WHERE name_item = %s;", [name_item], "one"
+            "SELECT * FROM "+self.schema+".items WHERE name_item = %s;", [name_item], "one"
         )
 
         if raw_item is None:
@@ -113,7 +113,7 @@ class ItemDAO:
 
         :return: A list of Item objects that are exposed.
         """
-        raw_items = self.db_connector.sql_query("SELECT * FROM project_database.items WHERE exposed = TRUE;", [], "all")
+        raw_items = self.db_connector.sql_query("SELECT * FROM "+self.schema+".items WHERE exposed = TRUE;", [], "all")
 
         return [
             Item(
@@ -132,7 +132,8 @@ class ItemDAO:
 
         :return: A list of Item objects that are exposed.
         """
-        raw_items = self.db_connector.sql_query("SELECT * FROM project_database.items ", [], "all")
+
+        raw_items = self.db_connector.sql_query("SELECT * FROM "+self.schema+".items ", [], "all")
 
         return [
             Item(
@@ -155,7 +156,7 @@ class ItemDAO:
         try:
             self.db_connector.sql_query(
                 """
-                UPDATE project_database.items
+                UPDATE """+self.schema+""".items
                 SET name_item = %(name_item)s,
                     price = %(price)s,
                     category = %(category)s,
@@ -187,7 +188,7 @@ class ItemDAO:
         """
         try:
             self.db_connector.sql_query(
-                "DELETE FROM project_database.items WHERE id_item = %s;", [item.id_item], "none"
+                "DELETE FROM "+self.schema+".items WHERE id_item = %s;", [item.id_item], "none"
             )
             return True
         except Exception as e:

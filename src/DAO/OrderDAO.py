@@ -17,13 +17,17 @@ class OrderDAO:
     def __init__(self, db_connector: DBConnector):
         self.db_connector = db_connector
 
-    def create_order(self, order: Order) -> bool:
+    def create_order(self, order: Order, test:bool = False) -> bool:
         """
         Create a new order with a dictionary of item IDs and quantities.
         :param order: Order object with items as a dictionary {item_id: quantity}.
         :return: True if success.
         """
         try:
+            if test:
+                schema = "project_test_database"
+            else:
+                schema = "project_database"
             if not isinstance(order.items, dict):
                 raise TypeError("Order.items must be a dictionary {item_id: quantity}.")
 
@@ -36,7 +40,7 @@ class OrderDAO:
             items_json = json.dumps(order.items)
             self.db_connector.sql_query(
                 """
-                INSERT INTO project_database.orders ( username_customer, username_delivery_driver, address, items)
+                INSERT INTO """+schema+""".orders ( username_customer, username_delivery_driver, address, items)
                 VALUES ( %(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s);
                 RETURNING id_order;""",
                 {
@@ -52,14 +56,18 @@ class OrderDAO:
             print(f"[OrderDAO] Error creating order: {e}")
             return False
 
-    def find_order_by_id(self, id_order: int) -> Optional[Order]:
+    def find_order_by_id(self, id_order: int, test:bool = False) -> Optional[Order]:
         """
         Find order by ID. Loads item IDs and quantities from DB.
         :param id_order: order ID
         :return: Order object with items as a dictionary {item_id: quantity}
         """
+        if test:
+            schema = "project_test_database"
+        else:
+            schema = "project_database"
         raw_order = self.db_connector.sql_query(
-            "SELECT * FROM project_database.orders WHERE id_order = %s;",
+            "SELECT * FROM "+schema+".orders WHERE id_order = %s;",
             [id_order],
             "one",
         )
@@ -77,14 +85,18 @@ class OrderDAO:
             items=items_dict,
         )
 
-    def find_order_by_user(self, username_customer: str) -> Optional[List[Order]]:
+    def find_order_by_user(self, username_customer: str, test:bool = False) -> Optional[List[Order]]:
         """
         Find orders by the username of the customer.
         :param username_customer: str
         :return: List of Order objects with items as dictionaries {item_id: quantity}
         """
+        if test:
+            schema = "project_test_database"
+        else:
+            schema = "project_database"
         raw_orders = self.db_connector.sql_query(
-            "SELECT * FROM project_database.orders WHERE username_customer = %s;",
+            "SELECT * FROM "+schema+".orders WHERE username_customer = %s;",
             [username_customer],
             "all",
         )
@@ -121,13 +133,17 @@ class OrderDAO:
 
         return orders
 
-    def update(self, order: Order) -> bool:
+    def update(self, order: Order, test:bool = False) -> bool:
         """
         Update an order with new details and item IDs and quantities.
         :param order: updated Order object
         :return: True if success
         """
         try:
+            if test:
+                schema = "project_test_database"
+            else:
+                schema = "project_database"
             if not isinstance(order.items, dict):
                 raise TypeError("Order.items must be a dictionary {item_id: quantity}.")
 
@@ -140,7 +156,7 @@ class OrderDAO:
             items_json = json.dumps(order.items)
             self.db_connector.sql_query(
                 """
-                UPDATE project_database.orders
+                UPDATE """+schema+""".orders
                 SET username_customer = %(username_customer)s,
                     username_delivery_driver = %(username_delivery_driver)s,
                     address = %(address)s,
@@ -161,15 +177,19 @@ class OrderDAO:
             print(f"[OrderDAO] Error updating order: {e}")
             return False
 
-    def delete(self, order: Order) -> bool:
+    def delete(self, order: Order, test:bool = False) -> bool:
         """
         Delete order by id.
         :param order: Order object
         :return: True if success
         """
         try:
+            if test:
+                schema = "project_test_database"
+            else:
+                schema = "project_database"
             self.db_connector.sql_query(
-                "DELETE FROM project_database.orders WHERE id_order = %s;",
+                "DELETE FROM "+schema+".orders WHERE id_order = %s;",
                 [order.id_order],
                 "none",
             )

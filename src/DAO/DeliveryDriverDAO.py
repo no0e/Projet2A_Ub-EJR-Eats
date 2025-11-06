@@ -38,18 +38,32 @@ class DeliveryDriverDAO(UserDAO):
     def update_delivery_driver(
         self, username: str, vehicle: Optional[str] = None, is_available: Optional[bool] = None
     ) -> bool:
-        if vehicle is None:
-            vehicle = self.find_by_username(username).vehicle
-        if is_available is None:
-            is_available = self.find_by_username(username).is_available
-        query = """
+        current_driver = self.find_by_username(username)
+
+        vehicle = vehicle if vehicle is not None else current_driver.vehicle
+        is_available = is_available if is_available is not None else current_driver.is_available
+
+        set_clause = []
+        params = {"username": username}
+
+        if vehicle != current_driver.vehicle:
+            set_clause.append("vehicle = %(vehicle)s")
+            params["vehicle"] = vehicle
+
+        if is_available != current_driver.is_available:
+            set_clause.append("is_available = %(is_available)s")
+            params["is_available"] = is_available
+
+        if not set_clause:
+            return False
+
+        query = f"""
             UPDATE delivery_drivers
-            SET vehicle = %(vehicle)s, is_available = %(is_available)s
+            SET {", ".join(set_clause)}
             WHERE username_delivery_driver = %(username)s
         """
-        self.db.sql_query(
-            query, {"username": username, "vehicle": vehicle, "is_available": is_available}, return_type=None
-        )
+        self.db.sql_query(query, params, return_type=None)
+
         return True
 
     def delete(self, driver: DeliveryDriver) -> bool:

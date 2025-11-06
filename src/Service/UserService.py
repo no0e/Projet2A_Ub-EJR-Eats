@@ -158,7 +158,13 @@ class UserService:
         """
         self.user_repo.delete_user(self.get_user(username))
 
-    def update_user(self, username: str, firstname: Optional[str], lastname: Optional[str], password: Optional[str]):
+    def update_user(
+        self,
+        username: str,
+        firstname: Optional[str] = None,
+        lastname: Optional[str] = None,
+        password: Optional[str] = None,
+    ):
         """Function that update the user's attributes.
 
         Parameters
@@ -180,19 +186,20 @@ class UserService:
         new_firstname: str
         new_lastname: str
         new_password: str
+        user = self.user_repo.get_by_username(username)
         if firstname is None:
-            new_firstname = self.get_user(username).firstname
+            new_firstname = user.firstname
         else:
             new_firstname = firstname
         if lastname is None:
-            new_lastname = self.get_user(username).lastname
+            new_lastname = user.lastname
         else:
             new_lastname = lastname
         if password is None:
-            new_password = self.get_user(username).password
+            new_password = user.password
         else:
             check_password_strength(password)
             salt = create_salt()
             new_password = hash_password(password, salt)
         self.user_repo.update_user(username, new_firstname, new_lastname, new_password)
-        return self.user_repo.get_user(username)
+        return user

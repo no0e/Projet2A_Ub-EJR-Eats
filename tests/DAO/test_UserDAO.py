@@ -1,115 +1,100 @@
-from typing import Optional
-
 import pytest
-
+import uuid
 from src.DAO.UserDAO import UserDAO
 from src.Model.User import User
+from src.DAO.DBConnector import DBConnector
 
+@pytest.fixture
+def db_connector():
+    db = DBConnector()
+    yield db
+    # No need to close here if your DBConnector handles it
 
-class MockDBConnectorForUser:
-    def __init__(self):
-        self.users = {}
+@pytest.fixture
+def user_dao(db_connector):
+    return UserDAO(db_connector)
 
-    def sql_query(self, query: str, data=None, return_type: str = "one"):
-        if query.strip().startswith("SELECT"):
-            username = data[0]
-            user = self.users.get(username)
-            if return_type == "one":
-                return user
-            return list(self.users.values())
+@pytest.fixture
+def unique_username():
+    # Generate a unique username for each test
+    return f"testuser_{uuid.uuid4().hex[:8]}"
 
-        if query.strip().startswith("INSERT"):
-            user_data = data
-            username = user_data["username"]
-            if username in self.users:
-                return None
-            self.users[username] = user_data
-            return user_data
-
-        if query.strip().startswith("UPDATE"):
-            username = data["username"]
-            user = self.users.get(username)
-            if not user:
-                return None
-            user.update(
-                {
-                    "firstname": data["firstname"],
-                    "lastname": data["lastname"],
-                    "password": data["password"],
-                }
-            )
-            return user
-
-        if query.strip().startswith("DELETE"):
-            username = data["username"]
-            return self.users.pop(username, None)
-
-
-def test_create_user():
-    db = MockDBConnectorForUser()
-    dao = UserDAO(db)
-    user = User(
-        username="jdoe", firstname="John", lastname="Doe", password="pass", salt="salt", account_type="customer"
+def test_get_by_username(user_dao, db_connector, unique_username):
+    # Insert a user for this test
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_username, "Test", "User", "hashedpassword", "salt123", "Customer"),
     )
-
-    result = dao.create_user(user)
-    assert result is True
-    assert "jdoe" in db.users
-
-
-def test_update_user():
-    db = MockDBConnectorForUser()
-    dao = UserDAO(db)
-    db.users["jdoe"] = {
-        "username": "jdoe",
-        "firstname": "John",
-        "lastname": "Doe",
-        "password": "pass",
-        "salt": "salt",
-        "account_type": "customer",
-    }
-    user = User(
-        username="jdoe", firstname="John", lastname="Doe", password="pass", salt="salt", account_type="customer"
-    )
-
-    result = dao.update_user(user, "Jane", "Smith", "newpass")
-    assert result is True
-    updated_user = db.users["jdoe"]
-    assert updated_user["firstname"] == "Jane"
-    assert updated_user["lastname"] == "Smith"
-    assert updated_user["password"] == "newpass"
-
-
-def test_delete_user():
-    db = MockDBConnectorForUser()
-    dao = UserDAO(db)
-    db.users["jdoe"] = {"username": "jdoe"}
-    user = User(username="jdoe", firstname="", lastname="", password="", salt="", account_type="")
-
-    result = dao.delete_user(user)
-    assert result is True
-    assert "jdoe" not in db.users
-
-
-def test_get_by_username():
-    db = MockDBConnectorForUser()
-    dao = UserDAO(db)
-    db.users["jdoe"] = {
-        "username": "jdoe",
-        "firstname": "John",
-        "lastname": "Doe",
-        "password": "pass",
-        "salt": "salt",
-        "account_type": "customer",
-    }
-
-    user = dao.get_by_username("jdoe")
+    # Run the test
+    user = user_dao.get_by_username(unique_username)
     assert user is not None
-    assert user.username == "jdoe"
-    assert user.firstname == "John"
+    assert user.username == unique_username
+    assert user.firstname == "Test"
+    assert user.lastname == "User"
+    assert user.account_type == "Customer"
+    # Clean up
+    db_connector.sql_query(
+        "DELETE FROM users WHERE username = %s",
+        (unique_username,),
+    )
 
-    missing_user = dao.get_by_username("unknown")
-    assert missing_user is None
+def test_create_user(user_dao, db_connector, unique_username):
+    new_user = User(
+        username=unique_username,
+        firstname="New",
+        lastname="User",
+        password="newhashedpassword",
+        salt="newsalt",
+        account_type="Customer",
+    )
+    assert user_dao.create_user(new_user) is True
+    created_user = user_dao.get_by_username(unique_username)
+    assert created_user is not None
+    assert created_user.firstname == "New"
+    assert created_user.lastname == "User"
+    # Clean up
+    db_connector.sql_query(
+        "DELETE FROM users WHERE username = %s",
+        (unique_username,),
+    )
+
+def test_update_user(user_dao, db_connector, unique_username):
+    # Insert a user for this test
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_username, "Test", "User", "hashedpassword", "salt123", "Customer"),
+    )
+    # Run the test
+    assert user_dao.update_user(unique_username, firstname="UpdatedFirst", lastname="UpdatedLast") is True
+    updated_user = user_dao.get_by_username(unique_username)
+    assert updated_user.firstname == "UpdatedFirst"
+    assert updated_user.lastname == "UpdatedLast"
+    # Clean up
+    db_connector.sql_query(
+        "DELETE FROM users WHERE username = %s",
+        (unique_username,),
+    )
+
+def test_delete_user(user_dao, db_connector, unique_username):
+    # Insert a user for this test
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_username, "Test", "User", "hashedpassword", "salt123", "Customer"),
+    )
+    # Run the test
+    user = user_dao.get_by_username(unique_username)
+    assert user_dao.delete_user(user) is True
+    assert user_dao.get_by_username(unique_username) is None
+    # No need to clean up, as the user is already deleted
 
 if __name__ == "__main__":
     pytest.main()

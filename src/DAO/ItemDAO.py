@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from src.Model.Item import Item
+from src.Model.Item import ItemCreate, Item
 
 from .DBConnector import DBConnector
 
@@ -30,7 +30,7 @@ class ItemDAO:
         """
         try:
             raw_item = self.db_connector.sql_query(
-                """
+            """
             INSERT INTO project_database.items (name_item, price, category, stock, exposed)
             VALUES (%(name_item)s, %(price)s, %(category)s, %(stock)s, %(exposed)s)
             RETURNING id_item;
@@ -45,7 +45,7 @@ class ItemDAO:
                 "one",
             )
             item.id_item = raw_item["id_item"]
-            return item
+            return True
         except Exception as e:
             print(f"[ItemDAO] Error creating item: {e}")
             raise e  # ou print(e)

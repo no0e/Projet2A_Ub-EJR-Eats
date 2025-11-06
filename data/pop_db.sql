@@ -28,7 +28,7 @@ INSERT INTO project_database.items (name_item, price, category, stock, exposed)
 VALUES ('galette saucisse', 3.2, 'main dish', 102, True)
 RETURNING id_item;
 INSERT INTO project_database.items (name_item, price, category, stock, exposed)
-VALUES ('vegetarian galette', 3, 'main dish', 30, True)
+VALUES ('vegetarian galette', 3, 'main dish', 30, False)
 RETURNING id_item;
 INSERT INTO project_database.items (name_item, price, category, stock, exposed)
 VALUES ('cola', 2, 'drink', 501, True)

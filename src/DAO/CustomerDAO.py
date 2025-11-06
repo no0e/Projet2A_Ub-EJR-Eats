@@ -46,20 +46,27 @@ class CustomerDAO(UserDAO):
         ---
         bool
         """
-        if address is None:
-            address = self.find_by_username(username).address
-        updated_rows = self.db_connector.sql_query(
-            """
-            UPDATE customers
-            SET address = %(address)s
-            WHERE username_customer = %(username)s
-            RETURNING *;
-            """,
-            {"username": username, "address": address},
-            "one",
-        )
+        current_customer = self.find_by_username(username)
+        address = address if address is not None else current_customer.address
 
-        return updated_rows is not None
+        set_clause = []
+        params = {"username": username}
+
+        if address != current_customer.address:
+            set_clause.append("address = %(address)s")
+            params["address"] = address
+
+        if not set_clause:
+            return False
+
+        query = f"""
+            UPDATE customers
+            SET {", ".join(set_clause)}
+            WHERE username_customer = %(username)s
+        """
+        self.db.sql_query(query, params, return_type=None)
+
+        return True
 
     def delete(self, customer: Customer) -> bool:
         self.db.sql_query(

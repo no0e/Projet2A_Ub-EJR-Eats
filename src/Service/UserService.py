@@ -202,4 +202,4 @@ class UserService:
             salt = create_salt()
             new_password = hash_password(password, salt)
         self.user_repo.update_user(username, new_firstname, new_lastname, new_password)
-        return user
+        return self.user_repo.get_user(username)

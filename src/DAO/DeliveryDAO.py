@@ -14,7 +14,7 @@ class DeliveryDAO:
     def create(self, delivery: Delivery) -> bool:
         query = """
             INSERT INTO project_database.deliveries
-            ( username_delivery_driver, duration, stops, is_accepted)
+            (username_delivery_driver, duration, stops, is_accepted)
             VALUES ( %(username_delivery_driver)s, %(duration)s, %(stops)s, %(is_accepted)s)
             RETURNING id_delivery;
         """

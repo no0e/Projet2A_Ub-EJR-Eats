@@ -21,7 +21,7 @@ class ItemDAO:
         """
         self.db_connector = db_connector
 
-    def create_item(self, item: Item) -> bool:
+    def create_item(self, item: Item, test:bool = False) -> bool:
         """
         Insert a new item into the database.
 
@@ -29,9 +29,13 @@ class ItemDAO:
         :return: True if insertion succeeded, False otherwise.
         """
         try:
+            if test:
+                schema = "project_test_database"
+            else:
+                schema = "project_database"
             raw_item = self.db_connector.sql_query(
             """
-            INSERT INTO project_database.items (name_item, price, category, stock, exposed)
+            INSERT INTO """+schema+""".items (name_item, price, category, stock, exposed)
             VALUES (%(name_item)s, %(price)s, %(category)s, %(stock)s, %(exposed)s)
             RETURNING id_item;
             """,

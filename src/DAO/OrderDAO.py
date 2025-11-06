@@ -1,17 +1,13 @@
 import json
-from typing import Optional
-
+from typing import Optional, Dict, List
 from src.Model.Item import Item
 from src.Model.Order import Order
-
 from .DBConnector import DBConnector
-
 
 class OrderDAO:
     """
-    DAO for orders where 'items' field is a JSON list of item IDs (ints).
+    DAO for orders where 'items' field is a JSON dictionary of item IDs and quantities.
     """
-
     db_connector: DBConnector
 
     def __init__(self, db_connector: DBConnector):
@@ -19,23 +15,21 @@ class OrderDAO:
 
     def create_order(self, order: Order) -> bool:
         """
-        Create a new order with a list of item IDs.
-
-        :param order: Order object with items as list of Item objects.
+        Create a new order with a dictionary of item IDs and quantities.
+        :param order: Order object with items as a dictionary {item_id: quantity}.
         :return: True if success.
         """
         try:
             if not isinstance(order.items, dict):
-                raise TypeError("Order.items must be a dictionary {name_item: quantity}.")
+                raise TypeError("Order.items must be a dictionary {item_id: quantity}.")
 
-            for key, value in order.items.items():
-                if not isinstance(key, int) or not isinstance(value, int):
+            for item_id, quantity in order.items.items():
+                if not isinstance(item_id, int) or not isinstance(quantity, int):
                     raise TypeError("All item IDs and quantities must be integers.")
-                if value <= 0:
+                if quantity <= 0:
                     raise ValueError("Quantities must be positive integers.")
 
             items_json = json.dumps(order.items)
-
             self.db_connector.sql_query(
                 """
                 INSERT INTO orders (id_order, username_customer, username_delivery_driver, address, items)
@@ -56,90 +50,88 @@ class OrderDAO:
 
     def find_order_by_id(self, id_order: int) -> Optional[Order]:
         """
-        Find order by ID. Loads item IDs from DB.
-
+        Find order by ID. Loads item IDs and quantities from DB.
         :param id_order: order ID
-        :return: Order object with items as full Item objects
+        :return: Order object with items as a dictionary {item_id: quantity}
         """
         raw_order = self.db_connector.sql_query(
-            "SELECT * FROM orders WHERE id_order = %s;",
+            "SELECT * FROM project_test_database.orders WHERE id_order = %s;",
             [id_order],
             "one",
         )
         if raw_order is None:
             return None
 
-        # Extract item IDs from JSON field
-        item_ids = json.loads(raw_order.get("items") or "[]")
-
-        # Fetch full Item objects from item IDs
-        # Assuming you have ItemDAO or similar to fetch items by IDs
-        items = []
-        for item_id in item_ids:
-            raw_item = self.db_connector.sql_query(
-                "SELECT * FROM items WHERE id_item = %s;",
-                [item_id],
-                "one",
-            )
-            if raw_item:
-                items.append(Item(**raw_item))
+        items_dict = raw_order.get("items") or ""
 
         return Order(
             id_order=raw_order["id_order"],
             username_customer=raw_order["username_customer"],
             username_delivery_driver=raw_order["username_delivery_driver"],
             address=raw_order["address"],
-            items=items,
+            # Pass the dictionary here
+            items=items_dict,
         )
 
-    def find_order_by_user(self, username_customer: int) -> Optional[Order]:
+    def find_order_by_user(self, username_customer: str) -> Optional[List[Order]]:
         """
-        Find order by the username of the customer.
-
+        Find orders by the username of the customer.
         :param username_customer: str
-        :return: Order object with items as full Item objects
+        :return: List of Order objects with items as dictionaries {item_id: quantity}
         """
-        raw_order = self.db_connector.sql_query(
+        raw_orders = self.db_connector.sql_query(
             "SELECT * FROM orders WHERE username_customer = %s;",
             [username_customer],
-            "one",
+            "all",
         )
-        if raw_order is None:
+        if not raw_orders:
             return None
 
-        # Extract item IDs from JSON field
-        item_ids = json.loads(raw_order.get("items") or "[]")
+        orders = []
+        for raw_order in raw_orders:
+            # Extract item IDs and quantities from JSON field
+            items_dict = json.loads(raw_order.get("items") or "{}")
 
-        # Fetch full Item objects from item IDs
-        # Assuming you have ItemDAO or similar to fetch items by IDs
-        items = []
-        for item_id in item_ids:
-            raw_item = self.db_connector.sql_query(
-                "SELECT * FROM items WHERE id_item = %s;",
-                [item_id],
-                "one",
-            )
-            if raw_item:
-                items.append(Item(**raw_item))
+            # Fetch full Item objects from item IDs
+            items = []
+            for item_id, quantity in items_dict.items():
+                raw_item = self.db_connector.sql_query(
+                    "SELECT * FROM items WHERE id_item = %s;",
+                    [item_id],
+                    "one",
+                )
+                if raw_item:
+                    item = Item(**raw_item)
+                    item.quantity = quantity
+                    items.append(item)
 
-        return [Order(
-            id_order=raw_order["id_order"],
-            username_customer=raw_order["username_customer"],
-            username_delivery_driver=raw_order["username_delivery_driver"],
-            address=raw_order["address"],
-            items=items,
-        )
-        for row in raw_order]
+            orders.append(Order(
+                id_order=raw_order["id_order"],
+                username_customer=raw_order["username_customer"],
+                username_delivery_driver=raw_order["username_delivery_driver"],
+                address=raw_order["address"],
+                items=items_dict,  # Return the dictionary of items and quantities
+            ))
+
+        return orders
 
     def update(self, order: Order) -> bool:
         """
-        Update an order with new details and item IDs.
-
+        Update an order with new details and item IDs and quantities.
         :param order: updated Order object
         :return: True if success
         """
         try:
-            item_ids = [item.id_item for item in order.items]
+            if not isinstance(order.items, dict):
+                raise TypeError("Order.items must be a dictionary {item_id: quantity}.")
+
+            for item_id, quantity in order.items.items():
+                if not isinstance(item_id, int) or not isinstance(quantity, int):
+                    raise TypeError("All item IDs and quantities must be integers.")
+                if quantity <= 0:
+                    raise ValueError("Quantities must be positive integers.")
+
+            items_json = json.dumps(order.items)
             self.db_connector.sql_query(
                 """
                 UPDATE orders
@@ -154,7 +146,7 @@ class OrderDAO:
                     "username_customer": order.username_customer,
                     "username_delivery_driver": order.username_delivery_driver,
                     "address": order.address,
-                    "items": json.dumps(item_ids),
+                    "items": items_json,
                 },
                 "none",
             )
@@ -166,7 +158,6 @@ class OrderDAO:
     def delete(self, order: Order) -> bool:
         """
         Delete order by id.
-
         :param order: Order object
         :return: True if success
         """

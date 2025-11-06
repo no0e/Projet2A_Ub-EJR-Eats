@@ -40,6 +40,6 @@ class DeliveryDriverService:
         if not success:
             raise ValueError("Delivery could not be accepted")
 
-        destination = delivery.stops[-1] if delivery.stops else {"lat": 0, "lng": 0}
+        destination = delivery.stops[-1] if delivery.stops else {"lat": 48.050245, "lng": -1.741515}
         link = self.google_service.generate_google_maps_link(destination)
         return {"delivery_id": delivery_id, "google_maps_link": link}

@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
@@ -71,21 +71,10 @@ def order_items(
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@customer_router.get("/see the cart", status_code=status.HTTP_200_OK)
-def see_current_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
-    customer = get_user_from_credentials(credentials)
-    username_customer = customer.username
-    cart = get_cart_for_user(username_customer)
-    try:
-        return customer_service.view_cart(cart)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except (TypeError, ValueError) as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-
 @customer_router.get("/modify the cart", status_code=status.HTTP_200_OK)
-def Modify_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],name_item : str, new_quantity :int ):
+def Modify_cart(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())], name_item: str, new_quantity: int
+):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -98,8 +87,9 @@ def Modify_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWT
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @customer_router.get("/validate the cart", status_code=status.HTTP_200_OK)
-def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , adress : str = None ):
+def Validate_cart(validate: str , adress : str = None):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -129,10 +119,10 @@ def View_order(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTB
 
 @customer_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK)
 def edit_Profile(
-    firstname: str = Query(..., description="First name"),
-    lastname: str = Query(..., description="Last name"),
-    password: str = Query(..., description="Password"),
-    address: str = Query(..., description="Postal address"),
+    firstname: Optional[str] = Query(None, description="First name"),
+    lastname: Optional[str] = Query(None, description="Last name"),
+    password: Optional[str] = Query(None, description="Password"),
+    address: Optional[str] = Query(None, description="Postal address"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ):
     """Edit the attributes of the connected customer."""

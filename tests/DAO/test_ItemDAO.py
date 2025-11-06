@@ -16,37 +16,24 @@ def db_connector():
 def item_dao(db_connector):
     return ItemDAO(db_connector)
 
-
-@pytest.fixture(scope="module")
-def reset_db_():
-    """
-    A fixture that yields control to the test function,
-    and then automatically resets the test database afterward.
-    """
-    print("\n[TEARDOWN] Resetting database...")
+def test_create_item(item_dao):
     ResetDatabase().lancer()
-    print("[TEARDOWN] Database reset complete.")
-
-    yield
-
-    print("\n[TEARDOWN] Resetting database...")
-    ResetDatabase().lancer()
-    print("[TEARDOWN] Database reset complete.")
-
-
-def test_create_item(item_dao, reset_db_):
     item = Item(id_item=None, name_item="galette test", price=4, category="main dish", stock=1000, exposed=False)
     result = item_dao.create_item(item)
     assert result is True
+    ResetDatabase().lancer()
 
 
-def test_delete_item(item_dao, reset_db_):
+def test_delete_item(item_dao):
+    ResetDatabase().lancer()
     deletion = item_dao.delete(item_dao.find_item_by_name("galette saucisse"))
     assert deletion is True
     assert item_dao.find_item_by_name("galette saucisse") is None
+    ResetDatabase().lancer()
 
 
-def test_update_item_exposed(item_dao, reset_db_):
+def test_update_item_exposed(item_dao):
+    ResetDatabase().lancer()
     # The item 1 has exposed=True
     item_dao.update_item_exposed(1, False)
     # The item 2 already has exposed=False
@@ -54,9 +41,11 @@ def test_update_item_exposed(item_dao, reset_db_):
     assert item_dao.find_item(1).exposed is False
     assert item_dao.find_item(2).exposed is False
     item_dao.update_item_exposed(1, True)
+    ResetDatabase().lancer()
 
 
-def test_find_item(item_dao, reset_db_):
+def test_find_item(item_dao):
+    ResetDatabase().lancer()
     item = item_dao.find_item(1)
     missing_item = item_dao.find_item(56)
     assert item.id_item == 1
@@ -66,9 +55,11 @@ def test_find_item(item_dao, reset_db_):
     assert item.stock == 102
     assert item.exposed is False
     assert missing_item is None
+    ResetDatabase().lancer()
 
 
-def test_find_item_by_name(item_dao, reset_db_):
+def test_find_item_by_name(item_dao):
+    ResetDatabase().lancer()
     item = item_dao.find_item_by_name("galette saucisse")
     missing_item = item_dao.find_item_by_name("disgusting galette")
     assert item.id_item == 1
@@ -78,26 +69,33 @@ def test_find_item_by_name(item_dao, reset_db_):
     assert item.stock == 102
     assert item.exposed is False
     assert missing_item is None
+    ResetDatabase().lancer()
 
 
-def test_all_exposed_item(item_dao, reset_db_):
+def test_all_exposed_item(item_dao):
+    ResetDatabase().lancer()
     exposed_items = item_dao.find_all_exposed_item()
     assert isinstance(exposed_items, list)
     assert len(exposed_items) == 2
+    ResetDatabase().lancer()
 
 
-def test_find_all_item(item_dao, reset_db_):
+def test_find_all_item(item_dao):
+    ResetDatabase().lancer()
     all_item = item_dao.find_all_item()
     assert isinstance(all_item, list)
     assert len(all_item) == 3
+    ResetDatabase().lancer()
 
 
-def test_update_item(item_dao, reset_db_):
+def test_update_item(item_dao):
+    ResetDatabase().lancer()
     future_updated_item = Item(
         id_item=1, name_item="galette saucisse update", price=4.2, category="starter", stock=100, exposed=False
     )
     upated_item = item_dao.update(future_updated_item)
     assert upated_item is True
+    ResetDatabase().lancer()
 
 
 if __name__ == "__main__":

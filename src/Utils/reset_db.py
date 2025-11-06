@@ -29,7 +29,6 @@ class ResetDatabase(metaclass=Singleton):
 
         dotenv.load_dotenv()
 
-
         init_db = open(init_data_path, encoding="utf-8")
         init_db_as_string = init_db.read()
         init_db.close()

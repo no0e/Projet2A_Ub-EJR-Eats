@@ -81,7 +81,7 @@ class ItemDAO:
             stock=raw_item["stock"],
         )
 
-    def find_item_by_name(self, name_item: int) -> Optional[Item]:
+    def find_item_by_name(self, name_item: str) -> Optional[Item]:
         """
         Retrieve a single item by its name.
 

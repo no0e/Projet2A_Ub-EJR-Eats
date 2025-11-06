@@ -12,50 +12,130 @@ class MockUserRepo:
 
     def create_user(self, user: User) -> bool:
         self.users[user.username] = user
+        return True
 
-    def get_by_username(self, username: str) -> Optional[User]:
+    def get_user(self, username: str) -> Optional[User]:
+        return self.users.get(username)
+
+    def update_user(self, username: str, firstname: str, lastname: str, password: str):
         if username in self.users:
-            return self.users[username]
-        else:
-            return None
+            user = self.users[username]
+            user.firstname = firstname
+            user.lastname = lastname
+            user.password = password
+            self.users[username] = user
+
+    def delete_user(self, user: User):
+        if user and user.username in self.users:
+            del self.users[user.username]
+
+
+class MockAdminRepo:
+    def __init__(self):
+        self.admins = {}
+
+    def create(self, admin):
+        self.admins[admin.username] = admin
+
+
+class MockDriverRepo:
+    def __init__(self):
+        self.drivers = {}
+
+    def create(self, driver):
+        self.drivers[driver.username] = driver
+
+
+class MockCustomerRepo:
+    def __init__(self):
+        self.customers = {}
+
+    def create(self, customer):
+        self.customers[customer.username] = customer
 
 
 user_repo = MockUserRepo()
+admin_repo = MockAdminRepo()
+driver_repo = MockDriverRepo()
+customer_repo = MockCustomerRepo()
+
+service = UserService(user_repo, admin_repo, driver_repo, customer_repo)
+
+
 user_repo.create_user(
     User(
         username="janjak",
         firstname="Jean-Jacques",
         lastname="John",
-        salt="jambon",
-        password="56d25b0190eb6fcdab76f20550aa3e85a37ee48d520ac70385ae3615deb7d53a",
+        salt="sodium",
+        password="hashed_pass",
         account_type="Customer",
     )
 )
 
 
-def test_create_user():
-    UserService(user_repo).create_user("janjon", "Jean", "John", "mdpsecure", "Customer")
-    assert UserService(user_repo).get_user("janjon") is not None
+def test_create_user_success():
+    user = service.create_user("janjon", "Jean", "John", "mdpsecure", account_type="Customer")
+    assert user.username == "janjon"
+    assert user_repo.get_user("janjon") is not None
+    assert customer_repo.customers["janjon"].firstname == "Jean"
+
+
+def test_create_user_existing_username():
     with pytest.raises(ValueError) as error_username:
-        UserService(user_repo).create_user("janjon", "Jeanette", "Johnny", "mdpsecure2", "Customer")
+        service.create_user("janjak", "Jeanette", "Johnny", "mdpsecure2", account_type="Customer")
     assert str(error_username.value) == "Username already taken."
-    with pytest.raises(Exception) as exception_password:
-        UserService(user_repo).create_user("janjok", "Jeanne", "Johnas", "mdp", "Customer")
-    assert str(exception_password.value) == "Password length must be at least 8 characters"
+
+
+def test_create_user_weak_password():
+    with pytest.raises(Exception) as error_password:
+        service.create_user("janjok", "Jeanne", "Johnas", "mdp", account_type="Customer")
+    assert "Password length must be at least 8 characters" in str(error_password.value)
+
+
+def test_create_user_admin_and_driver():
+    admin_user = service.create_user("adm1", "Alice", "Admin", "securePass1", account_type="Administrator")
+    assert admin_repo.admins["adm1"].username == "adm1"
+
+    driver_user = service.create_user("driver1", "Bob", "Drive", "securePass2", account_type="DeliveryDriver")
+    assert driver_repo.drivers["driver1"].username == "driver1"
+    assert driver_repo.drivers["driver1"].vehicle == "driving"
 
 
 def test_get_user():
-    assert UserService(user_repo).get_user("janjak") == User(
-        username="janjak",
-        firstname="Jean-Jacques",
-        lastname="John",
-        salt="jambon",
-        password="56d25b0190eb6fcdab76f20550aa3e85a37ee48d520ac70385ae3615deb7d53a",
-        account_type="Customer",
-    )
-    assert UserService(user_repo).get_user("janjok") is None
+    found = service.get_user("janjak")
+    assert found.username == "janjak"
+    assert found.firstname == "Jean-Jacques"
+    assert service.get_user("unknown") is None
 
 
 def test_username_exists():
-    assert UserService(user_repo).username_exists("janjak") is True
-    assert UserService(user_repo).username_exists("janjok") is False
+    assert service.username_exists("janjak") is True
+    assert service.username_exists("noexist") is False
+
+
+def test_update_user(monkeypatch):
+    user_repo.create_user(
+        User(
+            username="update_test",
+            firstname="Old",
+            lastname="Name",
+            salt="salt",
+            password="pass",
+            account_type="Customer",
+        )
+    )
+
+    service.update_user("update_test", firstname="New", lastname=None, password=None)
+    updated = user_repo.get_user("update_test")
+    assert updated.firstname == "New"
+    assert updated.lastname == "Name"
+
+
+def test_delete_user():
+    user_repo.create_user(
+        User(username="delete_me", firstname="Del", lastname="Me", salt="s", password="p", account_type="Customer")
+    )
+    assert user_repo.get_user("delete_me") is not None
+    service.delete_user("delete_me")
+    assert user_repo.get_user("delete_me") is None

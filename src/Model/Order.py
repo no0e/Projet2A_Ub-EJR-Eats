@@ -10,4 +10,4 @@ class Order(BaseModel):
     username_customer: str
     username_delivery_driver: str
     address: str
-    items: Dict[int, int]
+    items: Dict[str, int]

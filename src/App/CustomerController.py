@@ -53,12 +53,40 @@ def order_items(
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
+    if cart is None:
+        cart = {}
     if len(item) != len(quantities):
         return {"error": "Items and quantities must match"}
     try:
-        cart = customer_service.add_item_cart(username_customer, cart, item=item, quantities=quantities)
+        cart = customer_service.add_item_cart(username_customer, cart, item, quantities)
         return cart
 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@customer_router.get("/modify the cart", status_code=status.HTTP_200_OK)
+def Modify_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],name_item : str, new_quantity :int ):
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
+    cart = get_cart_for_user(username_customer)
+    try:
+        cart = customer_service.modify_cart(cart, name_item, new_quantity)
+        return cart
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@customer_router.get("/validate the cart", status_code=status.HTTP_200_OK)
+def Validate_cart(validate: str , adress : str = None):
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
+    cart = get_cart_for_user(username_customer)
+    try:
+        order = customer_service.validate_cart(cart, username_customer, validate, adress)
+        return order
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
@@ -67,7 +95,15 @@ def order_items(
 
 @customer_router.post("/Order", status_code=status.HTTP_200_OK)
 def View_order():
-    pass
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
+    try:
+        order = customer_service.view_order(username_customer)
+        return order
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @customer_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK)

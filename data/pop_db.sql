@@ -24,19 +24,34 @@ VALUES
 ('ernesto', 'car', False),
 ('ernesto1', 'foot', True);
 
-INSERT INTO project_database.items (id_item, name_item, price, category, stock, exposed)
-VALUES 
-(1, 'galette saucisse', 3.2, 'main dish', 102, True),
-(2, 'vegetarian galette', 3, 'main dish', 30, True),
-(3, 'cola', 2, 'drink', 501, True);
+INSERT INTO project_database.items (name_item, price, category, stock, exposed)
+VALUES ('galette saucisse', 3.2, 'main dish', 102, True)
+RETURNING id_item;
+INSERT INTO project_database.items (name_item, price, category, stock, exposed)
+VALUES ('vegetarian galette', 3, 'main dish', 30, True)
+RETURNING id_item;
+INSERT INTO project_database.items (name_item, price, category, stock, exposed)
+VALUES ('cola', 2, 'drink', 501, True)
+RETURNING id_item;
 
-INSERT INTO project_database.orders (id_order, username_customer, username_delivery_driver, address, items)
+INSERT INTO project_database.orders (username_customer, username_delivery_driver, address, items)
 VALUES 
-(1, 'bobbia', 'ernesto1', '13 Main St.', '{"1":10}'::jsonb),
-(2, 'bobbia', 'ernesto', '13 Main St.', '{"1":39}'::jsonb),
-(3, 'charliz', 'ernesto1', '4 Salty Spring Av.', '{"1":39, "3":2}'::jsonb);
+('bobbia', 'ernesto1', '13 Main St.', '{"1":10}'::jsonb)
+RETURNING id_order;
+INSERT INTO project_database.orders (username_customer, username_delivery_driver, address, items)
+VALUES 
+('bobbia', 'ernesto', '13 Main St.', '{"1":39}'::jsonb)
+RETURNING id_order;
+INSERT INTO project_database.orders (username_customer, username_delivery_driver, address, items)
+VALUES 
+('charliz', 'ernesto1', '4 Salty Spring Av.', '{"1":39, "3":2}'::jsonb)
+RETURNING id_order;
 
-INSERT INTO project_database.deliveries (id_delivery, username_delivery_driver, duration, stops)
+INSERT INTO project_database.deliveries (username_delivery_driver, duration, stops)
 VALUES 
-(1, 'ernesto', '50', ARRAY['13 Main St.', '4 Salty Spring Av.']),
-(2, 'ernesto1', '15', ARRAY['13 Main St.']);
+('ernesto', '50', ARRAY['13 Main St.', '4 Salty Spring Av.'])
+RETURNING id_delivery;
+INSERT INTO project_database.deliveries (username_delivery_driver, duration, stops)
+VALUES 
+('ernesto1', '15', ARRAY['13 Main St.'])
+RETURNING id_delivery

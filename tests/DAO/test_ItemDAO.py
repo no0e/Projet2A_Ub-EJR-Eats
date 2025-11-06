@@ -1,189 +1,79 @@
-from typing import List, Optional
-
 import pytest
-
 from src.DAO.ItemDAO import ItemDAO
-from src.Model.Item import Item
+from src.Model.Item import ItemCreate
+from src.DAO.DBConnector import DBConnector
+from src.Utils.reset_db import ResetDatabase
+
+@pytest.fixture
+def db_connector():
+    db = DBConnector()
+    yield db
+
+@pytest.fixture
+def item_dao(db_connector):
+    return ItemDAO(db_connector)
+
+@pytest.fixture(scope="module")
+def reset_db_teardown():
+    """
+    A fixture that yields control to the test function,
+    and then automatically resets the test database afterward.
+    """
+    print("\n[TEARDOWN] Resetting database...")
+    ResetDatabase().lancer()
+    print("[TEARDOWN] Database reset complete.")
+
+    # 1. Setup Phase: The test runs here
+    # The 'yield' keyword separates setup from teardown.
+    yield
 
 
-class MockDBConnectorForItem:
-    def __init__(self):
-        self.items = {}
-        self.next_id = 1
-
-    def sql_query(self, query: str, data: dict = None, return_type: str = "one"):
-        if "INSERT INTO items" in query:
-            item_id = self.next_id
-            self.next_id += 1
-            item_data = {
-                "id_item": item_id,
-                "name_item": data["name_item"],
-                "price": data["price"],
-                "category": data["category"],
-                "stock": data["stock"],
-                "exposed": data["exposed"],
-            }
-            self.items[item_id] = item_data
-            return {"id_item": item_id} 
-
-        elif "SELECT * FROM items WHERE id_item =" in query:
-            item_id = data[0]
-            if item_id in self.items:
-                return self.items[item_id]
-            return None
-
-        elif "SELECT * FROM items WHERE exposed = TRUE" in query:
-            exposed_items = [item for item in self.items.values() if item["exposed"]]
-            return exposed_items if return_type == "all" else exposed_items[0] if exposed_items else None
-
-        elif "UPDATE items" in query:
-            item_id = data["id_item"]
-            if item_id in self.items:
-                self.items[item_id].update(
-                    {
-                        "name_item": data["name_item"],
-                        "price": data["price"],
-                        "category": data["category"],
-                        "stock": data["stock"],
-                        "exposed": data["exposed"],
-                    }
-                )
-            return None
-
-        elif "DELETE FROM items WHERE id_item =" in query:
-            item_id = data[0]
-            if item_id in self.items:
-                del self.items[item_id]
-            return None
-
-        return None
-
-
-def test_create_item():
-    mock_db = MockDBConnectorForItem()
-    item_dao = ItemDAO(mock_db)
-
-    item = Item(
-        id_item=None,
-        name_item="Galette Saucisse",
-        price=3.99,
-        category="Main dish",
-        stock=50,
-        exposed=True,
+def test_create_item(item_dao, reset_db_teardown):
+    item = ItemCreate(
+        "galette test",
+        "4",
+        "main dish",
+        1000,
+        True
     )
-
     result = item_dao.create_item(item)
-    assert result.id_item is not None
-    assert result.name_item == "Galette Saucisse"
-    assert result.price == 3.99
-    assert result.category == "Main dish"
-    assert result.stock == 50
-    assert result.exposed is True
+    assert result is True
 
-def test_find_item():
-    mock_db = MockDBConnectorForItem()
-    item_dao = ItemDAO(mock_db)
+def test_update_item_exposed(item_dao, reset_db_teardown):
+    #The item 1 has exposed=True
+    item_dao.update_item_exposed(1,False)
+    #The item 2 already has exposed=False
+    item_dao.update_item_exposed(2,False)
+    assert item_dao.find_item(1).exposed is False
+    assert item_dao.find_item(2).exposed is False
 
-    item = Item(
-        id_item=None,
-        name_item="Galette Saucisse",
-        price=3.99,
-        category="Main dish",
-        stock=50,
-        exposed=True,
-    )
-    item_dao.create_item(item)
+def test_find_item(item_dao, reset_db_teardown):
+    item = item_dao.find_item(1)
+    missing_item = item_dao.find_item(56)
+    assert item.id_item == 1
+    assert item.name_item == 'galette saucisse'
+    assert item.price == 3.2
+    assert item.category == 'main dish'
+    assert item.stock == 102
+    assert item.exposed is False
+    assert missing_item is None
 
-    found_item = item_dao.find_item(1)
-    assert found_item is not None
-    assert found_item.id_item == 1
-    assert found_item.name_item == "Galette Saucisse"
-    assert found_item.price == 3.99
-    assert found_item.category == "Main dish"
-    assert found_item.stock == 50
+def test_find_item_by_name(item_dao, reset_db_teardown):
+    item = item_dao.find_item_by_name('galette saucisse')
+    missing_item = item_dao.find_item_by_name('disgusting galette')
+    assert item.id_item == 1
+    assert item.name_item == 'galette saucisse'
+    assert item.price == 3.2
+    assert item.category == 'main dish'
+    assert item.stock == 102
+    assert item.exposed is False
+    assert missing_item is None
 
-
-def test_find_all_exposed_item():
-    mock_db = MockDBConnectorForItem()
-    item_dao = ItemDAO(mock_db)
-
-    item1 = Item(
-        id_item=None,
-        name_item="Galette Saucisse",
-        price=3.99,
-        category="Main dish",
-        stock=50,
-        exposed=True,
-    )
-    item2 = Item(
-        id_item=None,
-        name_item="Banh-Mi",
-        price=12.99,
-        category="Main dish",
-        stock=30,
-        exposed=False,
-    )
-    item_dao.create_item(item1)
-    item_dao.create_item(item2)
-
+def test_all_exposed_item(item_dao, reset_db_teardown):
     exposed_items = item_dao.find_all_exposed_item()
-    assert len(exposed_items) == 1
-    assert exposed_items[0].name_item == "Galette Saucisse"
-
-
-def test_update():
-    mock_db = MockDBConnectorForItem()
-    item_dao = ItemDAO(mock_db)
-
-    item = Item(
-        id_item=None,
-        name_item="Galette Saucisse",
-        price=3.99,
-        category="Main dish",
-        stock=50,
-        exposed=True,
-    )
-    item_dao.create_item(item)
-
-    updated_item = Item(
-        id_item=1,
-        name_item="Banh-Mi",
-        price=11.99,
-        category="Main dish",
-        stock=45,
-        exposed=True,
-    )
-
-    result = item_dao.update(updated_item)
-    assert result is True
-
-    found_item = item_dao.find_item(1)
-    assert found_item.name_item == "Banh-Mi"
-    assert found_item.price == 11.99
-    assert found_item.stock == 45
-
-
-def test_delete():
-    mock_db = MockDBConnectorForItem()
-    item_dao = ItemDAO(mock_db)
-
-    item = Item(
-        id_item=None,
-        name_item="Galette Saucisse",
-        price=3.99,
-        category="Main dish",
-        stock=50,
-        exposed=True,
-    )
-    item_dao.create_item(item)
-
-    item_to_delete = Item(id_item=1, name_item="", price=0, category="", stock=0, exposed=False)
-    result = item_dao.delete(item_to_delete)
-    assert result is True
-
-    found_item = item_dao.find_item(1)
-    assert found_item is None
-
+    assert isinstance(exposed_items, list)
+    assert len(exposed_items) == 2
+    assert exposed_items[1].id_item == 3
 
 if __name__ == "__main__":
     pytest.main()

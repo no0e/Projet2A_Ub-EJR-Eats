@@ -50,6 +50,15 @@ class ItemDAO:
             print(f"[ItemDAO] Error creating item: {e}")
             raise e  # ou print(e)
 
+    def update_item_exposed(self, id_item, exposed):
+        """Met à jour l'exposition de l'item dans la base de données"""
+        query = """
+        UPDATE items
+        SET exposed = %s
+        WHERE id_item = %s
+        """
+        self.db_connector.sql_query(query, [exposed, id_item], "execute")
+
 
     def find_item(self, id_item: int) -> Optional[Item]:
         """
@@ -59,6 +68,26 @@ class ItemDAO:
         :return: An Item object if found, otherwise None.
         """
         raw_item = self.db_connector.sql_query("SELECT * FROM items WHERE id_item = %s;", [id_item], "one")
+
+        if raw_item is None:
+            return None
+
+        return Item(
+            id_item=raw_item["id_item"],
+            name_item=raw_item["name_item"],
+            price=raw_item["price"],
+            category=raw_item["category"],
+            stock=raw_item["stock"],
+        )
+
+    def find_item_by_name(self, name_item: int) -> Optional[Item]:
+        """
+        Retrieve a single item by its name.
+
+        :param name_item: The ID of the item to find.
+        :return: An Item object if found, otherwise None.
+        """
+        raw_item = self.db_connector.sql_query("SELECT * FROM items WHERE name_item = %s;", [name_item], "one")
 
         if raw_item is None:
             return None

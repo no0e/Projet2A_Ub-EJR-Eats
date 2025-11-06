@@ -26,7 +26,7 @@ class OrderDAO:
         """
         try:
             if not isinstance(order.items, dict):
-                raise TypeError("Order.items must be a dictionary {id_item: quantity}.")
+                raise TypeError("Order.items must be a dictionary {name_item: quantity}.")
 
             for key, value in order.items.items():
                 if not isinstance(key, int) or not isinstance(value, int):
@@ -54,7 +54,7 @@ class OrderDAO:
             print(f"[OrderDAO] Error creating order: {e}")
             return False
 
-    def find_order(self, id_order: int) -> Optional[Order]:
+    def find_order_by_id(self, id_order: int) -> Optional[Order]:
         """
         Find order by ID. Loads item IDs from DB.
 
@@ -91,6 +91,45 @@ class OrderDAO:
             address=raw_order["address"],
             items=items,
         )
+
+    def find_order_by_user(self, username_customer: int) -> Optional[Order]:
+        """
+        Find order by the username of the customer.
+
+        :param username_customer: str
+        :return: Order object with items as full Item objects
+        """
+        raw_order = self.db_connector.sql_query(
+            "SELECT * FROM orders WHERE username_customer = %s;",
+            [username_customer],
+            "one",
+        )
+        if raw_order is None:
+            return None
+
+        # Extract item IDs from JSON field
+        item_ids = json.loads(raw_order.get("items") or "[]")
+
+        # Fetch full Item objects from item IDs
+        # Assuming you have ItemDAO or similar to fetch items by IDs
+        items = []
+        for item_id in item_ids:
+            raw_item = self.db_connector.sql_query(
+                "SELECT * FROM items WHERE id_item = %s;",
+                [item_id],
+                "one",
+            )
+            if raw_item:
+                items.append(Item(**raw_item))
+
+        return [Order(
+            id_order=raw_order["id_order"],
+            username_customer=raw_order["username_customer"],
+            username_delivery_driver=raw_order["username_delivery_driver"],
+            address=raw_order["address"],
+            items=items,
+        )
+        for row in raw_order]
 
     def update(self, order: Order) -> bool:
         """

@@ -199,7 +199,7 @@ class UserService:
             new_password = user.password
         else:
             check_password_strength(password)
-            salt = create_salt()
+            salt = user.salt
             new_password = hash_password(password, salt)
         self.user_repo.update_user(username, new_firstname, new_lastname, new_password)
         return user

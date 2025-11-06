@@ -47,7 +47,7 @@ CREATE TABLE project_database.customers (
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.deliveries CASCADE;
 CREATE TABLE project_database.deliveries (
-  id_delivery INTEGER UNIQUE NOT NULL PRIMARY KEY,
+  id_delivery SERIAL PRIMARY KEY,
   username_delivery_driver VARCHAR,
   duration INTEGER,
   stops VARCHAR[],
@@ -73,7 +73,7 @@ CREATE TABLE project_database.items (
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_database.orders CASCADE;
 CREATE TABLE project_database.orders (
-  id_order INTEGER UNIQUE NOT NULL PRIMARY KEY,
+  id_order SERIAL PRIMARY KEY,
   username_customer VARCHAR,
   username_delivery_driver VARCHAR,
   address VARCHAR,
@@ -134,7 +134,7 @@ CREATE TABLE project_test_database.customers (
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_test_database.deliveries CASCADE;
 CREATE TABLE project_test_database.deliveries (
-  id_delivery INTEGER UNIQUE NOT NULL PRIMARY KEY,
+  id_delivery SERIAL PRIMARY KEY,
   username_delivery_driver VARCHAR,
   duration INTEGER,
   stops VARCHAR[],
@@ -160,7 +160,7 @@ CREATE TABLE project_test_database.items (
 --------------------------------------------------------------
 DROP TABLE IF EXISTS project_test_database.orders CASCADE;
 CREATE TABLE project_test_database.orders (
-  id_order INTEGER UNIQUE NOT NULL PRIMARY KEY,
+  id_order SERIAL PRIMARY KEY,
   username_customer VARCHAR,
   username_delivery_driver VARCHAR,
   address VARCHAR,

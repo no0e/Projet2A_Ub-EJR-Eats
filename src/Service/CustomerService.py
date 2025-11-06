@@ -78,9 +78,9 @@ class CustomerService:
             if item.id_item in cart:
                 raise ValueError(f"The item '{name_item}' is already in the cart.")
             else:
-                cart[item.id_item] = quantity
+                cart[item.name_item] = quantity
 
-        price_cart = sum(item.price * cart[item.id_item] for item in items if item.id_item in cart)
+        price_cart = sum(item.price * cart[item.name_item] for item in items if item.name_item in cart)
 
         return {"price_cart": price_cart, "cart": cart}
 
@@ -104,12 +104,13 @@ class CustomerService:
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
             if item.name_item.lower() == name_item.lower():
-                id_item = item.id_item
                 if new_number_item > item.stock:
                     raise ValueError("The quantity requested exceeds the stock available.")
-                if item.id_item not in cart:
+                if item.name_item not in cart:
                     raise TypeError(f"{name_item} is not in the cart")
-                cart[id_item] = new_number_item
+                if new_number_item == 0:
+                    del cart[item.name_item]
+                cart[item.name_item] = new_number_item
                 return cart
 
         raise ValueError(f"Item '{name_item}' not found in the list of items available.")
@@ -133,10 +134,9 @@ class CustomerService:
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
             if item.name_item.lower() == name_item.lower():
-                id_item = item.id_item
-                if item.id_item not in cart:
+                if item.name_item not in cart:
                     raise TypeError(f"{name_item} is not in the cart")
-                del cart[id_item]
+                del cart[item.name_item]
                 return cart
 
     def validate_cart(self, cart, username_customer, validate, adress):
@@ -145,11 +145,53 @@ class CustomerService:
             if adress is None:
                 adress = customer.adress
             order = Order(
-                id_order=None, username_customer=str, username_delivery_driver=None, address=adress, items=cart
+                id_order=None,
+                username_customer=username_customer, 
+                username_delivery_driver=None,
+                address=adress,
+                items=cart  
             )
             success = self.order_dao.create_order(order)
             if not success:
                 raise ValueError("Failed to create order in the database.")
-            return f"You validated your cart, there your {order}"
+            for name_item, quantity in cart.items():
+                items = self.item_dao.find_all_item()
+                for item in items:
+                    if item.name_item == name_item:
+                        id_item = item.id_item
+                item = self.item_dao.find_item(id_item)
+                if item:
+                    if item.stock >= quantity:
+                        item.stock -= quantity
+                        update_success = self.item_dao.update(item)
+                        if not update_success:
+                            raise ValueError(f"Failed to update stock for item {item.name_item}")
+                    else:
+                        raise ValueError(f"Not enough stock for item {item.name_item}")
+                else:
+                    raise ValueError(f"Item {name_item} not found in the database")
+
+            return f"Your cart has been validated. The order has been created: {order}"
+
 
         raise TypeError("If you want to validate your cart you must enter: yes")
+
+    def view_order(self,username_customer : str):
+        """See the last order of a customer 
+        Parameters
+        -----
+        username_customer: str
+            the name of the customer
+
+        Returns
+        ------
+        order : Order
+            the last order of the user
+        """
+        order_user = self.order_dar.find_order_by_user(username_customer)
+        if not order_user:
+            raise ValueError(f"No orders found for user {username_customer}")
+
+        last_order = max(order_user, key=lambda order: order.id_order)
+        return last_order
+

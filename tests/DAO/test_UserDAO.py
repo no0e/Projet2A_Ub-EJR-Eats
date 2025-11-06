@@ -8,7 +8,6 @@ from src.DAO.DBConnector import DBConnector
 def db_connector():
     db = DBConnector()
     yield db
-    # No need to close here if your DBConnector handles it
 
 @pytest.fixture
 def user_dao(db_connector):

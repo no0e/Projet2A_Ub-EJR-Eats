@@ -138,6 +138,7 @@ class ItemService:
         for item in items:
             if item.name_item.lower() == name_item:
                 item.exposed = not item.exposed
+                self.item_dao.update_item_exposed(item.id_item, item.exposed)
                 return {
                     "success": True,
                     "message": f"Availability of '{item.name_item}' has been changed to {'available' if item.exposed else 'unavailable'}.",

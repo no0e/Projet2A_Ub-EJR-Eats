@@ -10,7 +10,7 @@ class AdministratorDAO(UserDAO):
     def create(self, administrator: Administrator) -> bool:
         raw_created_admin = self.db.sql_query(
             """
-            INSERT INTO administrators (username_administrator)
+            INSERT INTO project_database.administrators (username_administrator)
             VALUES (%(username_administrator)s)
             RETURNING *;
             """,
@@ -24,7 +24,7 @@ class AdministratorDAO(UserDAO):
     def find_by_username(self, username: str):
         query = """
             SELECT a.username_administrator as username, u.firstname, u.lastname, u.salt, u.account_type, u.password
-            FROM administrator as a
+            FROM project_database.administrator as a
             JOIN users as u ON u.username = username
             WHERE username = %s
         """

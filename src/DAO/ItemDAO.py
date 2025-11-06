@@ -30,20 +30,20 @@ class ItemDAO:
         """
         try:
             raw_item = self.db_connector.sql_query(
-            """
-            INSERT INTO items (name_item, price, category, stock, exposed)
+                """
+            INSERT INTO project_database.items (name_item, price, category, stock, exposed)
             VALUES (%(name_item)s, %(price)s, %(category)s, %(stock)s, %(exposed)s)
             RETURNING id_item;
             """,
-            {
-                "name_item": item.name_item,
-                "price": item.price,
-                "category": item.category,
-                "stock": item.stock,
-                "exposed": item.exposed,
-            },
-            "one",
-        )
+                {
+                    "name_item": item.name_item,
+                    "price": item.price,
+                    "category": item.category,
+                    "stock": item.stock,
+                    "exposed": item.exposed,
+                },
+                "one",
+            )
             item.id_item = raw_item["id_item"]
             return item
         except Exception as e:
@@ -53,12 +53,11 @@ class ItemDAO:
     def update_item_exposed(self, id_item, exposed):
         """Met à jour l'exposition de l'item dans la base de données"""
         query = """
-        UPDATE items
+        UPDATE project_database.items
         SET exposed = %s
         WHERE id_item = %s
         """
         self.db_connector.sql_query(query, [exposed, id_item], "execute")
-
 
     def find_item(self, id_item: int) -> Optional[Item]:
         """
@@ -67,7 +66,9 @@ class ItemDAO:
         :param id_item: The ID of the item to find.
         :return: An Item object if found, otherwise None.
         """
-        raw_item = self.db_connector.sql_query("SELECT * FROM items WHERE id_item = %s;", [id_item], "one")
+        raw_item = self.db_connector.sql_query(
+            "SELECT * FROM project_database.items WHERE id_item = %s;", [id_item], "one"
+        )
 
         if raw_item is None:
             return None
@@ -87,7 +88,9 @@ class ItemDAO:
         :param name_item: The ID of the item to find.
         :return: An Item object if found, otherwise None.
         """
-        raw_item = self.db_connector.sql_query("SELECT * FROM items WHERE name_item = %s;", [name_item], "one")
+        raw_item = self.db_connector.sql_query(
+            "SELECT * FROM project_database.items WHERE name_item = %s;", [name_item], "one"
+        )
 
         if raw_item is None:
             return None
@@ -106,7 +109,7 @@ class ItemDAO:
 
         :return: A list of Item objects that are exposed.
         """
-        raw_items = self.db_connector.sql_query("SELECT * FROM items WHERE exposed = TRUE;", [], "all")
+        raw_items = self.db_connector.sql_query("SELECT * FROM project_database.items WHERE exposed = TRUE;", [], "all")
 
         return [
             Item(
@@ -125,7 +128,7 @@ class ItemDAO:
 
         :return: A list of Item objects that are exposed.
         """
-        raw_items = self.db_connector.sql_query("SELECT * FROM items ", [], "all")
+        raw_items = self.db_connector.sql_query("SELECT * FROM project_database.items ", [], "all")
 
         return [
             Item(
@@ -138,7 +141,6 @@ class ItemDAO:
             for row in raw_items
         ]
 
-
     def update(self, item: Item) -> bool:
         """
         Update an existing item in the database.
@@ -149,7 +151,7 @@ class ItemDAO:
         try:
             self.db_connector.sql_query(
                 """
-                UPDATE items
+                UPDATE project_database.items
                 SET name_item = %(name_item)s,
                     price = %(price)s,
                     category = %(category)s,
@@ -180,10 +182,8 @@ class ItemDAO:
         :return: True if deletion succeeded, False otherwise.
         """
         try:
-            self.db_connector.sql_query("DELETE FROM items WHERE id_item = %s;", [item.id_item], "none")
+            self.db_connector.sql_query("DELETE FROM project_database.items WHERE id_item = %s;", [item.id_item], "none")
             return True
         except Exception as e:
             print(f"[ItemDAO] Error deleting item: {e}")
             return False
-
-

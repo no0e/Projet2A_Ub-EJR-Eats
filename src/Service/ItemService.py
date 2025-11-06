@@ -44,7 +44,7 @@ class ItemService:
         if any(item.name_item.lower() == name_item.lower() for item in all_exposed):
             raise TypeError("The item name is already attributed.")
 
-        new_item = Item(id_item=None, name_item=name_item, price=price, category=category, stock=stock, exposed=exposed)
+        new_item = Item(name_item=name_item, price=price, category=category, stock=stock, exposed=exposed)
 
         success = self.item_dao.create_item(new_item)
         if not success:

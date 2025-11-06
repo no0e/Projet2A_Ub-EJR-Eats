@@ -11,6 +11,7 @@ class Item(BaseModel):
     stock: int
     exposed: bool = False
 
+
 class ItemCreate(BaseModel):
     name_item: str
     price: float

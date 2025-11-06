@@ -12,7 +12,7 @@ class CustomerDAO(UserDAO):
     def create(self, customer: Customer) -> bool:
         raw_created_customer = self.db.sql_query(
             """
-            INSERT INTO customers (username_customer, address)
+            INSERT INTO project_database.customers (username_customer, address)
             VALUES (%(username_customer)s, %(address)s)
             RETURNING *;
             """,
@@ -24,7 +24,7 @@ class CustomerDAO(UserDAO):
     def find_by_username(self, username: str):
         query = """
             SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
-            FROM customers as c
+            FROM project_database.customers as c
             JOIN users as u ON u.username = username
             WHERE username = %s
         """
@@ -60,7 +60,7 @@ class CustomerDAO(UserDAO):
             return False
 
         query = f"""
-            UPDATE customers
+            UPDATE project_database.customers
             SET {", ".join(set_clause)}
             WHERE username_customer = %(username)s
         """

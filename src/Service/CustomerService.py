@@ -139,11 +139,8 @@ class CustomerService:
 
 
 
-    def validate_cart(self, cart, username_customer, validate, address):
-        customer = self.customer_dao.get_by_username(username_customer)
+    def validate_cart(self, cart, username_customer, validate, address : str ):
         if validate.lower() == "yes":
-            if address is None:
-                address = customer.address
             order = Order(
                 id_order=None,
                 username_customer=username_customer, 

@@ -25,7 +25,7 @@ class CustomerDAO(UserDAO):
         query = """
             SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
             FROM project_database.customers as c
-            JOIN users as u ON u.username = username
+            JOIN users as u ON u.username = c.username_customer
             WHERE username = %s;
         """
         raw = self.db.sql_query(query, [username], return_type="one")

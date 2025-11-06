@@ -89,14 +89,20 @@ def Modify_cart(
 
 
 @customer_router.post("/validate the cart", status_code=status.HTTP_200_OK)
-def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , adress : str = None):
-    customer = get_user_from_credentials(credentials)
+def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , address : str = None):
+    username = get_user_from_credentials(credentials).username
+    customer = customer_dao.find_by_username(username)
+    if not customer:
+        raise HTTPException(status_code=404, detail=f"Customer with username {username} not found.")
     username_customer = customer.username
+    if address is None:
+        address = customer.adress
+
     cart = get_cart_for_user(username_customer)
     if not cart:
         raise HTTPException(status_code=400, detail="Cart is empty or not found.")
     try:
-        order = customer_service.validate_cart(cart, username_customer, validate, adress)
+        order = customer_service.validate_cart(cart, username_customer, validate, address)
         return order
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))

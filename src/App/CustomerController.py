@@ -28,8 +28,10 @@ active_carts = {}
 
 
 def get_cart_for_user(username: str):
-    """Retourne le panier de l'utilisateur associé à son token"""
-    return active_carts.get(username)
+    print(f"Fetching cart for {username}")
+    cart = active_carts.get(username, {})
+    print(f"Cart for {username}: {cart}")
+    return cart
 
 
 @customer_router.get("/Menu", status_code=status.HTTP_201_CREATED)
@@ -53,18 +55,34 @@ def order_items(
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
+    print(f"Cart before adding items: {cart}")
     if cart is None:
         cart = {}
     if len(item) != len(quantities):
         return {"error": "Items and quantities must match"}
     try:
         cart = customer_service.add_item_cart(username_customer, cart, item, quantities)
+        active_carts[username_customer] = cart
         return cart
+        print(f"Cart after adding items: {cart}")
 
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+@customer_router.get("/see the cart", status_code=status.HTTP_200_OK)
+def see_current_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
+    cart = get_cart_for_user(username_customer)
+    try:
+        return customer_service.view_cart(cart)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
 
 @customer_router.get("/modify the cart", status_code=status.HTTP_200_OK)
 def Modify_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],name_item : str, new_quantity :int ):
@@ -73,6 +91,7 @@ def Modify_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWT
     cart = get_cart_for_user(username_customer)
     try:
         cart = customer_service.modify_cart(cart, name_item, new_quantity)
+        active_carts[username_customer] = cart
         return cart
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -80,10 +99,12 @@ def Modify_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWT
         raise HTTPException(status_code=400, detail=str(e))
 
 @customer_router.get("/validate the cart", status_code=status.HTTP_200_OK)
-def Validate_cart(validate: str , adress : str = None):
+def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , adress : str = None ):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
+    if not cart:
+        raise HTTPException(status_code=400, detail="Cart is empty or not found.")
     try:
         order = customer_service.validate_cart(cart, username_customer, validate, adress)
         return order
@@ -94,7 +115,7 @@ def Validate_cart(validate: str , adress : str = None):
 
 
 @customer_router.post("/Order", status_code=status.HTTP_200_OK)
-def View_order():
+def View_order(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     try:
@@ -118,7 +139,7 @@ def edit_Profile(
 
     username = get_user_from_credentials(credentials).username
     try:
-        customer_dao.update(username, address)
+        customer_dao.update_customer(username, address)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}")
 

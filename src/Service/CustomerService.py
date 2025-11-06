@@ -80,9 +80,7 @@ class CustomerService:
             else:
                 cart[item.name_item] = quantity
 
-        price_cart = sum(item.price * cart[item.name_item] for item in items if item.name_item in cart)
-
-        return {"price_cart": price_cart, "cart": cart}
+        return cart
 
     def modify_cart(self, cart, name_item: str, new_number_item: int):
         """modify the cart by changing the quatity wanted of an item
@@ -106,7 +104,7 @@ class CustomerService:
             if item.name_item.lower() == name_item.lower():
                 if new_number_item > item.stock:
                     raise ValueError("The quantity requested exceeds the stock available.")
-                if item.name_item not in cart:
+                if name_item.lower() not in [key.lower() for key in cart.keys()]:
                     raise TypeError(f"{name_item} is not in the cart")
                 if new_number_item == 0:
                     del cart[item.name_item]
@@ -139,16 +137,18 @@ class CustomerService:
                 del cart[item.name_item]
                 return cart
 
-    def validate_cart(self, cart, username_customer, validate, adress):
+
+
+    def validate_cart(self, cart, username_customer, validate, address):
         customer = self.customer_dao.get_by_username(username_customer)
         if validate.lower() == "yes":
-            if adress is None:
-                adress = customer.adress
+            if address is None:
+                address = customer.address
             order = Order(
                 id_order=None,
                 username_customer=username_customer, 
                 username_delivery_driver=None,
-                address=adress,
+                address=address,
                 items=cart  
             )
             success = self.order_dao.create_order(order)
@@ -195,3 +195,12 @@ class CustomerService:
         last_order = max(order_user, key=lambda order: order.id_order)
         return last_order
 
+    def view_cart(self, cart):
+        """See the cart with the price"""
+        items = self.item_dao.find_all_item()
+        price_cart = sum(item.price * cart[item.name_item] for item in items if item.name_item in cart)
+
+        return {"cart": cart, "price": price_cart}
+
+
+ 

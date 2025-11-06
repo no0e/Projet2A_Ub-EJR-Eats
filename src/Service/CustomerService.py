@@ -149,7 +149,7 @@ class CustomerService:
                 username_customer=username_customer, 
                 username_delivery_driver=None,
                 address=address,
-                items=cart  
+                items=cart 
             )
             success = self.order_dao.create_order(order)
             if not success:

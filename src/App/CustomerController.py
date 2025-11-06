@@ -89,7 +89,7 @@ def Modify_cart(
 
 
 @customer_router.get("/validate the cart", status_code=status.HTTP_200_OK)
-def Validate_cart(validate: str , adress : str = None):
+def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , adress : str = None):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)

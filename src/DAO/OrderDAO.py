@@ -32,9 +32,9 @@ class OrderDAO:
             items_json = json.dumps(order.items)
             self.db_connector.sql_query(
                 """
-                INSERT INTO orders (id_order, username_customer, username_delivery_driver, address, items)
-                VALUES (DEFAULT, %(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s);
-                """,
+                INSERT INTO orders ( username_customer, username_delivery_driver, address, items)
+                VALUES ( %(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s);
+                RETURNING id_order;""",
                 {
                     "username_customer": order.username_customer,
                     "username_delivery_driver": order.username_delivery_driver,

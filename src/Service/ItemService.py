@@ -94,14 +94,16 @@ class ItemService:
     def modify_stock_item(self, name_item, new_stock):
         if new_stock < 0:
             raise ValueError("The stock can't be negative.")
-        items = self.item_dao.find_all_item()
-        for item in items:
-            if item.name_item.lower() == name_item.lower():
-                item.stock = new_stock
-                success = self.item_dao.update(item)
-                if not success:
-                    raise ValueError("Failed to update stock in the database.")
-                return item
+        item = self.item_dao.find_item_by_name(name_item)
+        if not item:
+            raise ValueError(f"Item with name '{name_item}' not found.")
+
+        item.stock = new_stock
+        success = self.item_dao.update(item)
+        if not success:
+            raise ValueError("Failed to update stock in the database.")
+
+        return item
 
         raise TypeError("The item to update doesn't exist.")
 

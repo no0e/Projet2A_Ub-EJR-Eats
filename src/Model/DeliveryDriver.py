@@ -4,6 +4,6 @@ from src.Model.User import User
 
 
 class DeliveryDriver(User):
-    username_delivery_driver: str
+    username: str
     vehicle: str
     is_available: bool

@@ -16,12 +16,12 @@ def db_connector():
 def item_dao(db_connector):
     return ItemDAO(db_connector)
 
-def test_create_item(item_dao):
-    ResetDatabase().lancer()
+def test_create_item(item_dao, test=True):
+    ResetDatabase.lancer(True)
     item = Item(id_item=None, name_item="galette test", price=4, category="main dish", stock=1000, exposed=False)
     result = item_dao.create_item(item)
     assert result is True
-    ResetDatabase().lancer()
+    ResetDatabase().lancer(True)
 
 
 def test_delete_item(item_dao):

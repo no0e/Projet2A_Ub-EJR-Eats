@@ -26,7 +26,7 @@ class CustomerDAO(UserDAO):
             SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
             FROM project_database.customers as c
             JOIN users as u ON u.username = username
-            WHERE username = %s
+            WHERE username = %s;
         """
         raw = self.db.sql_query(query, [username], return_type="one")
         return Customer(**raw) if raw else None
@@ -47,6 +47,8 @@ class CustomerDAO(UserDAO):
         bool
         """
         current_customer = self.find_by_username(username)
+        if current_customer is None:
+            raise ValueError(f"Customer with username '{username}' not found.")
         address = address if address is not None else current_customer.address
 
         set_clause = []

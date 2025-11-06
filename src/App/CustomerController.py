@@ -46,7 +46,7 @@ def View_menu():
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.get("/add to cart", status_code=status.HTTP_200_OK)
+@customer_router.post("/add to cart", status_code=status.HTTP_200_OK)
 def order_items(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
     item: List[str] = Query(..., description="Item name"),
@@ -71,7 +71,7 @@ def order_items(
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@customer_router.get("/modify the cart", status_code=status.HTTP_200_OK)
+@customer_router.post("/modify the cart", status_code=status.HTTP_200_OK)
 def Modify_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())], name_item: str, new_quantity: int
 ):
@@ -88,7 +88,7 @@ def Modify_cart(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.get("/validate the cart", status_code=status.HTTP_200_OK)
+@customer_router.post("/validate the cart", status_code=status.HTTP_200_OK)
 def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , adress : str = None):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
@@ -104,7 +104,7 @@ def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(J
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.post("/Order", status_code=status.HTTP_200_OK)
+@customer_router.get("/Order", status_code=status.HTTP_200_OK)
 def View_order(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
@@ -130,6 +130,8 @@ def edit_Profile(
     username = get_user_from_credentials(credentials).username
     try:
         customer_dao.update_customer(username, address)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error))
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}")
 

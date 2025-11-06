@@ -1,13 +1,17 @@
 import json
-from typing import Optional, Dict, List
+from typing import Dict, List, Optional
+
 from src.Model.Item import Item
 from src.Model.Order import Order
+
 from .DBConnector import DBConnector
+
 
 class OrderDAO:
     """
     DAO for orders where 'items' field is a JSON dictionary of item IDs and quantities.
     """
+
     db_connector: DBConnector
 
     def __init__(self, db_connector: DBConnector):
@@ -32,7 +36,7 @@ class OrderDAO:
             items_json = json.dumps(order.items)
             self.db_connector.sql_query(
                 """
-                INSERT INTO orders ( username_customer, username_delivery_driver, address, items)
+                INSERT INTO project_database.orders ( username_customer, username_delivery_driver, address, items)
                 VALUES ( %(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s);
                 RETURNING id_order;""",
                 {
@@ -55,7 +59,7 @@ class OrderDAO:
         :return: Order object with items as a dictionary {item_id: quantity}
         """
         raw_order = self.db_connector.sql_query(
-            "SELECT * FROM project_test_database.orders WHERE id_order = %s;",
+            "SELECT * FROM project_database.orders WHERE id_order = %s;",
             [id_order],
             "one",
         )
@@ -80,7 +84,7 @@ class OrderDAO:
         :return: List of Order objects with items as dictionaries {item_id: quantity}
         """
         raw_orders = self.db_connector.sql_query(
-            "SELECT * FROM orders WHERE username_customer = %s;",
+            "SELECT * FROM project_database.orders WHERE username_customer = %s;",
             [username_customer],
             "all",
         )
@@ -105,13 +109,15 @@ class OrderDAO:
                     item.quantity = quantity
                     items.append(item)
 
-            orders.append(Order(
-                id_order=raw_order["id_order"],
-                username_customer=raw_order["username_customer"],
-                username_delivery_driver=raw_order["username_delivery_driver"],
-                address=raw_order["address"],
-                items=items_dict,  # Return the dictionary of items and quantities
-            ))
+            orders.append(
+                Order(
+                    id_order=raw_order["id_order"],
+                    username_customer=raw_order["username_customer"],
+                    username_delivery_driver=raw_order["username_delivery_driver"],
+                    address=raw_order["address"],
+                    items=items_dict,  # Return the dictionary of items and quantities
+                )
+            )
 
         return orders
 
@@ -134,7 +140,7 @@ class OrderDAO:
             items_json = json.dumps(order.items)
             self.db_connector.sql_query(
                 """
-                UPDATE orders
+                UPDATE project_database.orders
                 SET username_customer = %(username_customer)s,
                     username_delivery_driver = %(username_delivery_driver)s,
                     address = %(address)s,
@@ -163,7 +169,7 @@ class OrderDAO:
         """
         try:
             self.db_connector.sql_query(
-                "DELETE FROM orders WHERE id_order = %s;",
+                "DELETE FROM project_database.orders WHERE id_order = %s;",
                 [order.id_order],
                 "none",
             )

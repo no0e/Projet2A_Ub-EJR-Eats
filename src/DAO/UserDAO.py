@@ -25,7 +25,9 @@ class UserDAO:
         self.db_connector = db_connector
 
     def get_by_username(self, username: str) -> Optional[User]:
-        raw_user = self.db_connector.sql_query("SELECT * FROM users WHERE username=%s", [username], "one")
+        raw_user = self.db_connector.sql_query(
+            "SELECT * FROM project_database.users WHERE username=%s", [username], "one"
+        )
         if raw_user is None:
             return None
 
@@ -41,7 +43,7 @@ class UserDAO:
     def create_user(self, user: User) -> bool:
         raw_created_user = self.db_connector.sql_query(
             """
-            INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+            INSERT INTO project_database.users (username, firstname, lastname, password, salt, account_type)
             VALUES (%(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
             RETURNING *;
             """,
@@ -81,7 +83,7 @@ class UserDAO:
         """
         updated_rows = self.db_connector.sql_query(
             """
-            UPDATE users
+            UPDATE project_database.users
             SET
                 firstname = %(firstname)s,
                 lastname = %(lastname)s,
@@ -109,7 +111,7 @@ class UserDAO:
         """
         deleted_row = self.db_connector.sql_query(
             """
-            DELETE FROM users
+            DELETE FROM project_database.users
             WHERE username = %(username)s
             RETURNING *;
             """,

@@ -12,7 +12,7 @@ class DeliveryDriverDAO(UserDAO):
     def create(self, driver: DeliveryDriver) -> bool:
         raw_created_driver = self.db.sql_query(
             """
-            INSERT INTO delivery_drivers (username_delivery_driver, vehicle, is_available)
+            INSERT INTO project_database.delivery_drivers (username_delivery_driver, vehicle, is_available)
             VALUES (%(username_delivery_driver)s, %(vehicle)s, %(is_available)s)
             RETURNING *;
             """,
@@ -28,7 +28,7 @@ class DeliveryDriverDAO(UserDAO):
     def find_by_username(self, username: str):
         query = """
             SELECT d.username_delivery_driver as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, d.vehicle, d.is_available
-            FROM delivery_drivers as d
+            FROM project_database.delivery_drivers as d
             JOIN users as u ON u.username = username
             WHERE username = %s
         """
@@ -58,7 +58,7 @@ class DeliveryDriverDAO(UserDAO):
             return False
 
         query = f"""
-            UPDATE delivery_drivers
+            UPDATE project_database.delivery_drivers
             SET {", ".join(set_clause)}
             WHERE username_delivery_driver = %(username)s
         """
@@ -68,7 +68,7 @@ class DeliveryDriverDAO(UserDAO):
 
     def delete(self, driver: DeliveryDriver) -> bool:
         self.db.sql_query(
-            "DELETE FROM delivery_drivers WHERE username_delivery_driver = %s",
+            "DELETE FROM project_database.delivery_drivers WHERE username_delivery_driver = %s",
             [driver.username],
         )
         return True
@@ -76,7 +76,7 @@ class DeliveryDriverDAO(UserDAO):
     def drivers_available(self):
         query = """
             SELECT username_delivery_driver, vehicle, is_available
-            FROM delivery_drivers
+            FROM project_database.delivery_drivers
             WHERE is_available = TRUE
         """
         rows = self.db.sql_query(query, return_type="all")

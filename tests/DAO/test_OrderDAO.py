@@ -1,5 +1,6 @@
 import pytest
 import uuid
+import json
 from src.DAO.OrderDAO import OrderDAO
 from src.Model.Item import Item
 from src.Model.Order import Order
@@ -19,59 +20,113 @@ def unique_username():
     return f"user_{uuid.uuid4().hex[:8]}"
 
 @pytest.fixture
-def unique_order_id(db_connector):
-    # Generate a unique order ID by inserting a dummy order and then deleting it
-    dummy_order_id = db_connector.sql_query(
-        """
-        INSERT INTO orders (username_customer, username_delivery_driver, address, items)
-        VALUES (%s, %s, %s, %s)
-        RETURNING id_order;
-        """,
-        ("dummy_customer", "dummy_driver", "dummy_address", []),
-        return_type="one",
-    )["id_order"]
-    yield dummy_order_id
-    # Clean up the dummy order
-    db_connector.sql_query(
-        "DELETE FROM orders WHERE id_order = %s",
-        (dummy_order_id,),
-    )
+def unique_driver_username():
+    return f"driver_{uuid.uuid4().hex[:8]}"
 
-def test_create_order(order_dao, db_connector, unique_username):
-    # Insert test items if needed
-    item_id = db_connector.sql_query(
-        """
-        INSERT INTO items (name_item, price, category, stock, exposed)
-        VALUES (%s, %s, %s, %s, %s)
-        RETURNING id_item;
-        """,
-        ("Test Item", 10.0, "dessert", 1, False),
-        return_type="one",
-    )["id_item"]
-
-    # Create an order
-    items = [Item(id_item=item_id, name_item="Test Item", price=10.0, category="dessert", stock=1, exposed=False)]
+def test_create_order(order_dao):
+    items = '{"1": 2, "3":1}'
     order = Order(
         username_customer=unique_username,
-        username_delivery_driver=f"driver_{uuid.uuid4().hex[:8]}",
+        username_delivery_driver=unique_driver_username,
         address="123 Test St",
         items=items,
     )
-    result = order_dao.create(order)
+    result = order_dao.create_order(order)
     assert result is True
+
+
+def test_find_order_by_id(order_dao):
+    found_order = order_dao.find_order_by_id(1)
+    
+    assert found_order is not None
+    assert found_order.id_order == 1
+    assert found_order.username_customer == 'bobbia'
+    assert found_order.username_delivery_driver == 'ernesto1'
+    assert found_order.address == '13 Main St.'
+    assert found_order.items == {"1":10}
+
+
+def test_find_order_by_user(order_dao, db_connector, unique_username, unique_driver_username):
+    # Insert a test user for customer
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_username, "Test", "User", "hashedpassword", "salt123", "Customer"),
+    )
+
+    # Insert a test user for delivery driver
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_driver_username, "Test", "Driver", "hashedpassword", "salt123", "DeliveryDriver"),
+    )
+
+    # Insert a test item
+    item_id = db_connector.sql_query(
+        """
+        INSERT INTO items (name_item, price, category, stock, exposed)
+        VALUES (%s, %s, %s, %s, %s)
+        RETURNING id_item;
+        """,
+        ("Test Item", 10.0, "dessert", 1, False),
+        return_type="one",
+    )["id_item"]
+
+    # Insert a test order
+    items = {item_id: 2}
+    db_connector.sql_query(
+        """
+        INSERT INTO orders (username_customer, username_delivery_driver, address, items)
+        VALUES (%s, %s, %s, %s)
+        """,
+        (unique_username, unique_driver_username, "123 Test St", json.dumps(items)),
+    )
+
+    # Find the order by user
+    found_orders = order_dao.find_order_by_user(unique_username)
+    assert found_orders is not None
+    assert len(found_orders) > 0
+    assert found_orders[0].username_customer == unique_username
+    assert found_orders[0].items == items
 
     # Clean up
     db_connector.sql_query(
-        "DELETE FROM orders WHERE username_customer = %s",
+        f"DELETE FROM orders WHERE username_customer = %s",
         (unique_username,),
     )
     db_connector.sql_query(
-        "DELETE FROM items WHERE id_item = %s",
+        f"DELETE FROM users WHERE username IN (%s, %s)",
+        (unique_username, unique_driver_username),
+    )
+    db_connector.sql_query(
+        f"DELETE FROM items WHERE id_item = %s",
         (item_id,),
     )
 
-def test_find_order(order_dao, db_connector, unique_order_id, unique_username):
-    # Insert a test item
+def test_update(order_dao, db_connector, unique_username, unique_driver_username):
+    # Insert a test user for customer
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_username, "Test", "User", "hashedpassword", "salt123", "Customer"),
+    )
+
+    # Insert a test user for delivery driver
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_driver_username, "Test", "Driver", "hashedpassword", "salt123", "DeliveryDriver"),
+    )
+
+    # Insert test items
     item_id = db_connector.sql_query(
         """
         INSERT INTO items (name_item, price, category, stock, exposed)
@@ -82,53 +137,6 @@ def test_find_order(order_dao, db_connector, unique_order_id, unique_username):
         return_type="one",
     )["id_item"]
 
-    # Insert a test order
-    db_connector.sql_query(
-        """
-        INSERT INTO orders (id_order, username_customer, username_delivery_driver, address, items)
-        VALUES (%s, %s, %s, %s, %s)
-        """,
-        (unique_order_id, unique_username, f"driver_{uuid.uuid4().hex[:8]}", "123 Test St", [item_id]),
-    )
-
-    # Find the order
-    found_order = order_dao.find_order(unique_order_id)
-    assert found_order is not None
-    assert found_order.id_order == unique_order_id
-    assert found_order.username_customer == unique_username
-
-    # Clean up
-    db_connector.sql_query(
-        "DELETE FROM orders WHERE id_order = %s",
-        (unique_order_id,),
-    )
-    db_connector.sql_query(
-        "DELETE FROM items WHERE id_item = %s",
-        (item_id,),
-    )
-
-def test_update_order(order_dao, db_connector, unique_order_id, unique_username):
-    # Insert a test item
-    item_id = db_connector.sql_query(
-        """
-        INSERT INTO items (name_item, price, category, stock, exposed)
-        VALUES (%s, %s, %s, %s, %s)
-        RETURNING id_item;
-        """,
-        ("Test Item", 10.0, "dessert", 1, False),
-        return_type="one",
-    )["id_item"]
-
-    # Insert a test order
-    db_connector.sql_query(
-        """
-        INSERT INTO orders (id_order, username_customer, username_delivery_driver, address, items)
-        VALUES (%s, %s, %s, %s, %s)
-        """,
-        (unique_order_id, unique_username, f"driver_{uuid.uuid4().hex[:8]}", "123 Test St", [item_id]),
-    )
-
-    # Update the order
     updated_item_id = db_connector.sql_query(
         """
         INSERT INTO items (name_item, price, category, stock, exposed)
@@ -139,34 +147,69 @@ def test_update_order(order_dao, db_connector, unique_order_id, unique_username)
         return_type="one",
     )["id_item"]
 
+    # Insert a test order
+    items = {item_id: 2}
+    order_id = db_connector.sql_query(
+        """
+        INSERT INTO orders (username_customer, username_delivery_driver, address, items)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id_order;
+        """,
+        (unique_username, unique_driver_username, "123 Test St", json.dumps(items)),
+        return_type="one",
+    )["id_order"]
+
+    # Update the order
+    updated_items = {updated_item_id: 3}
     updated_order = Order(
-        id_order=unique_order_id,
+        id_order=order_id,
         username_customer=f"{unique_username}_updated",
-        username_delivery_driver=f"driver_{uuid.uuid4().hex[:8]}_updated",
+        username_delivery_driver=f"{unique_driver_username}_updated",
         address="456 Updated St",
-        items=[Item(id_item=updated_item_id, name_item="Updated Item", price=20.0, category="starter", stock=13, exposed=True)],
+        items=updated_items,
     )
     result = order_dao.update(updated_order)
     assert result is True
 
     # Verify the update
-    found_order = order_dao.find_order(unique_order_id)
+    found_order = order_dao.find_order_by_id(order_id)
     assert found_order.username_customer == f"{unique_username}_updated"
     assert found_order.address == "456 Updated St"
-    assert len(found_order.items) == 1
-    assert found_order.items[0].id_item == updated_item_id
+    assert found_order.items == updated_items
 
     # Clean up
     db_connector.sql_query(
-        "DELETE FROM orders WHERE id_order = %s",
-        (unique_order_id,),
+        f"DELETE FROM orders WHERE id_order = %s",
+        (order_id,),
     )
     db_connector.sql_query(
-        "DELETE FROM items WHERE id_item IN (%s, %s)",
+        f"DELETE FROM users WHERE username IN (%s, %s, %s, %s)",
+        (unique_username, unique_driver_username, f"{unique_username}_updated", f"{unique_driver_username}_updated"),
+    )
+    db_connector.sql_query(
+        f"DELETE FROM items WHERE id_item IN (%s, %s)",
         (item_id, updated_item_id),
     )
 
-def test_delete_order(order_dao, db_connector, unique_order_id, unique_username):
+def test_delete(order_dao, db_connector, unique_username, unique_driver_username):
+    # Insert a test user for customer
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_username, "Test", "User", "hashedpassword", "salt123", "Customer"),
+    )
+
+    # Insert a test user for delivery driver
+    db_connector.sql_query(
+        """
+        INSERT INTO users (username, firstname, lastname, password, salt, account_type)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (unique_driver_username, "Test", "Driver", "hashedpassword", "salt123", "DeliveryDriver"),
+    )
+
     # Insert a test item
     item_id = db_connector.sql_query(
         """
@@ -179,26 +222,33 @@ def test_delete_order(order_dao, db_connector, unique_order_id, unique_username)
     )["id_item"]
 
     # Insert a test order
-    db_connector.sql_query(
+    items = {item_id: 2}
+    order_id = db_connector.sql_query(
         """
-        INSERT INTO orders (id_order, username_customer, username_delivery_driver, address, items)
-        VALUES (%s, %s, %s, %s, %s)
+        INSERT INTO orders (username_customer, username_delivery_driver, address, items)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id_order;
         """,
-        (unique_order_id, unique_username, f"driver_{uuid.uuid4().hex[:8]}", "123 Test St", [item_id]),
-    )
+        (unique_username, unique_driver_username, "123 Test St", json.dumps(items)),
+        return_type="one",
+    )["id_order"]
 
     # Delete the order
-    order_to_delete = Order(id_order=unique_order_id, username_customer="", username_delivery_driver="", address="", items=[])
+    order_to_delete = Order(id_order=order_id, username_customer="", username_delivery_driver="", address="", items={})
     result = order_dao.delete(order_to_delete)
     assert result is True
 
     # Verify the order is deleted
-    found_order = order_dao.find_order(unique_order_id)
+    found_order = order_dao.find_order_by_id(order_id)
     assert found_order is None
 
-    # Clean up the item
+    # Clean up
     db_connector.sql_query(
-        "DELETE FROM items WHERE id_item = %s",
+        f"DELETE FROM users WHERE username IN (%s, %s)",
+        (unique_username, unique_driver_username),
+    )
+    db_connector.sql_query(
+        f"DELETE FROM items WHERE id_item = %s",
         (item_id,),
     )
 

@@ -24,7 +24,7 @@ class CustomerDAO(UserDAO):
     def find_by_username(self, username: str):
         query = """
             SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
-            FROM customer as c
+            FROM customers as c
             JOIN users as u ON u.username = username
             WHERE username = %s
         """

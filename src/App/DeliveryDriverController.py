@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
@@ -55,11 +55,11 @@ def accept_delivery(
 
 @deliverydriver_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])
 def edit_profile(
-    firstname: str = Query(..., description="First name"),
-    lastname: str = Query(..., description="Last name"),
-    password: str = Query(..., description="Password"),
-    vehicle: str = Query(..., description="Type of vehicle", enum=["driving", "walking", "bicycling"]),
-    is_available: bool = Query(..., description="Driver availability"),
+    firstname: Optional[str] = Query(None, description="First name"),
+    lastname: Optional[str] = Query(None, description="Last name"),
+    password: Optional[str] = Query(None, description="Password"),
+    vehicle: Optional[str] = Query(None, description="Type of vehicle", enum=["driving", "walking", "bicycling"]),
+    is_available: Optional[bool] = Query(None, description="Driver availability"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ):
     """Edit the attributes of the connected delivery driver."""

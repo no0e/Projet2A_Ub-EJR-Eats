@@ -1,3 +1,5 @@
+from typing import Literal
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials
 
@@ -27,7 +29,7 @@ def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIU
     return APIUser(username=user.username, account_type=user.account_type)
 
 
-def require_account_type(required_account_type: str):
+def require_account_type(required_account_type: Literal["Administrator", "DeliveryDriver", "Customer"]):
     def wrapper(credentials: HTTPAuthorizationCredentials = Depends(JWTBearer())):
         payload = jwt_service.decode_jwt(credentials.credentials)
         user_account_type = payload.get("account_type")

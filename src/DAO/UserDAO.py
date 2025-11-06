@@ -57,7 +57,19 @@ class UserDAO:
         )
         return raw_created_user is not None
 
-    def update_user(self, username: str, new_firstname: str, new_lastname: str, new_password: str) -> bool:
+    def update_user(
+        self,
+        username: str,
+        firstname: Optional[str] = None,
+        lastname: Optional[str] = None,
+        password: Optional[str] = None,
+    ) -> bool:
+        if firstname is None:
+            firstname = self.get_by_username(username).firstname
+        if lastname is None:
+            lastname = self.get_by_username(username).lastname
+        if password is None:
+            password = self.get_by_username(username).password
         """
         Update an existing user's firstname, lastname, and password in the database.
 
@@ -78,10 +90,10 @@ class UserDAO:
             RETURNING *;
             """,
             {
-                "username": user.username,
-                "firstname": new_firstname,
-                "lastname": new_lastname,
-                "password": new_password,
+                "username": username,
+                "firstname": firstname,
+                "lastname": lastname,
+                "password": password,
             },
             "one",
         )

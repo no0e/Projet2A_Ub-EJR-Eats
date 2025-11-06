@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.DAO.UserDAO import UserDAO
 from src.Model.Customer import Customer
 
@@ -21,14 +23,15 @@ class CustomerDAO(UserDAO):
 
     def find_by_username(self, username: str):
         query = """
-            SELECT username, adress
-            FROM customers
+            SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
+            FROM customer as c
+            JOIN users as u ON u.username = username
             WHERE username = %s
         """
         raw = self.db.sql_query(query, [username], return_type="one")
         return Customer(**raw) if raw else None
 
-    def update_customer(self, username: str, address: str) -> bool:
+    def update_customer(self, username: str, address: Optional[str] = None) -> bool:
         """
         Update an existing customer's address.
 
@@ -43,14 +46,16 @@ class CustomerDAO(UserDAO):
         ---
         bool
         """
+        if address is None:
+            address = self.find_by_username(username).address
         updated_rows = self.db_connector.sql_query(
             """
             UPDATE customers
             SET address = %(address)s
-            WHERE customer_username = %(username)s
+            WHERE username_customer = %(username)s
             RETURNING *;
             """,
-            {"customer_username": Customer.username, "address": Customer.address},
+            {"username": username, "address": address},
             "one",
         )
 

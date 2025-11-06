@@ -1,3 +1,5 @@
+from typing import List
+
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
@@ -5,7 +7,6 @@ from src.DAO.ItemDAO import ItemDAO
 from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Model.Order import Order
-from typing import List
 
 
 class CustomerService:
@@ -32,24 +33,6 @@ class CustomerService:
         """
         return self.customer_dao.find_by_username(username)
 
-    def update_customer(self, username: str, address: str):
-        """Function that update the customer's address.
-
-        Parameters
-        ----------
-        username : str
-            customer's username
-        address : str
-            customer's address
-
-        Returns
-        -------
-        User
-            Returns the customer with updated information.
-        """
-        self.customer_dao_repo.get_customer(username).address = address
-        return self.customer_dao.get_customer(username)
-
     def view_menu(self):
         """See all the item disponible
 
@@ -65,7 +48,7 @@ class CustomerService:
         """Retourne le panier de l'utilisateur associé à son token"""
         return self.active_carts.get(username)
 
-    def add_item_cart(self, username, cart, name_items: List[str], quantities : List[int]) ->dict:
+    def add_item_cart(self, username, cart, name_items: List[str], quantities: List[int]) -> dict:
         """add the quantity of the item choose into the cart
 
         parameters
@@ -83,7 +66,7 @@ class CustomerService:
         items = self.item_dao.find_all_exposed_item()
         items_dict = {item.name_item.lower(): item for item in items}
         for name_item, quantity in zip(name_items, quantities):
-            name_item = name_item.lower() 
+            name_item = name_item.lower()
             if name_item not in items_dict:
                 raise ValueError(f"Item '{name_item}' not found or not available.")
 
@@ -92,20 +75,14 @@ class CustomerService:
             if quantity > item.stock:
                 raise ValueError(f"The quantity requested for '{name_item}' exceeds available stock.")
 
-
             if item.id_item in cart:
                 raise ValueError(f"The item '{name_item}' is already in the cart.")
             else:
                 cart[item.id_item] = quantity
 
-
         price_cart = sum(item.price * cart[item.id_item] for item in items if item.id_item in cart)
 
-
-        return {
-            "price_cart": price_cart,
-            "cart": cart
-        }
+        return {"price_cart": price_cart, "cart": cart}
 
     def modify_cart(self, cart, name_item: str, new_number_item: int):
         """modify the cart by changing the quatity wanted of an item

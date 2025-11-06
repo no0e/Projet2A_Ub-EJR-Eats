@@ -1,13 +1,14 @@
 from typing import List, Optional
 
 from src.DAO.DeliveryDAO import DeliveryDAO
+from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.Delivery import Delivery
 from src.Model.DeliveryDriver import DeliveryDriver
 from src.Service.GoogleMapService import GoogleMap
 
 
 class DeliveryDriverService:
-    def __init__(self, delivery_repo: DeliveryDAO, google_service: GoogleMap):
+    def __init__(self, driver_repo: DeliveryDriverDAO, delivery_repo: DeliveryDAO, google_service: GoogleMap):
         self.delivery_repo = delivery_repo
         self.google_service = google_service
 
@@ -25,24 +26,6 @@ class DeliveryDriverService:
             Instance of the delivery driver with the assiociated username given.
         """
         return self.delivery_repo.find_by_username(username)
-
-    def update_driver(self, username: str, vehicle: Optional[str], is_available: Optional[bool]):
-        """Function that update the customer's address.
-
-        Parameters
-        ----------
-        username : str
-            customer's username
-        address : str
-            customer's address
-
-        Returns
-        -------
-        User
-            Returns the customer with updated information.
-        """
-        self.customer_dao_repo.update_customer(username)
-        return self.customer_dao.get_customer(username)
 
     def get_available_deliveries(self) -> List[Delivery]:
         return self.delivery_repo.get_available_deliveries()

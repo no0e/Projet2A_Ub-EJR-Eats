@@ -1,3 +1,5 @@
+from typing import Optional
+
 from src.DAO.UserDAO import UserDAO
 from src.Model.DeliveryDriver import DeliveryDriver
 
@@ -25,20 +27,29 @@ class DeliveryDriverDAO(UserDAO):
 
     def find_by_username(self, username: str):
         query = """
-            SELECT username_delivery_driver, vehicle, is_available
-            FROM delivery_drivers
-            WHERE username_delivery_driver = %s
+            SELECT d.username_delivery_driver as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, d.vehicle, d.is_available
+            FROM delivery_drivers as d
+            JOIN users as u ON u.username = username
+            WHERE username = %s
         """
         raw = self.db.sql_query(query, [username], return_type="one")
         return DeliveryDriver(**raw) if raw else None
 
-    def update(self, driver: DeliveryDriver, new_vehicle: str, new_is_available: bool) -> bool:
+    def update_delivery_driver(
+        self, username: str, vehicle: Optional[str] = None, is_available: Optional[bool] = None
+    ) -> bool:
+        if vehicle is None:
+            vehicle = self.find_by_username(username).vehicle
+        if is_available is None:
+            is_available = self.find_by_username(username).is_available
         query = """
             UPDATE delivery_drivers
-            SET vehicle = %s, is_available = %s
-            WHERE username_delivery_driver = %s
+            SET vehicle = %(vehicle)s, is_available = %(is_available)s
+            WHERE username_delivery_driver = %(username)s
         """
-        self.db.sql_query(query, [new_vehicle, new_is_available, driver.username], return_type=None)
+        self.db.sql_query(
+            query, {"username": username, "vehicle": vehicle, "is_available": is_available}, return_type=None
+        )
         return True
 
     def delete(self, driver: DeliveryDriver) -> bool:

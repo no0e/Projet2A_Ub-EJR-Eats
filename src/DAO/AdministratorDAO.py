@@ -23,11 +23,12 @@ class AdministratorDAO(UserDAO):
 
     def find_by_username(self, username: str):
         query = """
-            SELECT username
-            FROM administrators
+            SELECT a.username_administrator as username, u.firstname, u.lastname, u.salt, u.account_type, u.password
+            FROM administrator as a
+            JOIN users as u ON u.username = username
             WHERE username = %s
         """
-        raw = self.db.sql_query(query, [username], return_type="one")
+        raw = self.db.sql_query(query, {"username": username}, return_type="one")
         return Administrator(**raw) if raw else None
 
     def delete(self, administrator: Administrator) -> bool:

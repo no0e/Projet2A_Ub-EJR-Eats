@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class Item(BaseModel):
-    id_item: Optional[int]
+    id_item: Optional[int] = None
     name_item: str
     price: float
     category: str

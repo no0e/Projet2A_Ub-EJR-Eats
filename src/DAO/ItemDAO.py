@@ -182,7 +182,9 @@ class ItemDAO:
         :return: True if deletion succeeded, False otherwise.
         """
         try:
-            self.db_connector.sql_query("DELETE FROM project_database.items WHERE id_item = %s;", [item.id_item], "none")
+            self.db_connector.sql_query(
+                "DELETE FROM project_database.items WHERE id_item = %s;", [item.id_item], "none"
+            )
             return True
         except Exception as e:
             print(f"[ItemDAO] Error deleting item: {e}")

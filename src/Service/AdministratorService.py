@@ -13,7 +13,7 @@ from src.Service.UserService import UserService
 
 
 class AdministratorService:
-    """Class with all Service methods of a user."""
+    """Class with all Service methods of an administrator."""
 
     def __init__(
         self,

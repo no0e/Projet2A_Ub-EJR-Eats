@@ -156,7 +156,7 @@ class UserService:
         username : str
             username of the user we want to delete.
         """
-        self.user_repo.delete_user(self.get_by_username(username))
+        self.user_repo.delete_user(self.get_user(username))
 
     def update_user(
         self,

@@ -14,7 +14,7 @@ class MockUserRepo:
         self.users[user.username] = user
         return True
 
-    def get_user(self, username: str) -> Optional[User]:
+    def get_by_username(self, username: str) -> Optional[User]:
         return self.users.get(username)
 
     def update_user(self, username: str, firstname: str, lastname: str, password: str):
@@ -77,7 +77,7 @@ user_repo.create_user(
 def test_create_user_success():
     user = service.create_user("janjon", "Jean", "John", "mdpsecure", account_type="Customer")
     assert user.username == "janjon"
-    assert user_repo.get_user("janjon") is not None
+    assert user_repo.get_by_username("janjon") is not None
     assert customer_repo.customers["janjon"].firstname == "Jean"
 
 
@@ -127,7 +127,7 @@ def test_update_user(monkeypatch):
     )
 
     service.update_user("update_test", firstname="New", lastname=None, password=None)
-    updated = user_repo.get_user("update_test")
+    updated = user_repo.get_by_username("update_test")
     assert updated.firstname == "New"
     assert updated.lastname == "Name"
 
@@ -136,6 +136,6 @@ def test_delete_user():
     user_repo.create_user(
         User(username="delete_me", firstname="Del", lastname="Me", salt="s", password="p", account_type="Customer")
     )
-    assert user_repo.get_user("delete_me") is not None
+    assert user_repo.get_by_username("delete_me") is not None
     service.delete_user("delete_me")
-    assert user_repo.get_user("delete_me") is None
+    assert user_repo.get_by_username("delete_me") is None

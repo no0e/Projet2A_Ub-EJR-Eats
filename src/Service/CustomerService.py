@@ -2,6 +2,7 @@ from typing import List
 
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
+from src.DAO.DeliveryDAO import DeliveryDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.ItemDAO import ItemDAO
 from src.DAO.OrderDAO import OrderDAO
@@ -17,7 +18,8 @@ class CustomerService:
         self.deliverydriver_dao = DeliveryDriverDAO(self.db_connector)
         self.customer_dao = CustomerDAO(self.db_connector)
         self.order_dao = OrderDAO(self.db_connector)
-        self.delivery_service = DeliveryService(self.db_connector)
+        self.delivery_dao = DeliveryDAO(self.db_connector)
+        self.delivery_service = DeliveryService(self.delivery_dao)
         self.active_carts = {}
 
     def get_customer(self, username: str) -> Customer | None:

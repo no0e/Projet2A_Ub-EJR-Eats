@@ -62,6 +62,15 @@ admin_repo.create_admin(
     )
 )
 
+user_repo.create_user(User(
+    username="Pat",
+    firstname="Patric",
+    lastname="Pic",
+    password="mdpsecured",
+    salt= "salt",
+    account_type="Customer"
+))
+
 
 def test_create_user_success():
     user = service.create_user("janjon", "Jean", "John", "mdpsecure", account_type="Customer")
@@ -70,5 +79,32 @@ def test_create_user_success():
     assert customer_repo.customers["janjon"].firstname == "Jean"
 
 def test_get_user_success():
-    username_administrator = service.get_user("janjak")
-    assert username_administrator = 
+    administrator = service.get_user("Pat")
+    assert administrator.username == "Pat"
+    assert administrator.firstname == "Patric"
+    assert administrator.lastname == "Pic"
+    assert administrator.password == "mdpsecured"
+    assert administrator.salt == "salt"
+    assert administrator.account_type == "Customer"
+
+def test_username_exists_success():
+    exist = service.username_exists("Pat")
+    assert exist is True
+
+def test_username_exists_failed():
+    exist = service.username_exists("Jules")
+    assert exist is False
+
+def test_delete_user_success():
+    user_repo.create_user(User(
+        username="Maelys",
+        firstname="Mael",
+        lastname="Lys",
+        password="mdpsecure",
+        salt = "salt",
+        account_type="Customer"
+    ))
+
+    assert service.username_exists("Maelys") is not None
+    service.delete_user("Maelys")
+    assert user_repo.username_exists("Maelys") is None

@@ -69,7 +69,11 @@ class AdministratorService:
         User
             Instance of the user with the assiociated username given.
         """
-        return self.user_repo.get_by_username(user_username)
+        user = self.user_repo.get_by_username(user_username)
+
+        if user is None:
+            raise ValueError(f"User with username '{user_username}' not found.")  # Tu peux aussi retourner None si tu préfères
+        return user
 
     def username_exists(self, username: str) -> bool:
         """Function that checks if a given username is already existing in the database.

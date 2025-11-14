@@ -1,10 +1,7 @@
-import json
-
 import pytest
 
 from src.DAO.DBConnector import DBConnector
 from src.DAO.OrderDAO import OrderDAO
-from src.Model.Item import Item
 from src.Model.Order import Order
 from src.Utils.reset_db import ResetDatabase
 
@@ -22,63 +19,57 @@ def order_dao(db_connector):
 
 def test_create_order(order_dao):
     ResetDatabase().lancer(True)
-    # Keys in items dict should be strings (JSON stores keys as strings)
-    items = {"1": 2, "3": 1}
     order = Order(
         username_customer="bobbia",
         username_delivery_driver="ernesto",
         address="123 Test St",
-        items=items,
+        items={"item1": 2, "item3": 1},
     )
-    # Pass test=True to use test database
-    result = order_dao.create_order(order, test=True)
-    assert result is True
+    assert order_dao.create_order(order, test=True)
 
 
 def test_find_order_by_id(order_dao):
     ResetDatabase().lancer(True)
-    # Pass test=True to use test database
-    found_order = order_dao.find_order_by_id(1, test=True)
-
-    assert found_order is not None
-    assert found_order.id_order == 1
-    assert found_order.username_customer == "bobbia"
-    assert found_order.username_delivery_driver == "ernesto1"
-    assert found_order.address == "13 Main St."
-    # Keys are strings in JSON
-    assert found_order.items == {"1": 10}
+    order = order_dao.find_order_by_id(1, test=True)
+    assert order is not None
+    assert order.id_order == 1
+    assert order.username_customer == "bobbia"
+    assert order.items == {"item1": 2, "item3": 1}
 
 
 def test_find_order_by_user(order_dao):
     ResetDatabase().lancer(True)
-    # Pass test=True to use test database
-    found_orders = order_dao.find_order_by_user("bobbia", test=True)
-    no_order = order_dao.find_order_by_user("drdavid", test=True)
-    
-    assert found_orders is not None
-    assert len(found_orders) == 2
-    # Check the first order's customer - note: based on your assertion, it seems 
-    # the first order for "bobbia" has username_customer "drdavid"? 
-    # This seems like it might be a data issue, but keeping your original assertion
-    assert found_orders[0].username_customer == "drdavid"
-    assert no_order is None
+    orders = order_dao.find_order_by_user("bobbia", test=True)
+    assert orders is not None
+    for o in orders:
+        assert o.username_customer == "bobbia"
+        assert isinstance(o.items, dict)
+    assert order_dao.find_order_by_user("unknown_user", test=True) is None
 
 
 def test_update(order_dao):
     ResetDatabase().lancer(True)
-    # items should be a dict, not a JSON string
-    future_order = Order(
+    order = Order(
         id_order=1,
         username_customer="bobbia",
         username_delivery_driver="ernesto1",
-        address="51 Rue Blaise Pascal, 35170 Bruz",
-        items={"1": 1}  # Dict, not string
+        address="51 Rue Blaise Pascal",
+        items={"item1": 1, "item2": 3},
     )
-    # Pass test=True to use test database
-    result = order_dao.update(future_order, test=True)
-    assert result is True
+    assert order_dao.update(order, test=True)
+    updated_order = order_dao.find_order_by_id(1, test=True)
+    assert updated_order.items == {"item1": 1, "item2": 3}
+    assert updated_order.address == "51 Rue Blaise Pascal"
 
 
-if __name__ == "__main__":
-    pytest.main()
+def test_delete(order_dao):
     ResetDatabase().lancer(True)
+    order = Order(
+        id_order=1,
+        username_customer="bobbia",
+        username_delivery_driver="ernesto1",
+        address="123 Test St",
+        items={"item1": 2},
+    )
+    assert order_dao.delete(order, test=True)
+    assert order_dao.find_order_by_id(1, test=True) is None

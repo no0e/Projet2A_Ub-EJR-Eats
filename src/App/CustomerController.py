@@ -87,6 +87,18 @@ def Modify_cart(
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@customer_router.get("/Cart", status_code=status.HTTP_200_OK)
+def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
+    customer = get_user_from_credentials(credentials)
+    username_customer = customer.username
+    cart = get_cart_for_user(username_customer)
+    try:
+        cart = customer_service.view_cart(cart)
+        return cart
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e))
 
 @customer_router.post("/validate the cart", status_code=status.HTTP_200_OK)
 def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , address : str = None):
@@ -96,7 +108,7 @@ def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(J
         raise HTTPException(status_code=404, detail=f"Customer with username {username} not found.")
     username_customer = customer.username
     if address is None:
-        address = customer.adress
+        address = customer.address
 
     cart = get_cart_for_user(username_customer)
     if not cart:

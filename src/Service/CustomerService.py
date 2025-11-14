@@ -185,7 +185,7 @@ class CustomerService:
         order : Order
             the last order of the user
         """
-        order_user = self.order_dar.find_order_by_user(username_customer)
+        order_user = self.order_dao.find_order_by_user(username_customer)
         if not order_user:
             raise ValueError(f"No orders found for user {username_customer}")
 

@@ -76,3 +76,4 @@ class CustomerDAO(UserDAO):
             [customer.username],
         )
         return True
+

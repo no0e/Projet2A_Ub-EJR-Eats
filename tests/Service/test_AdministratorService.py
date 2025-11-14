@@ -68,3 +68,7 @@ def test_create_user_success():
     assert user.username == "janjon"
     assert user_repo.get_by_username("janjon") is not None
     assert customer_repo.customers["janjon"].firstname == "Jean"
+
+def test_get_user_success():
+    username_administrator = service.get_user("janjak")
+    assert username_administrator = 

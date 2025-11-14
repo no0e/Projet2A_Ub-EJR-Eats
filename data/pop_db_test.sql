@@ -43,7 +43,7 @@ VALUES
 ('charliz', 'ernesto1', '4 Salty Spring Av.', '{"item1":39,"item3":2}'::jsonb);
 
 -- Deliveries
-INSERT INTO project_test_database.deliveries (username_delivery_driver, duration, stops)
+INSERT INTO project_test_database.deliveries (username_delivery_driver, duration, id_orders, stops)
 VALUES 
-('ernesto', '50', ARRAY['13 Main St.', '4 Salty Spring Av.']),
-('ernesto1', '15', ARRAY['13 Main St.']);
+('ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.']),
+('ernesto1', '15', ARRAY[1], ARRAY['13 Main St.']);

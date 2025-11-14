@@ -74,11 +74,6 @@ def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "ad
     }
 
 
-@administrator_router.patch("/Edit_Menu", status_code=status.HTTP_200_OK)
-def Edit_Menu():
-    pass
-
-
 @administrator_router.get("/Storage/View", status_code=status.HTTP_200_OK)
 def View_Storage():
     try:

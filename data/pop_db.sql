@@ -31,9 +31,9 @@ VALUES
 -- Items
 INSERT INTO project_database.items (name_item, price, category, stock, exposed)
 VALUES 
-('item1', 3.2, 'main dish', 102, True),
-('item2', 3.0, 'main dish', 30, False),
-('item3', 2.0, 'drink', 501, True);
+('galette saucisse', 3.2, 'main dish', 102, True),
+('vegetarian galette', 3.0, 'main dish', 30, False),
+('cola', 2.0, 'drink', 501, True);
 
 -- Orders with string keys in items (adapted for tests)
 INSERT INTO project_database.orders (username_customer, username_delivery_driver, address, items)

@@ -38,9 +38,9 @@ VALUES
 -- Orders with string keys in items (adapted for tests)
 INSERT INTO project_test_database.orders (username_customer, username_delivery_driver, address, items)
 VALUES 
-('bobbia', 'ernesto1', '13 Main St.', '{"item1":2,"item3":1}'::jsonb),
-('bobbia', 'ernesto', '13 Main St.', '{"item1":39}'::jsonb),
-('charliz', 'ernesto1', '4 Salty Spring Av.', '{"item1":39,"item3":2}'::jsonb);
+('bobbia', 'ernesto1', '13 Main St.', '{"galette saucisse":2,"cola":1}'::jsonb),
+('bobbia', 'ernesto', '13 Main St.', '{"galette saucisse":39}'::jsonb),
+('charliz', 'ernesto1', '4 Salty Spring Av.', '{"galette saucisse":39,"cola":2}'::jsonb);
 
 -- Deliveries
 INSERT INTO project_test_database.deliveries (username_delivery_driver, duration, id_orders, stops)

@@ -10,40 +10,40 @@ VALUES
 ('fabriccio', 'mysuperpwd', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator');
 
 -- Administrators
-INSERT I.administrators  (username_administrator) 
+INSERT INTO project_database.administrators  (username_administrator) 
 VALUES
 ('aliceasm'),
 ('fabriccio');
 
 -- Customers
-INSERT I.customers  (username_customer, address) 
+INSERT INTO project_database.customers  (username_customer, address) 
 VALUES
 ('bobbia', '13 Main St.'),
 ('charliz', '4 Salty Spring Av.'),
 ('drdavid', 'Flat 5, Beverly Hills');
 
 -- Delivery drivers
-INSERT I.delivery_drivers (username_delivery_driver, vehicle, is_available)
+INSERT INTO project_database.delivery_drivers (username_delivery_driver, vehicle, is_available)
 VALUES
 ('ernesto', 'car', False),
 ('ernesto1', 'foot', True);
 
 -- Items
-INSERT I.items (name_item, price, category, stock, exposed)
+INSERT INTO project_database.items (name_item, price, category, stock, exposed)
 VALUES 
 ('item1', 3.2, 'main dish', 102, True),
 ('item2', 3.0, 'main dish', 30, False),
 ('item3', 2.0, 'drink', 501, True);
 
 -- Orders with string keys in items (adapted for tests)
-INSERT I.orders (username_customer, username_delivery_driver, address, items)
+INSERT INTO project_database.orders (username_customer, username_delivery_driver, address, items)
 VALUES 
 ('bobbia', 'ernesto1', '13 Main St.', '{"item1":2,"item3":1}'::jsonb),
 ('bobbia', 'ernesto', '13 Main St.', '{"item1":39}'::jsonb),
 ('charliz', 'ernesto1', '4 Salty Spring Av.', '{"item1":39,"item3":2}'::jsonb);
 
 -- Deliveries
-INSERT I.deliveries (username_delivery_driver, duration, stops)
+INSERT INTO project_database.deliveries (username_delivery_driver, duration, id_orders, stops)
 VALUES 
-('ernesto', '50', ARRAY['13 Main St.', '4 Salty Spring Av.']),
-('ernesto1', '15', ARRAY['13 Main St.']);
+('ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.']),
+('ernesto1', '15', ARRAY[1], ARRAY['13 Main St.']);

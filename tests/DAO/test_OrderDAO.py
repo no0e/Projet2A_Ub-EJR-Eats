@@ -23,7 +23,7 @@ def test_create_order(order_dao):
         username_customer="bobbia",
         username_delivery_driver="ernesto",
         address="123 Test St",
-        items={"item1": 2, "item3": 1},
+        items={"galette saucisse": 2, "cola": 1},
     )
     assert order_dao.create_order(order, test=True)
 
@@ -34,7 +34,7 @@ def test_find_order_by_id(order_dao):
     assert order is not None
     assert order.id_order == 1
     assert order.username_customer == "bobbia"
-    assert order.items == {"item1": 2, "item3": 1}
+    assert order.items == {"galette saucisse": 2, "cola": 1}
 
 
 def test_find_order_by_user(order_dao):
@@ -54,11 +54,11 @@ def test_update(order_dao):
         username_customer="bobbia",
         username_delivery_driver="ernesto1",
         address="51 Rue Blaise Pascal",
-        items={"item1": 1, "item2": 3},
+        items={"galette saucisse": 1, "vegetarian galette": 3},
     )
     assert order_dao.update(order, test=True)
     updated_order = order_dao.find_order_by_id(1, test=True)
-    assert updated_order.items == {"item1": 1, "item2": 3}
+    assert updated_order.items == {"galette saucisse": 1, "vegetarian galette": 3}
     assert updated_order.address == "51 Rue Blaise Pascal"
 
 
@@ -69,7 +69,7 @@ def test_delete(order_dao):
         username_customer="bobbia",
         username_delivery_driver="ernesto1",
         address="123 Test St",
-        items={"item1": 2},
+        items={"galette saucisse": 2},
     )
     assert order_dao.delete(order, test=True)
     assert order_dao.find_order_by_id(1, test=True) is None

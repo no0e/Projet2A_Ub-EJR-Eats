@@ -7,6 +7,7 @@ from src.DAO.ItemDAO import ItemDAO
 from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Model.Order import Order
+from src.Service.DeliveryService import DeliveryService
 
 
 class CustomerService:
@@ -16,6 +17,7 @@ class CustomerService:
         self.deliverydriver_dao = DeliveryDriverDAO(self.db_connector)
         self.customer_dao = CustomerDAO(self.db_connector)
         self.order_dao = OrderDAO(self.db_connector)
+        self.delivery_service = DeliveryService(self.db_connector)
         self.active_carts = {}
 
     def get_customer(self, username: str) -> Customer | None:
@@ -137,18 +139,17 @@ class CustomerService:
                 del cart[item.name_item]
                 return cart
 
-
-
-    def validate_cart(self, cart, username_customer, validate, address : str ):
+    def validate_cart(self, cart, username_customer, validate, address: str):
         if validate.lower() == "yes":
             order = Order(
                 id_order=None,
-                username_customer=username_customer, 
+                username_customer=username_customer,
                 username_delivery_driver=None,
                 address=address,
-                items=cart 
+                items=cart,
             )
             success = self.order_dao.create_order(order)
+            self.delivery_service.create([order])
             if not success:
                 raise ValueError("Failed to create order in the database.")
             for name_item, quantity in cart.items():
@@ -170,11 +171,10 @@ class CustomerService:
 
             return f"Your cart has been validated. The order has been created: {order}"
 
-
         raise TypeError("If you want to validate your cart you must enter: yes")
 
-    def view_order(self,username_customer : str):
-        """See the last order of a customer 
+    def view_order(self, username_customer: str):
+        """See the last order of a customer
         Parameters
         -----
         username_customer: str
@@ -198,6 +198,3 @@ class CustomerService:
         price_cart = sum(item.price * cart[item.name_item] for item in items if item.name_item in cart)
 
         return {"cart": cart, "price": price_cart}
-
-
- 

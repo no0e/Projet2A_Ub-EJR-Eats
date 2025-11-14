@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -6,7 +6,8 @@ from src.Model.Order import Order
 
 
 class Delivery(BaseModel):
-    id_delivery: int
-    username_driv: str
-    duration: int
+    id_delivery: Optional[int] = None
+    username_driv: Optional[str] = None
+    duration: Optional[int] = None
     orders: List[Order]
+    is_accepted: bool

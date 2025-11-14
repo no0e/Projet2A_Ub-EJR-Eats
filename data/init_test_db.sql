@@ -50,6 +50,7 @@ CREATE TABLE project_test_database.deliveries (
   id_delivery SERIAL PRIMARY KEY,
   username_delivery_driver VARCHAR,
   duration INTEGER,
+  id_orders INTEGER[],
   stops VARCHAR[],
   is_accepted BOOLEAN,
   FOREIGN KEY (username_delivery_driver) REFERENCES project_test_database.users(username)

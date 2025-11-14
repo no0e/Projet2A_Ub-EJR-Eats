@@ -1,6 +1,8 @@
+import json
 from typing import List
 
 from src.Model.Delivery import Delivery
+from src.Model.Order import Order
 
 from .DBConnector import DBConnector
 
@@ -12,10 +14,12 @@ class DeliveryDAO:
         self.db = db_connector
 
     def create(self, delivery: Delivery) -> bool:
+        id_orders = list(delivery.orders.keys())
+        stops = list(delivery.orders.values())
         query = """
             INSERT INTO project_database.deliveries
-            (username_delivery_driver, duration, stops, is_accepted)
-            VALUES ( %(username_delivery_driver)s, %(duration)s, %(stops)s, %(is_accepted)s)
+            (username_delivery_driver, duration, id_orders, stops, is_accepted)
+            VALUES ( %(username_delivery_driver)s, %(duration)s, %(id_orders)s, %(stops)s, %(is_accepted)s)
             RETURNING id_delivery;
         """
         try:
@@ -25,7 +29,8 @@ class DeliveryDAO:
                     "id_delivery": delivery.id_delivery,
                     "username_delivery_driver": delivery.username_delivery_driver,
                     "duration": delivery.duration,
-                    "stops": delivery.stops,
+                    "id_orders": id_orders,
+                    "stops": stops,
                     "is_accepted": delivery.is_accepted,
                 },
             )

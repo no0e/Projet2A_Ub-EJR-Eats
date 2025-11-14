@@ -16,17 +16,21 @@ class UserDAO:
 
     db_connector: DBConnector
 
-    def __init__(self, db_connector: DBConnector):
+    def __init__(self, db_connector: DBConnector, test:bool = False):
         """
         Initialize the UserDAO with a database connector.
 
         :param db_connector: Instance of DBConnector used to execute SQL queries.
         """
         self.db_connector = db_connector
+        if test:
+            self.schema = "project_test_database"
+        else:
+            self.schema = "project_database" 
 
     def get_by_username(self, username: str) -> Optional[User]:
         raw_user = self.db_connector.sql_query(
-            "SELECT * FROM project_database.users WHERE username=%s", [username], "one"
+            "SELECT * FROM "+self.schema+".users WHERE username=%s", [username], "one"
         )
         if raw_user is None:
             return None
@@ -43,7 +47,7 @@ class UserDAO:
     def create_user(self, user: User) -> bool:
         raw_created_user = self.db_connector.sql_query(
             """
-            INSERT INTO project_database.users (username, firstname, lastname, password, salt, account_type)
+            INSERT INTO """+self.schema+""".users (username, firstname, lastname, password, salt, account_type)
             VALUES (%(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
             RETURNING *;
             """,
@@ -83,7 +87,7 @@ class UserDAO:
         """
         updated_rows = self.db_connector.sql_query(
             """
-            UPDATE project_database.users
+            UPDATE """+self.schema+""".users
             SET
                 firstname = %(firstname)s,
                 lastname = %(lastname)s,
@@ -111,7 +115,7 @@ class UserDAO:
         """
         deleted_row = self.db_connector.sql_query(
             """
-            DELETE FROM project_database.users
+            DELETE FROM """+self.schema+""".users
             WHERE username = %(username)s
             RETURNING *;
             """,

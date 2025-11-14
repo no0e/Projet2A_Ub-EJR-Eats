@@ -31,7 +31,7 @@ deliverydriver_router = APIRouter(
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
 def view_available_deliveries():
-    """List of all non accepeted dilivery"""
+    """List of all non accepted deliveries"""
     deliveries = delivery_service.get_available_deliveries()
     return {"available_deliveries": deliveries}
 

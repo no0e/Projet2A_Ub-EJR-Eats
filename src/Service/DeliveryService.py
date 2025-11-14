@@ -1,9 +1,12 @@
+from typing import List
+
 from src.DAO.DeliveryDAO import DeliveryDAO
 from src.Model.Delivery import Delivery
 from src.Model.Order import Order
 from src.Service.GoogleMapService import GoogleMap
 
 googlemap = GoogleMap(restaurant_location="51 rue Blaise Pascal, 35170 Bruz")
+
 
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
@@ -12,7 +15,7 @@ class DeliveryService:
         self.delivery_repo = delivery_repo
         self.google_map = GoogleMap()
 
-    def create(self, orders: list(Order)) -> Delivery:
+    def create(self, orders: List[Order]) -> Delivery:
         """Create a new delivery
 
         Parameters
@@ -25,7 +28,7 @@ class DeliveryService:
         Delivery
             The delivery that has been created
         """
-        delivery = Delivery(orders = orders, is_accepted = False)
+        delivery = Delivery(orders=orders, is_accepted=False)
         success = self.delivery_repo.create(delivery)
         if not success:
             raise ValueError("Failed to create delivery in the database.")

@@ -8,7 +8,8 @@ from src.Service.GoogleMapService import GoogleMap
 
 
 class DeliveryDriverService:
-    def __init__(self, delivery_repo: DeliveryDAO, google_service: GoogleMap):
+    def __init__(self, driver_repo: DeliveryDriverDAO, delivery_repo: DeliveryDAO, google_service: GoogleMap):
+        self.driver_repo = driver_repo
         self.delivery_repo = delivery_repo
         self.google_service = google_service
 

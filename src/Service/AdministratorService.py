@@ -98,9 +98,12 @@ class AdministratorService:
         username : str
             username of the user we want to delete.
         """
-        self.user_repo.delete_user(self.get_user(username))
+        user = self.get_user(username)
+        if user is None:
+            raise ValueError(f"User with username '{username}' not found.")
+        self.user_repo.delete_user(user)
 
-    def update_user(self, username: str, firstname: Optional[str], lastname: Optional[str], password: Optional[str]):
+    def update_user(self, username: str, firstname: Optional[str] =None, lastname: Optional[str] = None, password: Optional[str] = None):
         """Function that update the user's attributes.
 
         Parameters

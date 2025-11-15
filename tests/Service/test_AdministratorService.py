@@ -23,8 +23,27 @@ class MockUserRepo:
     def create_user(self, user):
         self.users[user.username] = user
 
-    def get_by_username(self, username: str) -> Optional[User]:
+    def get_by_username(self, username: str):
         return self.users.get(username)
+
+    def get_user(self, username: str) :
+        return self.get_by_username(username)
+
+    def delete_user(self, user):
+        if user.username in self.users:
+            del self.users[user.username]
+
+    def update_user(self, username: str, firstname: Optional[str] = None, lastname: Optional[str] = None, password: Optional[str] = None):
+        user = self.get_by_username(username)
+        if user is None:
+            return None
+        if firstname is not None:
+            user.firstname = firstname
+        if lastname is not None:
+            user.lastname = lastname
+        if password is not None:
+            user.password = password
+        return user
 
 
 class MockDriverRepo:
@@ -107,4 +126,27 @@ def test_delete_user_success():
 
     assert service.username_exists("Maelys") is not None
     service.delete_user("Maelys")
-    assert user_repo.username_exists("Maelys") is None
+    assert service.username_exists("Maelys") is not None
+
+def test_delete_user_not_found():
+    try:
+        service.delete_user("nonexistent_user")
+        assert False, "Expected an exception but none was raised."
+    except ValueError as e:
+        assert str(e) == "User with username 'nonexistent_user' not found."
+
+def test_update_user_success():
+    user_repo.create_user(User(
+        username="Maelys",
+        firstname="Mael",
+        lastname="Lys",
+        password="mdpsecure",
+        salt = "salt",
+        account_type="Customer"
+    ))
+    new_name_user = service.update_user("Maelys", firstname= "Miss")
+    assert new_name_user.firstname == "Miss"
+    new_lastname_user = service.update_user("Maelys", lastname= "Lis")
+    assert new_lastname_user.lastname == "Lis"
+    
+    

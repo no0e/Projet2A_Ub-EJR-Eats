@@ -37,7 +37,7 @@ class DeliveryDriverDAO(UserDAO):
             FROM """
             + self.schema
             + """.delivery_drivers as d
-            JOIN users as u ON u.username = username
+            JOIN """+self.schema+""".users as u ON u.username = username
             WHERE username = %s
         """
         )

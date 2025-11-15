@@ -3,14 +3,15 @@ from src.Model.Administrator import Administrator
 
 
 class AdministratorDAO(UserDAO):
-    def __init__(self, db_connector):
-        super().__init__(db_connector)
-        self.db = db_connector
+    def __init__(self, db_connector, test: bool = False):
+        super().__init__(db_connector, test)
 
     def create(self, administrator: Administrator) -> bool:
-        raw_created_admin = self.db.sql_query(
+        raw_created_admin = self.db_connector.sql_query(
             """
-            INSERT INTO project_database.administrators (username_administrator)
+            INSERT INTO """
+            + self.schema
+            + """.administrators (username_administrator)
             VALUES (%(username_administrator)s)
             RETURNING *;
             """,
@@ -22,18 +23,32 @@ class AdministratorDAO(UserDAO):
         return raw_created_admin is not None
 
     def find_by_username(self, username: str):
-        query = """
+        if not isinstance(username, str):
+            raise TypeError("Username must be a string.")
+        if self.get_by_username(username) is None:
+            raise ValueError(f"Username {username} does not exist.")
+        query = (
+            """
             SELECT a.username_administrator as username, u.firstname, u.lastname, u.salt, u.account_type, u.password
-            FROM project_database.administrator as a
-            JOIN users as u ON u.username = username
+            FROM """
+            + self.schema
+            + """.administrators as a
+            JOIN """
+            + self.schema
+            + """.users as u ON u.username = username
             WHERE username = %s
         """
-        raw = self.db.sql_query(query, {"username": username}, return_type="one")
+        )
+        raw = self.db_connector.sql_query(query, [username], return_type="one")
         return Administrator(**raw) if raw else None
 
     def delete(self, administrator: Administrator) -> bool:
-        self.db.sql_query(
-            "DELETE FROM administrators WHERE username_administrator = %s",
+        if not isinstance(administrator, Administrator):
+            raise TypeError(f"{administrator} should be type of Administrator.")
+        if self.find_by_username(administrator.username) is None:
+            raise ValueError(f"The administrator {administrator.username} does not exist.")
+        self.db_connector.sql_query(
+            "DELETE FROM " + self.schema + ".administrators WHERE username_administrator = %s",
             [administrator.username],
         )
         return True

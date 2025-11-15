@@ -1,5 +1,5 @@
 from typing import Optional
-
+from unittest.mock import patch
 import pytest
 
 from src.Model.Administrator import Administrator
@@ -148,5 +148,22 @@ def test_update_user_success():
     assert new_name_user.firstname == "Miss"
     new_lastname_user = service.update_user("Maelys", lastname= "Lis")
     assert new_lastname_user.lastname == "Lis"
-    
-    
+
+    with patch('src.Service.AdministratorService.check_password_strength') as mock_check_password_strength, \
+         patch('src.Service.AdministratorService.create_salt') as mock_create_salt, \
+         patch('src.Service.AdministratorService.hash_password') as mock_hash_password:
+
+
+        mock_create_salt.return_value = "random_salt"
+        mock_hash_password.return_value = "new_hashed_password"
+
+
+        updated_user = service.update_user(
+            username="Maelys",
+            password="newpassword"
+        )
+        mock_check_password_strength.assert_called_once_with("newpassword")
+        mock_create_salt.assert_called_once()
+        mock_hash_password.assert_called_once_with("newpassword", "random_salt")
+        assert updated_user.password == "new_hashed_password"
+

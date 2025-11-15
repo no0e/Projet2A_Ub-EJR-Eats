@@ -132,11 +132,3 @@ class AdministratorService:
             self.user_repo.get_user(username).password = hash_password(password, salt)
         return self.user_repo.get_user(username)
 
-    """
-    def drivers_available(self) -> list(DeliveryDriver):
-        delivery_drivers = self.user_repo.get_by_account_type("DeliveryDriver")
-        available_delivery_drivers = [
-            delivery_driver for delivery_driver in delivery_drivers if delivery_driver.is_available
-        ]
-        return available_delivery_drivers
-    """

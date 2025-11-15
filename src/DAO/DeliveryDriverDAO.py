@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from src.DAO.UserDAO import UserDAO
 from src.Model.DeliveryDriver import DeliveryDriver
@@ -11,8 +11,8 @@ class DeliveryDriverDAO(UserDAO):
     def create(self, driver: DeliveryDriver) -> bool:
         if not isinstance(driver, DeliveryDriver):
             raise TypeError("The created driver must be of a type driver.")
-        if self.get_by_username(driver.username) is not None:
-            raise ValueError(f"Username {driver.username} is already taken.")
+        if self.get_by_username(driver.username) is None:
+            raise ValueError(f"Username {driver.username} does not exist in users although it should to create a driver.")
         raw_created_driver = self.db_connector.sql_query(
             """
             INSERT INTO """
@@ -69,9 +69,7 @@ class DeliveryDriverDAO(UserDAO):
             return False
 
         query = (
-            """UPDATE """
-            + self.schema
-            + f""".delivery_drivers
+            """UPDATE """ + self.schema + f""".delivery_drivers
             SET {", ".join(set_clause)}"""
             f"""WHERE username_delivery_driver = %(username)s
         """
@@ -81,21 +79,32 @@ class DeliveryDriverDAO(UserDAO):
         return True
 
     def delete(self, driver: DeliveryDriver) -> bool:
+        if not isinstance(driver, DeliveryDriver):
+            return False
         self.db_connector.sql_query(
             "DELETE FROM " + self.schema + ".delivery_drivers WHERE username_delivery_driver = %s",
             [driver.username],
         )
         return True
 
-    def drivers_available(self):
-        query = (
-            """
+    def drivers_available(self) -> List[DeliveryDriver]:
+        query = f"""
             SELECT username_delivery_driver, vehicle, is_available
-            FROM """
-            + self.schema
-            + """.delivery_drivers
+            FROM {self.schema}.delivery_drivers
             WHERE is_available = TRUE
         """
-        )
-        rows = self.db_connector.sql_query(query, return_type="all")
-        return [DeliveryDriver(**r) for r in rows]
+        try:
+            rows = self.db_connector.sql_query(query, return_type="all")
+            # Map the query result keys to the DeliveryDriver constructor arguments
+            return [
+                DeliveryDriver(
+                    username=r["username_delivery_driver"],
+                    vehicle=r["vehicle"],
+                    is_available=r["is_available"]
+                )
+                for r in rows
+            ]
+        except Exception as e:
+            # Log the error or handle it as needed
+            print(f"Error fetching available drivers: {e}")
+            return []

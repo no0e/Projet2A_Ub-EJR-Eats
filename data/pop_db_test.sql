@@ -7,7 +7,10 @@ VALUES
 ('drdavid', '!pwd!mypwd', 'David', 'Douze', 'pepper', 'Customer'),
 ('ernesto', 'hardpwd123', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
 ('ernesto1', 'hardpwd123', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
-('fabriccio', 'mysuperpwd', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator');
+('fabriccio', 'mysuperpwd', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator'),
+('futureadministrator', 'pwd222', 'Future', 'Administrator', 'salty', 'Administrator'),
+('futurecustomer', 'pwd222', 'Future', 'Customer', 'salty', 'Customer'),
+('futuredeliverydriver', 'pwd222', 'Future', 'DeliveryDriver', 'salty', 'DeliveryDriver');
 
 -- Administrators
 INSERT INTO project_test_database.administrators  (username_administrator) 

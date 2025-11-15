@@ -1,10 +1,12 @@
 from typing import List, Optional
+
 import pytest
 
-from src.Utils.reset_db import ResetDatabase
 from src.DAO.DBConnector import DBConnector
+from src.DAO.UserDAO import UserDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.DeliveryDriver import DeliveryDriver
+from src.Utils.reset_db import ResetDatabase
 
 
 @pytest.fixture
@@ -12,26 +14,36 @@ def db_connector():
     db = DBConnector()
     yield db
 
+@pytest.fixture
+def user_dao(db_connector):
+    return UserDAO(db_connector, test=True)
 
 @pytest.fixture
 def delivery_driver_dao(db_connector):
     return DeliveryDriverDAO(db_connector, test=True)
 
-def test_create(delivery_driver_dao):
+
+def test_create(delivery_driver_dao, user_dao):
     ResetDatabase().lancer(True)
+    user_to_be_driver = user_dao.get_by_username('futuredeliverydriver')
     driver_to_create = DeliveryDriver(
-        username="new_driver",
-        firstname="Greg",
-        lastname="Good",
-        account_type="DeliveryDriver",
-        password="hashedpassword",
-        salt="salt123",
+        username=user_to_be_driver.username,
+        firstname=user_to_be_driver.firstname,
+        lastname=user_to_be_driver.lastname,
+        account_type=user_to_be_driver.account_type,
+        password=user_to_be_driver.password,
+        salt=user_to_be_driver.salt,
         vehicle="scooter",
         is_available=True,
     )
-    missing_driver = None
     assert delivery_driver_dao.create(driver_to_create)
-    assert not delivery_driver_dao.create(missing_driver)
+
+def test_create_failures(delivery_driver_dao, user_dao):
+    ResetDatabase().lancer(True)
+    nonexistent_driver = None
+    with pytest.raises(TypeError):
+        delivery_driver_dao.create(nonexistent_driver)
+
 
 def test_find_by_username(delivery_driver_dao):
     ResetDatabase().lancer(True)
@@ -40,6 +52,7 @@ def test_find_by_username(delivery_driver_dao):
     assert found_driver.username == "ernesto"
     assert found_driver.vehicle == "car"
     assert not found_driver.is_available
+
 
 def test_update_delivery_driver(delivery_driver_dao):
     ResetDatabase().lancer(True)
@@ -51,16 +64,24 @@ def test_update_delivery_driver(delivery_driver_dao):
     assert not no_updated_driver
 
 
-def test_update():
-    ...
+def test_delete(delivery_driver_dao):
+    ResetDatabase().lancer(True)
+    driver_to_delete = delivery_driver_dao.find_by_username("ernesto")
+    deletion = delivery_driver_dao.delete(driver_to_delete)
+    missing_driver = None
+    false_deletion = delivery_driver_dao.delete(missing_driver)
+    assert deletion
+    assert not false_deletion
 
-def test_delete():
-    ...
 
-
-def test_drivers_available():
-    ...
+def test_drivers_available(delivery_driver_dao):
+    ResetDatabase().lancer(True)
+    available_drivers = delivery_driver_dao.drivers_available()
+    assert isinstance(available_drivers, list)
+    assert len(available_drivers) == 1
+    assert available_drivers[0].username == "ernesto1"
 
 
 if __name__ == "__main__":
     pytest.main()
+    ResetDatabase().lancer(True)

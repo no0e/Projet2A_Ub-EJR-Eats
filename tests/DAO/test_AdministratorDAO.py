@@ -33,6 +33,8 @@ def test_create(administrator_dao,user_dao):
         salt=user_to_be_administrator.salt
     )
     assert administrator_dao.create(administrator_to_create)
+    with pytest.raises(TypeError):
+        administrator_dao.create(1)
 
 
 def test_find_by_username(administrator_dao):

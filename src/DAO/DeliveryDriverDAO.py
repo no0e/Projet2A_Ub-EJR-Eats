@@ -6,13 +6,13 @@ from src.Model.DeliveryDriver import DeliveryDriver
 
 class DeliveryDriverDAO(UserDAO):
     def __init__(self, db_connector):
-        super().__init__(db_connector)
+        super().__init__(db_connector, test=True)
         self.db = db_connector
 
     def create(self, driver: DeliveryDriver) -> bool:
         raw_created_driver = self.db.sql_query(
             """
-            INSERT INTO project_database.delivery_drivers (username_delivery_driver, vehicle, is_available)
+            INSERT INTO """+self.schema+""".delivery_drivers (username_delivery_driver, vehicle, is_available)
             VALUES (%(username_delivery_driver)s, %(vehicle)s, %(is_available)s)
             RETURNING *;
             """,
@@ -28,7 +28,7 @@ class DeliveryDriverDAO(UserDAO):
     def find_by_username(self, username: str):
         query = """
             SELECT d.username_delivery_driver as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, d.vehicle, d.is_available
-            FROM project_database.delivery_drivers as d
+            FROM """+self.schema+""".delivery_drivers as d
             JOIN users as u ON u.username = username
             WHERE username = %s
         """
@@ -58,7 +58,7 @@ class DeliveryDriverDAO(UserDAO):
             return False
 
         query = f"""
-            UPDATE project_database.delivery_drivers
+            UPDATE """+self.schema+""".delivery_drivers
             SET {", ".join(set_clause)}
             WHERE username_delivery_driver = %(username)s
         """
@@ -68,7 +68,7 @@ class DeliveryDriverDAO(UserDAO):
 
     def delete(self, driver: DeliveryDriver) -> bool:
         self.db.sql_query(
-            "DELETE FROM project_database.delivery_drivers WHERE username_delivery_driver = %s",
+            "DELETE FROM "+self.schema+".delivery_drivers WHERE username_delivery_driver = %s",
             [driver.username],
         )
         return True
@@ -76,7 +76,7 @@ class DeliveryDriverDAO(UserDAO):
     def drivers_available(self):
         query = """
             SELECT username_delivery_driver, vehicle, is_available
-            FROM project_database.delivery_drivers
+            FROM """+self.schema+""".delivery_drivers
             WHERE is_available = TRUE
         """
         rows = self.db.sql_query(query, return_type="all")

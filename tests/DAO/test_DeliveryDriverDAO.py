@@ -1,103 +1,22 @@
 from typing import List, Optional
 import pytest
 
+from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.DeliveryDriver import DeliveryDriver
 
 
-class MockDBConnectorForDeliveryDriver:
-    def __init__(self):
-        self.delivery_drivers = {}
-        self.users = {
-            "driver1": {
-                "username": "driver1",
-                "firstname": "Alice",
-                "lastname": "Asm",
-                "password": "hashedpassword",
-                "salt": "salt123",
-                "account_type": "DeliveryDriver",
-            },
-            "driver2": {
-                "username": "driver2",
-                "firstname": "Jane",
-                "lastname": "Smith",
-                "password": "hashedpassword2",
-                "salt": "salt456",
-                "account_type": "DeliveryDriver",
-            },
-        }
-
-    def sql_query(self, query: str, data: list = None, return_type: str = "one"):
-        # CREATE
-        if "INSERT INTO delivery_driver" in query:
-            username, vehicle, is_available = data
-            self.delivery_drivers[username] = {
-                "username_delivery_driver": username,
-                "vehicle": vehicle,
-                "is_available": is_available,
-            }
-            return None
-
-        # FIND BY USERNAME
-        elif "SELECT" in query and "JOIN delivery_driver" in query:
-            if "WHERE u.username" in query:
-                username = data[0]
-                if username in self.users and username in self.delivery_drivers:
-                    user = self.users[username]
-                    driver = self.delivery_drivers[username]
-                    return {
-                        "username": user["username"],
-                        "firstname": user["firstname"],
-                        "lastname": user["lastname"],
-                        "password": user["password"],
-                        "salt": user["salt"],
-                        "account_type": user["account_type"],
-                        "vehicle": driver["vehicle"],
-                        "is_available": driver["is_available"],
-                    }
-                return None
-
-            elif "WHERE d.is_available = TRUE" in query:
-                available = []
-                for username, driver in self.delivery_drivers.items():
-                    if driver["is_available"]:
-                        user = self.users[username]
-                        available.append({
-                            "username": user["username"],
-                            "firstname": user["firstname"],
-                            "lastname": user["lastname"],
-                            "password": user["password"],
-                            "salt": user["salt"],
-                            "account_type": user["account_type"],
-                            "vehicle": driver["vehicle"],
-                            "is_available": driver["is_available"],
-                        })
-                return available if return_type == "all" else available[0] if available else None
-
-        # UPDATE
-        elif "UPDATE delivery_driver" in query:
-            vehicle, is_available, username = data
-            if username in self.delivery_drivers:
-                self.delivery_drivers[username]["vehicle"] = vehicle
-                self.delivery_drivers[username]["is_available"] = is_available
-            return None
-
-        # DELETE
-        elif "DELETE FROM delivery_driver" in query:
-            username = data[0]
-            if username in self.delivery_drivers:
-                del self.delivery_drivers[username]
-            return None
-
-        return None
+@pytest.fixture
+def db_connector():
+    db = DBConnector()
+    yield db
 
 
-# ---- TESTS ----
+@pytest.fixture
+def delivery_driver_dao(db_connector):
+    return DeliveryDriverDAO(db_connector, test=True)
 
-def test_create():
-    mock_db = MockDBConnectorForDeliveryDriver()
-    dao = DeliveryDriverDAO(mock_db)
-
+def test_create(delivery_driver_dao):
     driver = DeliveryDriver(
         username="driver1",
         firstname="Alice",

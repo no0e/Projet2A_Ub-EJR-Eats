@@ -10,8 +10,12 @@ db_connector = DBConnector()
 
 
 class DeliveryDAO:
-    def __init__(self, db_connector: DBConnector):
+    def __init__(self, db_connector: DBConnector, test:bool = False):
         self.db = db_connector
+        if test:
+            self.schema = "project_test_database"
+        else:
+            self.schema = "project_database"
 
     def create(self, delivery: Delivery) -> bool:
         id_orders = list(delivery.orders.keys())

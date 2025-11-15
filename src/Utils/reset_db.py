@@ -20,7 +20,7 @@ class ResetDatabase(metaclass=Singleton):
         Si test_dao = True : réinitialisation des données de test"""
 
         if test_dao:
-            mock.patch.dict(os.environ, {"POSTGRES_SCHEMA": "projet_test_dao"}).start()
+            #mock.patch.dict(os.environ, {"POSTGRES_SCHEMA": "projet_test_dao"}).start()
             init_data_path = "data/init_test_db.sql"
             pop_data_path = "data/pop_db_test.sql"
         else:

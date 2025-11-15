@@ -23,10 +23,7 @@ class UserDAO:
         :param db_connector: Instance of DBConnector used to execute SQL queries.
         """
         self.db_connector = db_connector
-        if test:
-            self.schema = "project_test_database"
-        else:
-            self.schema = "project_database" 
+    
 
     def get_by_username(self, username: str) -> Optional[User]:
         raw_user = self.db_connector.sql_query(
@@ -73,12 +70,6 @@ class UserDAO:
         lastname: Optional[str] = None,
         password: Optional[str] = None,
     ) -> bool:
-        if firstname is None:
-            firstname = self.get_by_username(username).firstname
-        if lastname is None:
-            lastname = self.get_by_username(username).lastname
-        if password is None:
-            password = self.get_by_username(username).password
         """
         Update an existing user's firstname, lastname, and password in the database.
 
@@ -88,6 +79,14 @@ class UserDAO:
         :param new_password: New password (hashed if needed).
         :return: True if the update succeeded, False otherwise.
         """
+        if not isinstance(self.get_by_username(username), User):
+            return False
+        if firstname is None:
+            firstname = self.get_by_username(username).firstname
+        if lastname is None:
+            lastname = self.get_by_username(username).lastname
+        if password is None:
+            password = self.get_by_username(username).password
         updated_rows = self.db_connector.sql_query(
             """
             UPDATE """+self.schema+""".users
@@ -116,6 +115,8 @@ class UserDAO:
         :param user: The User object to delete.
         :return: True if the deletion succeeded, False otherwise.
         """
+        if not isinstance(user, User):
+            return False
         deleted_row = self.db_connector.sql_query(
             """
             DELETE FROM """+self.schema+""".users

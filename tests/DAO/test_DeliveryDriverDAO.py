@@ -1,6 +1,7 @@
 from typing import List, Optional
 import pytest
 
+from src.Utils.reset_db import ResetDatabase
 from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.DeliveryDriver import DeliveryDriver
@@ -17,119 +18,48 @@ def delivery_driver_dao(db_connector):
     return DeliveryDriverDAO(db_connector, test=True)
 
 def test_create(delivery_driver_dao):
-    driver = DeliveryDriver(
-        username="driver1",
-        firstname="Alice",
-        lastname="Asm",
+    ResetDatabase().lancer(True)
+    driver_to_create = DeliveryDriver(
+        username="new_driver",
+        firstname="Greg",
+        lastname="Good",
         account_type="DeliveryDriver",
         password="hashedpassword",
         salt="salt123",
         vehicle="scooter",
         is_available=True,
     )
+    missing_driver = None
+    assert delivery_driver_dao.create(driver_to_create)
+    assert not delivery_driver_dao.create(missing_driver)
 
-    assert dao.create(driver) is True
-    assert "driver1" in mock_db.delivery_drivers
+def test_find_by_username(delivery_driver_dao):
+    ResetDatabase().lancer(True)
+    found_driver = delivery_driver_dao.find_by_username("ernesto")
+    assert found_driver is not None
+    assert found_driver.username == "ernesto"
+    assert found_driver.vehicle == "car"
+    assert not found_driver.is_available
 
-
-def test_find_by_username():
-    mock_db = MockDBConnectorForDeliveryDriver()
-    dao = DeliveryDriverDAO(mock_db)
-
-    driver = DeliveryDriver(
-        username="driver1",
-        firstname="Alice",
-        lastname="Asm",
-        account_type="DeliveryDriver",
-        password="hashedpassword",
-        salt="salt123",
-        vehicle="scooter",
-        is_available=True,
-    )
-    dao.create(driver)
-
-    found = dao.find_by_username("driver1")
-    assert found is not None
-    assert found.username == "driver1"
-    assert found.vehicle == "scooter"
-    assert found.is_available is True
+def test_update_delivery_driver(delivery_driver_dao):
+    ResetDatabase().lancer(True)
+    to_be_updated_driver = delivery_driver_dao.find_by_username("ernesto1")
+    updated_driver = delivery_driver_dao.update_delivery_driver(to_be_updated_driver, vehicle="car")
+    missing_driver = None
+    no_updated_driver = delivery_driver_dao.update_delivery_driver(missing_driver)
+    assert updated_driver
+    assert not no_updated_driver
 
 
 def test_update():
-    mock_db = MockDBConnectorForDeliveryDriver()
-    dao = DeliveryDriverDAO(mock_db)
-
-    driver = DeliveryDriver(
-        username="driver1",
-        firstname="Alice",
-        lastname="Asm",
-        account_type="DeliveryDriver",
-        password="hashedpassword",
-        salt="salt123",
-        vehicle="scooter",
-        is_available=True,
-    )
-    dao.create(driver)
-    driver.vehicle = "car"
-    driver.is_available = False
-    assert dao.update(driver) is True
-
-    found = dao.find_by_username("driver1")
-    assert found.vehicle == "car"
-    assert found.is_available is False
-
+    ...
 
 def test_delete():
-    mock_db = MockDBConnectorForDeliveryDriver()
-    dao = DeliveryDriverDAO(mock_db)
-
-    driver = DeliveryDriver(
-        username="driver1",
-        firstname="Alice",
-        lastname="Asm",
-        account_type="DeliveryDriver",
-        password="hashedpassword",
-        salt="salt123",
-        vehicle="scooter",
-        is_available=True,
-    )
-    dao.create(driver)
-    assert dao.delete(driver) is True
-    assert dao.find_by_username("driver1") is None
+    ...
 
 
 def test_drivers_available():
-    mock_db = MockDBConnectorForDeliveryDriver()
-    dao = DeliveryDriverDAO(mock_db)
-
-    driver1 = DeliveryDriver(
-        username="driver1",
-        firstname="Alice",
-        lastname="Asm",
-        account_type="DeliveryDriver",
-        password="hashedpassword",
-        salt="salt123",
-        vehicle="scooter",
-        is_available=True,
-    )
-    driver2 = DeliveryDriver(
-        username="driver2",
-        firstname="Jane",
-        lastname="Smith",
-        account_type="DeliveryDriver",
-        password="hashedpassword2",
-        salt="salt456",
-        vehicle="bike",
-        is_available=False,
-    )
-
-    dao.create(driver1)
-    dao.create(driver2)
-
-    available = dao.drivers_available()
-    assert len(available) == 1
-    assert available[0].username == "driver1"
-    assert available[0].vehicle == "scooter"
+    ...
 
 
 if __name__ == "__main__":

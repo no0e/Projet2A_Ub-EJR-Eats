@@ -52,7 +52,19 @@ class DeliveryDAO:
     def get_available_deliveries(self) -> List[Delivery]:
         query = "SELECT * FROM " + self.schema + ".deliveries WHERE is_accepted = FALSE;"
         rows = self.db.sql_query(query, return_type="all")
-        return [Delivery(**r) for r in rows]
+        deliveries = []
+        for r in rows:
+            orders = [order_dao.find_order_by_id(order_id) for order_id in r["id_orders"]]
+            deliveries.append(
+                Delivery(
+                    id_delivery=r["id_delivery"],
+                    username_delivery_driver=r["username_delivery_driver"],
+                    duration=r["duration"],
+                    orders=orders,
+                    is_accepted=r["is_accepted"],
+                )
+            )
+        return deliveries
 
     def get_by_id(self, id_delivery: int):
         query = "SELECT * FROM " + self.schema + ".deliveries WHERE id_delivery = %(id_delivery)s"

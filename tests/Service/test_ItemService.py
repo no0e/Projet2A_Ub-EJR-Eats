@@ -47,6 +47,20 @@ def test_create_item_failed(item_service):
         item_service.create_item("galette saucisse", 12, "starter", 50)
     assert str(error_name.value) == "The item name is already attributed."
 
+def test_change_name_item_success(item_service):
+    ResetDatabase.lancer(True)
+    item = item_service.change_name_item("galette saucisse", "Pizza")
+    assert item.name_item == "Pizza"
+
+def test_change_name_item_failed(item_service):
+    ResetDatabase.lancer(True)
+    with pytest.raises(TypeError) as error_oldname:
+        item_service.change_name_item("galette saucisse", "vegetarian galette")
+    assert str(error_oldname.value) == "The new name is already attributed."
+    with pytest.raises(TypeError) as error_newname:
+        item_service.change_name_item("Pizza", "galette")
+    assert str(error_newname.value) == "The item to rename doesn't exist."
+
 
 
 

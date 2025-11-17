@@ -45,7 +45,7 @@ def accept_delivery(
 ):
     """TO accept a delivery as a delivery driver by typing its Id"""
     username_driver = get_user_from_credentials(credentials).username
-    vehicle_driver = get_user_from_credentials(credentials).vehicule
+    vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
     try:
         result = delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
         return result

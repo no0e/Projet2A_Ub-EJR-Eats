@@ -40,7 +40,7 @@ class DeliveryService:
         deliveries = self.delivery_repo.get_available_deliveries()
         return [delivery.__dict__ for delivery in deliveries]
 
-    def accept_delivery(self, id_delivery: int, username_driver: str):
+    def accept_delivery(self, id_delivery: int, username_driver: str, vehicle: str):
         """
         Permet à un livreur d'accepter une livraison.
         Met à jour la BDD et renvoie un lien Google Maps vers la destination.
@@ -51,12 +51,15 @@ class DeliveryService:
         if delivery.is_accepted:
             raise ValueError("Delivery already accepted")
 
-        self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
+        duration = googlemap.get_directions(destinations=delivery.stops, mode=vehicle)["duration_min"]
+        self.delivery_repo.set_delivery_accepted(id_delivery, username_driver, duration)
 
         if not delivery.stops or len(delivery.stops) == 0:
             raise ValueError("No delivery stops found")
+        if not isinstance(delivery.stops, list):
+            raise ValueError("Stops are not under a list format.")
 
-        destination_address = delivery.stops[-1]  # final stop
+        destination_address = delivery.stops[-1]
         destination_coords = self.google_map.geocoding_address(destination_address)
         google_maps_link = self.google_map.generate_google_maps_link(destination_coords)
 

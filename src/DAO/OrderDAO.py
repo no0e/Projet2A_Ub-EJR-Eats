@@ -32,21 +32,27 @@ class OrderDAO:
                     raise ValueError("Quantities must be positive integers.")
 
             items_json = json.dumps(order.items)
-            self.db_connector.sql_query(
-                f"""
-                INSERT INTO {schema}.orders (username_customer, username_delivery_driver, address, items)
-                VALUES (%(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s)
+            query = f"""
+                INSERT INTO {schema}.orders 
+                    (username_customer, username_delivery_driver, address, items)
+                VALUES 
+                    (%(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s)
                 RETURNING id_order;
-                """,
+            """
+
+            result = self.db_connector.sql_query(
+                query,
                 {
                     "username_customer": order.username_customer,
                     "username_delivery_driver": order.username_delivery_driver,
                     "address": order.address,
                     "items": items_json,
                 },
-                "none",
+                return_type="one",
             )
+            order.id_order = result["id_order"]
             return True
+
         except Exception as e:
             print(f"[OrderDAO] Error creating order: {e}")
             return False

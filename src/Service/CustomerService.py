@@ -142,7 +142,7 @@ class CustomerService:
                 return cart
 
     def validate_cart(self, cart, username_customer, validate, address: str):
-        if validate.lower() == "yes":
+        if validate == "yes":
             order = Order(
                 id_order=None,
                 username_customer=username_customer,

@@ -1,4 +1,4 @@
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
@@ -71,6 +71,7 @@ def order_items(
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @customer_router.post("/modify the cart", status_code=status.HTTP_200_OK)
 def Modify_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())], name_item: str, new_quantity: int
@@ -87,6 +88,7 @@ def Modify_cart(
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @customer_router.get("/Cart", status_code=status.HTTP_200_OK)
 def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
     customer = get_user_from_credentials(credentials)
@@ -100,8 +102,13 @@ def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBe
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @customer_router.post("/validate the cart", status_code=status.HTTP_200_OK)
-def Validate_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],validate: str , address : str = None):
+def Validate_cart(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
+    validate: Literal["yes", "no"],
+    address: str = None,
+):
     username = get_user_from_credentials(credentials).username
     customer = customer_dao.find_by_username(username)
     if not customer:

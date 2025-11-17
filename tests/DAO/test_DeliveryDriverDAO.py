@@ -38,7 +38,7 @@ def test_create(delivery_driver_dao, user_dao):
     )
     assert delivery_driver_dao.create(driver_to_create)
 
-def test_create_failures(delivery_driver_dao, user_dao):
+def test_create_errors(delivery_driver_dao, user_dao):
     ResetDatabase().lancer(True)
     nonexistent_driver = None
     with pytest.raises(TypeError):

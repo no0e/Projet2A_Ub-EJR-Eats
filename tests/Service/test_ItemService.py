@@ -15,7 +15,8 @@ def db_connector():
 
 @pytest.fixture
 def item_service(db_connector):
-    return ItemService(test=True)
+    return ItemService(db_connector=db_connector, test=True)
+
 
 def test_view_storage(item_service ):
     ResetDatabase.lancer(True)

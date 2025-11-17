@@ -4,13 +4,13 @@ from src.Model.Item import Item
 
 
 class ItemService:
-    def __init__(self, test:bool = False):
-        self.db_connector = DBConnector()
-        if test:
+    def __init__(self,db_connector =None, test:bool = False):
+        self.db_connector = db_connector or DBConnector()
+        self.item_dao = ItemDAO(self.db_connector, test=test)
+        if test is True:
             self.schema = "project_test_database"
         else:
             self.schema = "project_database"
-        self.item_dao = ItemDAO(self.db_connector, test=True)
 
     def view_storage(self):
         """See all the items and their stockage even is their are not exposed

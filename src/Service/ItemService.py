@@ -4,9 +4,9 @@ from src.Model.Item import Item
 
 
 class ItemService:
-    def __init__(self, db_connector=None, test=False):
-        self.db_connector = db_connector or DBConnector()
-        self.item_dao = ItemDAO(self.db_connector, test=test)
+    def __init__(self, item_dao : ItemDAO):
+        self.db_connector = DBConnector()
+        self.item_dao = item_dao
 
     def view_storage(self):
         """See all the items and their stockage even is their are not exposed

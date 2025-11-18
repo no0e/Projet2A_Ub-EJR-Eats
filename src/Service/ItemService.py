@@ -96,7 +96,7 @@ class ItemService:
             raise ValueError("The stock can't be negative.")
         item = self.item_dao.find_item_by_name(name_item)
         if not item:
-            raise ValueError(f"Item with name '{name_item}' not found.")
+            raise TypeError(f"Item with name '{name_item}' not found.")
 
         item.stock = new_stock
         success = self.item_dao.update(item)
@@ -105,7 +105,6 @@ class ItemService:
 
         return item
 
-        raise TypeError("The item to update doesn't exist.")
 
     def modify_category_item(self, name_item, new_category):
         if new_category not in ("starter", "main course", "dessert", "drink"):
@@ -136,12 +135,11 @@ class ItemService:
         """
         item = self.item_dao.find_item_by_name(name_item)
         if not item:
-            raise ValueError(f"Item with name '{name_item}' not found.")
+            raise TypeError(f"Item with name '{name_item}' not found.")
         item.exposed = availability
 
         self.item_dao.update_item_exposed(item.id_item, item.exposed)
         return {
             "success": True,
             "message": f"Availability of '{item.name_item}' has been set to '{item.exposed}'.",
-            "item": item,  # L'élément mis à jour
         }

@@ -8,7 +8,10 @@ from src.Model.Administrator import Administrator
 from src.Model.Customer import Customer
 from src.Model.DeliveryDriver import DeliveryDriver
 from src.Model.User import User
+from src.Service.GoogleMapService import GoogleMap
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
+
+google_service = GoogleMap()
 
 
 class UserService:
@@ -63,16 +66,6 @@ class UserService:
         check_password_strength(password)
         salt = create_salt()
         new_password = hash_password(password, salt)
-        self.user_repo.create_user(
-            User(
-                username=username,
-                firstname=firstname,
-                lastname=lastname,
-                password=new_password,
-                salt=salt,
-                account_type=account_type,
-            )
-        )
         if account_type == "Administrator":
             self.admin_repo.create(
                 Administrator(
@@ -98,6 +91,7 @@ class UserService:
                 )
             )
         else:
+            google_service.geocoding_address(address)
             self.customer_repo.create(
                 Customer(
                     username=username,
@@ -109,6 +103,16 @@ class UserService:
                     address=address,
                 )
             )
+        self.user_repo.create_user(
+            User(
+                username=username,
+                firstname=firstname,
+                lastname=lastname,
+                password=new_password,
+                salt=salt,
+                account_type=account_type,
+            )
+        )
         return User(
             username=username,
             firstname=firstname,

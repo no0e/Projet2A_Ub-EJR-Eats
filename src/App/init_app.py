@@ -5,6 +5,7 @@ from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDAO import DeliveryDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
+from src.DAO.ItemDAO import ItemDAO
 from src.DAO.UserDAO import UserDAO
 from src.Service.AdministratorService import AdministratorService
 from src.Service.CustomerService import CustomerService
@@ -21,6 +22,7 @@ admin_repo = AdministratorDAO(db_connector)
 driver_repo = DeliveryDriverDAO(db_connector)
 customer_repo = CustomerDAO(db_connector)
 delivery_repo = DeliveryDAO(db_connector)
+item_repo = ItemDAO(db_connector)
 
 
 google_map_service = GoogleMap()
@@ -29,4 +31,4 @@ user_service = UserService(user_repo, admin_repo, driver_repo, customer_repo)
 admin_service = AdministratorService(user_repo, admin_repo, driver_repo, customer_repo)
 customer_service = CustomerService()
 driver_service = DeliveryDriverService(driver_repo, delivery_repo, google_map_service)
-item_service = ItemService()
+item_service = ItemService(item_repo)

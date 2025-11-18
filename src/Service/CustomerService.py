@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal, Optional
 
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
@@ -9,6 +9,9 @@ from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Model.Order import Order
 from src.Service.DeliveryService import DeliveryService
+from src.Service.GoogleMapService import GoogleMap
+
+google_service = GoogleMap()
 
 
 class CustomerService:
@@ -141,7 +144,11 @@ class CustomerService:
                 del cart[item.name_item]
                 return cart
 
-    def validate_cart(self, cart, username_customer, validate, address: str):
+    def validate_cart(self, cart, username_customer, validate: Literal["yes", "no"], address: Optional[str] = None):
+        if address is None:
+            address = self.get_customer(username_customer)
+        else:
+            google_service.geocoding_address(address)
         if validate == "yes":
             order = Order(
                 id_order=None,

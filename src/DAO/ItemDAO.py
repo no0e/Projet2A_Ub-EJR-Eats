@@ -89,6 +89,7 @@ class ItemDAO:
             price=raw_item["price"],
             category=raw_item["category"],
             stock=raw_item["stock"],
+            exposed=raw_item["exposed"],
         )
 
     def find_item_by_name(self, name_item: str) -> Optional[Item]:
@@ -131,6 +132,7 @@ class ItemDAO:
                 price=row["price"],
                 category=row["category"],
                 stock=row["stock"],
+                exposed=row["exposed"],
             )
             for row in raw_items
         ]
@@ -151,6 +153,7 @@ class ItemDAO:
                 price=row["price"],
                 category=row["category"],
                 stock=row["stock"],
+                exposed=row["exposed"],
             )
             for row in raw_items
         ]

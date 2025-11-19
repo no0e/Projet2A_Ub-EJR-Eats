@@ -33,17 +33,18 @@ class DeliveryDAO:
         """
         )
         try:
-            self.db.sql_query(
+            id_delivery = self.db.sql_query(
                 query,
                 {
-                    "id_delivery": delivery.id_delivery,
                     "username_delivery_driver": delivery.username_delivery_driver,
                     "duration": delivery.duration,
                     "id_orders": id_orders,
                     "stops": stops,
                     "is_accepted": delivery.is_accepted,
                 },
-            )
+                return_type="one",
+            )["id_delivery"]
+            delivery.id_delivery = id_delivery
             return True
         except Exception as e:
             print(f"[DeliveryDAO] Error creating delivery: {e}")
@@ -64,11 +65,18 @@ class DeliveryDAO:
             stops = stops_raw
         else:
             stops = []
+        id_orders_raw = row["id_orders"]
+        if isinstance(id_orders_raw, str):
+            id_orders = [int(x) for x in id_orders_raw.strip("{}").split(",") if x]
+        elif isinstance(id_orders_raw, list):
+            id_orders = id_orders_raw
+        else:
+            id_orders = []
         delivery = Delivery(
             id_delivery=row["id_delivery"],
             username_delivery_driver=row["username_delivery_driver"],
             duration=row["duration"],
-            id_orders=row["id_orders"],
+            id_orders=id_orders,
             stops=stops,
             is_accepted=row["is_accepted"],
         )

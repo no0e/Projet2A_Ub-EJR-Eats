@@ -22,7 +22,7 @@ class CustomerService:
         customer_dao: CustomerDAO = None,
         order_dao: OrderDAO = None,
         delivery_dao: DeliveryDAO = None,
-        delivery_service: DeliveryService = None
+        delivery_service: DeliveryService = None,
     ):
         db = DBConnector()
         self.item_dao = item_dao or ItemDAO(db)
@@ -60,14 +60,16 @@ class CustomerService:
 
         menu = []
         for item in items:
-            menu.append({
-                "id_item": item.id_item,
-                "name_item": item.name_item,
-                "price": item.price,
-                "category": item.category,
-                "stock": item.stock,
-                "exposed": item.exposed
-            })
+            menu.append(
+                {
+                    "id_item": item.id_item,
+                    "name_item": item.name_item,
+                    "price": item.price,
+                    "category": item.category,
+                    "stock": item.stock,
+                    "exposed": item.exposed,
+                }
+            )
 
         return menu
 

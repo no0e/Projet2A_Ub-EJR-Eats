@@ -75,7 +75,7 @@ class ItemService:
         """ """
         item = self.item_dao.find_item_by_name(name_item)
         if item is None:
-            raise ValueError("This item does not exist.")
+            raise TypeError("This item does not exist.")
         items = self.item_dao.find_all_item()
         if new_name is not None:
             if any(item.name_item.lower() == new_name.lower() for item in items):

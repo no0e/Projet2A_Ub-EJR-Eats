@@ -39,13 +39,13 @@ def view_available_deliveries():
 
 
 @deliverydriver_router.post(
-    "/Delivery/accept/{id_delivery}", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())]
+    "/Delivery/Accept/{id_delivery}", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())]
 )
 def accept_delivery(
     id_delivery: int,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
 ):
-    """TO accept a delivery as a delivery driver by typing its Id"""
+    """Accept a delivery as a delivery driver by typing its Id"""
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
     delivery = delivery_dao.get_by_id(id_delivery)

@@ -20,6 +20,7 @@ from .init_app import (
     driver_repo,
     driver_service,
     google_map_service,
+    item_repo,
     item_service,
     jwt_service,
     user_repo,
@@ -60,10 +61,13 @@ def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "ad
     if attribute == "address":
         if user_service.get_user(username).account_type != "Customer":
             raise ValueError("Only customers have an address.")
+        google_map_service.geocoding_address(new_value)
         customer_repo.update_customer(username, new_value)
     if attribute == "vehicle":
         if user_service.get_user(username).account_type != "DeliveryDriver":
             raise ValueError("Only delivery drivers have a vehicle.")
+        if new_value not in ("walking", "cycling", "driving"):
+            raise ValueError("Vehicle not accepted. Values accepted : 'walking', 'cycling' or 'driving'.")
         driver_repo.update_delivery_driver(username, vehicle=new_value)
     if attribute == "firstname":
         user_repo.update_user(username, firstname=new_value)
@@ -107,32 +111,29 @@ def Create_Item(
 def Edit_Item(
     name_item,
     new_name: str = None,
-    availability: bool = Query(None, description="Is the item available ?", enum=[True, False]),
     new_price: float = None,
-    new_stock: int = None,
     new_category: str = Query(None, description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
+    new_stock: int = None,
+    availability: bool = Query(None, description="Is the item available ?", enum=[True, False]),
 ):
     try:
-        if name_item and availability:
-            changes = item_service.change_availability(name_item, availability)
-            return changes
-        if name_item and new_name:
-            changes = item_service.change_name_item(name_item, new_name)
-            return changes
-        if name_item and new_price:
-            changes = item_service.modify_price(name_item, new_price)
-            return changes
-        if name_item and new_stock:
-            changes = item_service.modify_stock_item(name_item, new_stock)
-            return changes
-        if name_item and new_category:
-            changes = item_service.modify_category_item(name_item, new_category)
-            return changes
-
+        item_service.update(name_item, new_name, new_price, new_category, new_stock, availability)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:
         raise HTTPException(status_code=400, detail=str(e))
+    if new_name is None:
+        item = item_repo.find_item_by_name(name_item)
+    else:
+        item = item_repo.find_item_by_name(new_name)
+    return {
+        "detail": "Item updated successfully",
+        "name_item": item.name_item,
+        "price": item.price,
+        "category": item.category,
+        "stock": item.stock,
+        "availability": item.exposed,
+    }
 
 
 @administrator_router.patch("/Storage/Delete_Item", status_code=status.HTTP_200_OK)

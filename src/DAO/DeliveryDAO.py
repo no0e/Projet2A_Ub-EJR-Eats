@@ -57,7 +57,7 @@ class DeliveryDAO:
     def get_by_id(self, id_delivery: int):
         query = "SELECT * FROM " + self.schema + ".deliveries WHERE id_delivery = %(id_delivery)s"
         row = self.db.sql_query(query, {"id_delivery": id_delivery}, return_type="one")
-        stops_raw = row.get("stops")  # ex: "{zere}"
+        stops_raw = row.get("stops")
         if isinstance(stops_raw, str):
             stops = stops_raw.strip("{}").split(",")
         elif isinstance(stops_raw, list):
@@ -84,6 +84,16 @@ class DeliveryDAO:
             WHERE id_delivery = %(id_delivery)s AND is_accepted = FALSE
         """
         )
-        self.db.sql_query(
-            query, {"id_delivery": id_delivery, "username_delivery_driver": username_driver, "duration": duration}
+        self.db.sql_query(query, {"id_delivery": id_delivery, "username_driver": username_driver, "duration": duration})
+
+        id_order = self.get_by_id(id_delivery).id_orders[-1]
+        query = (
+            """
+            UPDATE """
+            + self.schema
+            + """.orders
+            SET username_delivery_driver = %(username_driver)s
+            WHERE id_order = %(id_order)s
+        """
         )
+        self.db.sql_query(query, {"id_order": id_order, "username_driver": username_driver})

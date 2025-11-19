@@ -35,7 +35,7 @@ class UserService:
         firstname: str,
         lastname: str,
         password: str,
-        address="Default address",
+        address="51 rue Blaise Pascal, 35170 Bruz",
         account_type="Customer",
     ) -> User:
         """Function that creates a user from its attributes.
@@ -51,7 +51,7 @@ class UserService:
         password : str
             user's password
         address : str
-            user's address needed to create a customer account, by default "Default address"
+            user's address needed to create a customer account, by default "51 rue Blaise Pascal, 35170 Bruz"
         account_type : str
             user's account type, by default "Customer"
 
@@ -66,6 +66,16 @@ class UserService:
         check_password_strength(password)
         salt = create_salt()
         new_password = hash_password(password, salt)
+        self.user_repo.create_user(
+            User(
+                username=username,
+                firstname=firstname,
+                lastname=lastname,
+                password=new_password,
+                salt=salt,
+                account_type=account_type,
+            )
+        )
         self.user_repo.create_user(
             User(
                 username=username,
@@ -101,7 +111,11 @@ class UserService:
                 )
             )
         else:
-            google_service.geocoding_address(address)
+            try:
+                google_service.geocoding_address(address)
+            except TypeError:
+                self.delete_user(username)
+                raise
             self.customer_repo.create(
                 Customer(
                     username=username,

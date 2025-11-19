@@ -15,7 +15,7 @@ class DeliveryService:
         self.delivery_repo = delivery_repo
         self.google_map = GoogleMap()
 
-    def create(self, orders: List[Order]) -> Delivery:
+    def create(self, id_orders: List[int], stops: List[str]) -> Delivery:
         """Create a new delivery
 
         Parameters
@@ -28,7 +28,7 @@ class DeliveryService:
         Delivery
             The delivery that has been created
         """
-        delivery = Delivery(orders=orders, is_accepted=False)
+        delivery = Delivery(id_orders = id_orders, stops = stops, is_accepted=False)
         success = self.delivery_repo.create(delivery)
         if not success:
             raise ValueError("Failed to create delivery in the database.")

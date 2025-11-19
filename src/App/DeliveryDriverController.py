@@ -11,6 +11,7 @@ from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.UserDAO import UserDAO
 from src.Service.DeliveryDriverService import DeliveryDriverService
 from src.Service.DeliveryService import DeliveryService
+from src.Service.GoogleMapService import GoogleMap
 
 from .init_app import user_service
 
@@ -23,6 +24,7 @@ user_dao = UserDAO(db_connector)
 # Services instanciés avec les bons DAOs
 delivery_service = DeliveryService(delivery_dao)
 driver_service = DeliveryDriverService(driver_dao, delivery_dao, user_dao)
+google_service = GoogleMap()
 
 deliverydriver_router = APIRouter(
     prefix="/delivery_driver", tags=["DeliveryDriver"], dependencies=[Depends(require_account_type("DeliveryDriver"))]
@@ -46,11 +48,12 @@ def accept_delivery(
     """TO accept a delivery as a delivery driver by typing its Id"""
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
+    delivery = delivery_dao.get_by_id(id_delivery)
     try:
-        result = delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
-        return result
+        delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error))
+    return google_service.generate_google_maps_link(google_service.geocoding_address(delivery.stops[-1]))
 
 
 @deliverydriver_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])

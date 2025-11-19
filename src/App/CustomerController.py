@@ -115,7 +115,7 @@ def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBe
 def Validate_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
     validate: Literal["yes", "no"],
-    address: str = None,
+    address: Optional[str] = None,
 ):
     "Validate your cart to order it"
     username = get_user_from_credentials(credentials).username

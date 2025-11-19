@@ -9,14 +9,17 @@ google_service = GoogleMap()
 
 
 class CustomerDAO(UserDAO):
-    def __init__(self, db_connector : DBConnector):
+    def __init__(self, db_connector, test: bool = False):
         super().__init__(db_connector)
-        self.db = db_connector
 
     def create(self, customer: Customer) -> bool:
-        raw_created_customer = self.db.sql_query(
+        if not isinstance(customer, Customer):
+            raise TypeError("The created customer should be type of Customer.")
+        raw_created_customer = self.db_connector.sql_query(
             """
-            INSERT INTO project_database.customers (username_customer, address)
+            INSERT INTO """
+            + self.schema
+            + """.customers (username_customer, address)
             VALUES (%(username_customer)s, %(address)s)
             RETURNING *;
             """,
@@ -26,13 +29,21 @@ class CustomerDAO(UserDAO):
         return raw_created_customer is not None
 
     def find_by_username(self, username: str):
-        query = """
+        if not isinstance(username, str):
+            raise TypeError("Username should be a string.")
+        query = (
+            """
             SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
-            FROM project_database.customers as c
-            JOIN users as u ON u.username = c.username_customer
+            FROM """
+            + self.schema
+            + """.customers as c
+            JOIN """
+            + self.schema
+            + """.users as u ON u.username = c.username_customer
             WHERE username = %s;
         """
-        raw = self.db.sql_query(query, [username], return_type="one")
+        )
+        raw = self.db_connector.sql_query(query, [username], return_type="one")
         return Customer(**raw) if raw else None
 
     def update_customer(self, username: str, address: Optional[str] = None) -> bool:
@@ -68,18 +79,25 @@ class CustomerDAO(UserDAO):
         if not set_clause:
             return False
 
-        query = f"""
-            UPDATE project_database.customers
+        query = (
+            f"""UPDATE """
+            + self.schema
+            + """.customers
             SET {", ".join(set_clause)}
             WHERE username_customer = %(username)s
         """
-        self.db.sql_query(query, params, return_type=None)
+        )
+        self.db_connector.sql_query(query, params, return_type=None)
 
         return True
 
     def delete(self, customer: Customer) -> bool:
-        self.db.sql_query(
-            "DELETE FROM customers WHERE username_customer = %s",
+        if not isinstance(customer, Customer):
+            raise TypeError(f"{customer.username} should be type of Customer.")
+        if self.find_by_username(customer.username) is None:
+            raise ValueError(f"{customer.username} doesn't exist.")
+        self.db_connector.sql_query(
+            "DELETE FROM " + self.schema + ".customers WHERE username_customer = %s",
             [customer.username],
         )
         return True

@@ -13,7 +13,6 @@ class DeliveryService:
 
     def __init__(self, delivery_repo: DeliveryDAO):
         self.delivery_repo = delivery_repo
-        self.google_map = GoogleMap()
 
     def create(self, id_orders: List[int], stops: List[str]) -> Delivery:
         """Create a new delivery

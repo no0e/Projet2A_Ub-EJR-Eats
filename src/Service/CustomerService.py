@@ -30,7 +30,7 @@ class CustomerService:
         self.customer_dao = customer_dao or CustomerDAO(db)
         self.order_dao = order_dao or OrderDAO(db)
         self.delivery_dao = delivery_dao or DeliveryDAO(db)
-        self.delivery_service = delivery_service or DeliveryService(DeliveryDAO)
+        self.delivery_service = delivery_service or DeliveryService(self.delivery_dao)
         self.active_carts = {}
 
     def get_customer(self, username: str) -> Customer | None:
@@ -168,7 +168,9 @@ class CustomerService:
                 return cart
         raise TypeError(f"{name_item} is not in the cart")
 
-    def validate_cart(self, cart, username_customer, validate: Literal["yes", "no"], address: Optional[str] = None) -> Order:
+    def validate_cart(
+        self, cart, username_customer, validate: Literal["yes", "no"], address: Optional[str] = None
+    ) -> Order:
         if address is None:
             customer = self.get_customer(username_customer)
             address = customer.address
@@ -183,9 +185,7 @@ class CustomerService:
                 items=cart,
             )
             success = self.order_dao.create_order(order)
-            self.delivery_service.create(
-                [self.order_dao.find_order_by_user(username_customer)[-1].id_order], [address]
-            )
+            self.delivery_service.create([self.order_dao.find_order_by_user(username_customer)[-1].id_order], [address])
             if not success:
                 raise ValueError("Failed to create order in the database.")
             for name_item, quantity in cart.items():

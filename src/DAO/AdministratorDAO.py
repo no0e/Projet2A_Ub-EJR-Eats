@@ -8,7 +8,7 @@ class AdministratorDAO(UserDAO):
 
     def create(self, administrator: Administrator) -> bool:
         if not isinstance(administrator, Administrator):
-            raise TypeError("Administrator should be type of administrator.")
+            raise TypeError("The created administrator should be type of administrator.")
         raw_created_admin = self.db_connector.sql_query(
             """
             INSERT INTO """

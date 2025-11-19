@@ -76,16 +76,6 @@ class UserService:
                 account_type=account_type,
             )
         )
-        self.user_repo.create_user(
-            User(
-                username=username,
-                firstname=firstname,
-                lastname=lastname,
-                password=new_password,
-                salt=salt,
-                account_type=account_type,
-            )
-        )
         if account_type == "Administrator":
             self.admin_repo.create(
                 Administrator(

@@ -27,7 +27,7 @@ class DeliveryService:
         Delivery
             The delivery that has been created
         """
-        delivery = Delivery(id_orders = id_orders, stops = stops, is_accepted=False)
+        delivery = Delivery(id_orders=id_orders, stops=stops, is_accepted=False)
         success = self.delivery_repo.create(delivery)
         if not success:
             raise ValueError("Failed to create delivery in the database.")
@@ -50,7 +50,10 @@ class DeliveryService:
         if delivery.is_accepted:
             raise ValueError("Delivery already accepted")
 
-        duration = googlemap.get_directions(destinations=delivery.stops, mode=vehicle)["duration_min"]
+        dests = []
+        for i in delivery.stops:
+            dests.append(googlemap.geocoding_address(i))
+        duration = googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver, duration)
 
         if not delivery.stops or len(delivery.stops) == 0:
@@ -59,8 +62,8 @@ class DeliveryService:
             raise ValueError("Stops are not under a list format.")
 
         destination_address = delivery.stops[-1]
-        destination_coords = self.google_map.geocoding_address(destination_address)
-        google_maps_link = self.google_map.generate_google_maps_link(destination_coords)
+        destination_coords = googlemap.geocoding_address(destination_address)
+        google_maps_link = googlemap.generate_google_maps_link(destination_coords)
 
         return {
             "message": "Delivery accepted successfully",

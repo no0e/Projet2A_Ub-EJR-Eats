@@ -71,8 +71,7 @@ class MockDeliveryService:
     def __init__(self):
         self.created_deliveries = []
 
-    def create(self, orders):
-        self.created_deliveries.extend(orders)
+    def create(self, id_order, stops):
         return True
 
 class MockDeliveryDAO:
@@ -184,6 +183,115 @@ def test_view_menu_success(customer_service):
     ]
 
 def test_add_item_cart_success(customer_service):
-    cart_old = dict
-    cart = customer_service.add_item_cart("bobbia", cart_old, ["galette saucisse", "cola"], [3,5])
-    assert cart == {"galette saucisse": 3,"cola": 5}
+    cart_old = {}
+    cart = customer_service.add_item_cart(
+        "bobbia",
+        cart_old,
+        ["galette saucisse", "cola"],
+        [3, 5]
+    )
+
+    assert cart == {
+        "galette saucisse": 3,
+        "cola": 5
+    }
+
+def test_add_item_cart_failed(customer_service):
+    with pytest.raises(TypeError) as error_name:
+        cart_old = {}
+        customer_service.add_item_cart("bobbia",
+        cart_old,
+        ["galette", "cola"],
+        [3, 5])
+    assert str(error_name.value) == "Item 'galette' not found or not available."
+    with pytest.raises(ValueError) as error_quantity:
+        cart_old = {}
+        customer_service.add_item_cart("bobbia",
+        cart_old,
+        ["galette saucisse", "cola"],
+        [120, 5])
+    assert str(error_quantity.value) == "The quantity requested for 'galette saucisse' exceeds available stock."
+    with pytest.raises(TypeError) as error_twice:
+        cart_old = {
+        "galette saucisse": 3,
+        "cola": 5
+    }
+        customer_service.add_item_cart("bobbia",
+        cart_old,
+        ["galette saucisse"],
+        [3])
+    assert str(error_twice.value) == "The item 'galette saucisse' is already in the cart."
+
+def test_delete_item_success(customer_service):
+    cart = {
+        "galette saucisse": 3,
+        "cola": 5
+    }
+    cart_new = customer_service.delete_item(cart, "galette saucisse")
+    assert cart_new == {"cola": 5}
+
+def test_delete_item_failed(customer_service):
+    with pytest.raises(TypeError) as error_name:
+        cart_old = {
+        "cola": 5
+    }
+        customer_service.delete_item(cart_old,"galette saucisse")
+    assert str(error_name.value) ==  "galette saucisse is not in the cart"
+    with pytest.raises(TypeError) as error_name2:
+        cart_old = {
+        "cola": 5
+    }
+        customer_service.delete_item(cart_old,"sausage")
+    assert str(error_name2.value) ==  "sausage is not in the cart"
+
+def test_validate_cart_success(customer_service):
+    cart = {
+        "galette saucisse": 3,
+        "cola": 5
+    }
+    order = customer_service.validate_cart(cart, "bobbia", "yes")
+    assert order.id_order ==  4
+    assert order.username_customer == 'bobbia'
+    assert order.username_delivery_driver== None
+    assert order.address== '13 Main St.'
+    assert order.items== {'galette saucisse': 3,'cola': 5}
+
+def test_validate_cart_failed(customer_service):
+    with pytest.raises(TypeError) as error_validate:
+        cart= {
+        "galette saucisse": 3,
+        "cola": 5
+    }
+        customer_service.validate_cart(cart, "bobbia", "none")
+    assert str(error_validate.value) == "If you want to validate your cart you must enter: yes"
+
+
+def test_view_order_success(customer_service):
+    order= customer_service.view_order("charliz")
+    assert order.id_order ==3
+    assert order.username_customer=="charliz"
+    assert order.username_delivery_driver== "ernesto1"
+    assert order.address== "4 Salty Spring Av."
+    assert order.items=={"galette saucisse": 39, "cola": 2}
+
+def test_view_order_failed(customer_service):
+    with pytest.raises(ValueError) as error_username:
+        customer_service.view_order("drdavid")
+    assert str(error_username.value) == "No orders found for user drdavid"
+
+def test_view_cart_success(customer_service):
+    cart = {
+        "galette saucisse": 3,
+        "cola": 5
+    }
+    cart_new = customer_service.view_cart(cart)
+    assert cart_new == {
+    "cart": {
+        "galette saucisse": 3,
+        "cola": 5
+    },
+    "price": 19.6
+}
+
+
+

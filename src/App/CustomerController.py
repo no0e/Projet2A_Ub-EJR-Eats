@@ -126,7 +126,7 @@ def Validate_cart(
         raise HTTPException(status_code=400, detail="Cart is empty or not found.")
     try:
         order = customer_service.validate_cart(cart, username_customer, validate, address)
-        return order
+        return f'Your cart has been validated. The order has been created: {order}'
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:

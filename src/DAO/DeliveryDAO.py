@@ -33,17 +33,18 @@ class DeliveryDAO:
         """
         )
         try:
-            self.db.sql_query(
+            id_delivery = self.db.sql_query(
                 query,
                 {
-                    "id_delivery": delivery.id_delivery,
                     "username_delivery_driver": delivery.username_delivery_driver,
                     "duration": delivery.duration,
                     "id_orders": id_orders,
                     "stops": stops,
                     "is_accepted": delivery.is_accepted,
                 },
-            )
+                return_type="one",
+            )["id_delivery"]
+            delivery.id_delivery = id_delivery
             return True
         except Exception as e:
             print(f"[DeliveryDAO] Error creating delivery: {e}")
@@ -57,18 +58,25 @@ class DeliveryDAO:
     def get_by_id(self, id_delivery: int):
         query = "SELECT * FROM " + self.schema + ".deliveries WHERE id_delivery = %(id_delivery)s"
         row = self.db.sql_query(query, {"id_delivery": id_delivery}, return_type="one")
-        stops_raw = row.get("stops")  # ex: "{zere}"
+        stops_raw = row.get("stops")
         if isinstance(stops_raw, str):
             stops = stops_raw.strip("{}").split(",")
         elif isinstance(stops_raw, list):
             stops = stops_raw
         else:
             stops = []
+        id_orders_raw = row["id_orders"]
+        if isinstance(id_orders_raw, str):
+            id_orders = [int(x) for x in id_orders_raw.strip("{}").split(",") if x]
+        elif isinstance(id_orders_raw, list):
+            id_orders = id_orders_raw
+        else:
+            id_orders = []
         delivery = Delivery(
             id_delivery=row["id_delivery"],
             username_delivery_driver=row["username_delivery_driver"],
             duration=row["duration"],
-            id_orders=row["id_orders"],
+            id_orders=id_orders,
             stops=stops,
             is_accepted=row["is_accepted"],
         )
@@ -84,6 +92,16 @@ class DeliveryDAO:
             WHERE id_delivery = %(id_delivery)s AND is_accepted = FALSE
         """
         )
-        self.db.sql_query(
-            query, {"id_delivery": id_delivery, "username_delivery_driver": username_driver, "duration": duration}
+        self.db.sql_query(query, {"id_delivery": id_delivery, "username_driver": username_driver, "duration": duration})
+
+        id_order = self.get_by_id(id_delivery).id_orders[-1]
+        query = (
+            """
+            UPDATE """
+            + self.schema
+            + """.orders
+            SET username_delivery_driver = %(username_driver)s
+            WHERE id_order = %(id_order)s
+        """
         )
+        self.db.sql_query(query, {"id_order": id_order, "username_driver": username_driver})

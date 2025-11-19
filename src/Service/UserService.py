@@ -8,7 +8,10 @@ from src.Model.Administrator import Administrator
 from src.Model.Customer import Customer
 from src.Model.DeliveryDriver import DeliveryDriver
 from src.Model.User import User
+from src.Service.GoogleMapService import GoogleMap
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
+
+google_service = GoogleMap()
 
 
 class UserService:
@@ -32,7 +35,7 @@ class UserService:
         firstname: str,
         lastname: str,
         password: str,
-        address="Default address",
+        address="51 rue Blaise Pascal, 35170 Bruz",
         account_type="Customer",
     ) -> User:
         """Function that creates a user from its attributes.
@@ -48,7 +51,7 @@ class UserService:
         password : str
             user's password
         address : str
-            user's address needed to create a customer account, by default "Default address"
+            user's address needed to create a customer account, by default "51 rue Blaise Pascal, 35170 Bruz"
         account_type : str
             user's account type, by default "Customer"
 
@@ -98,6 +101,11 @@ class UserService:
                 )
             )
         else:
+            try:
+                google_service.geocoding_address(address)
+            except TypeError:
+                self.delete_user(username)
+                raise
             self.customer_repo.create(
                 Customer(
                     username=username,
@@ -109,6 +117,7 @@ class UserService:
                     address=address,
                 )
             )
+        
         return User(
             username=username,
             firstname=firstname,

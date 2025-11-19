@@ -1,9 +1,9 @@
 from src.DAO.UserDAO import UserDAO
 from src.Model.Administrator import Administrator
-
+from src.DAO.DBConnector import DBConnector
 
 class AdministratorDAO(UserDAO):
-    def __init__(self, db_connector, test: bool = False):
+    def __init__(self, db_connector: DBConnector, test: bool = False):
         super().__init__(db_connector, test)
 
     def create(self, administrator: Administrator) -> bool:

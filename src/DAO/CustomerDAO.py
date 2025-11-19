@@ -2,6 +2,10 @@ from typing import Optional
 
 from src.DAO.UserDAO import UserDAO
 from src.Model.Customer import Customer
+from src.Service.GoogleMapService import GoogleMap
+from src.DAO.DBConnector import DBConnector
+
+google_service = GoogleMap()
 
 
 class CustomerDAO(UserDAO):
@@ -60,7 +64,10 @@ class CustomerDAO(UserDAO):
         current_customer = self.find_by_username(username)
         if current_customer is None:
             raise ValueError(f"Customer with username '{username}' not found.")
-        address = address if address is not None else current_customer.address
+        if address is None:
+            address = current_customer.address
+        else:
+            google_service.geocoding_address(address)
 
         set_clause = []
         params = {"username": username}

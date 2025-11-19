@@ -2,10 +2,11 @@ from typing import Optional, List
 
 from src.DAO.UserDAO import UserDAO
 from src.Model.DeliveryDriver import DeliveryDriver
+from src.DAO.DBConnector import DBConnector
 
 
 class DeliveryDriverDAO(UserDAO):
-    def __init__(self, db_connector, test: bool = False):
+    def __init__(self, db_connector: DBConnector, test: bool = False):
         super().__init__(db_connector, test)
 
     def create(self, driver: DeliveryDriver) -> bool:

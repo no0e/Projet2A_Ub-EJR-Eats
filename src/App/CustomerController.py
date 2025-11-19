@@ -8,9 +8,12 @@ from src.App.JWTBearer import JWTBearer
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
 from src.DAO.UserDAO import UserDAO
+from src.DAO.ItemDAO import ItemDAO
+from src.DAO.DeliveryDAO import DeliveryDAO
+from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Service.CustomerService import CustomerService
-
+from src.Service.DeliveryService import DeliveryService
 from .init_app import user_service
 
 customer_router = APIRouter(prefix="/customer", tags=["Customer"])
@@ -18,6 +21,7 @@ customer_router = APIRouter(prefix="/customer", tags=["Customer"])
 # customer_router = APIRouter(prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))])
 # pour limiter les actions aux customer
 customer_service = CustomerService()
+
 
 db_connector = DBConnector()
 customer_dao = CustomerDAO(db_connector)
@@ -107,7 +111,7 @@ def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBe
 def Validate_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
     validate: Literal["yes", "no"],
-    address: str = None,
+    address: Optional[str] = None,
 ):
     username = get_user_from_credentials(credentials).username
     customer = customer_dao.find_by_username(username)
@@ -122,7 +126,7 @@ def Validate_cart(
         raise HTTPException(status_code=400, detail="Cart is empty or not found.")
     try:
         order = customer_service.validate_cart(cart, username_customer, validate, address)
-        return order
+        return f'Your cart has been validated. The order has been created: {order}'
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
     except (TypeError, ValueError) as e:

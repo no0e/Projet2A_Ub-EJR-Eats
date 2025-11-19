@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal, Optional
 
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
@@ -9,17 +9,28 @@ from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Model.Order import Order
 from src.Service.DeliveryService import DeliveryService
+from src.Service.GoogleMapService import GoogleMap
+
+google_service = GoogleMap()
 
 
 class CustomerService:
-    def __init__(self):
-        self.db_connector = DBConnector()
-        self.item_dao = ItemDAO(self.db_connector)
-        self.deliverydriver_dao = DeliveryDriverDAO(self.db_connector)
-        self.customer_dao = CustomerDAO(self.db_connector)
-        self.order_dao = OrderDAO(self.db_connector)
-        self.delivery_dao = DeliveryDAO(self.db_connector)
-        self.delivery_service = DeliveryService(self.delivery_dao)
+    def __init__(
+        self,
+        item_dao: ItemDAO = None,
+        deliverydriver_dao: DeliveryDriverDAO = None,
+        customer_dao: CustomerDAO = None,
+        order_dao: OrderDAO = None,
+        delivery_dao: DeliveryDAO = None,
+        delivery_service: DeliveryService = None,
+    ):
+        db = DBConnector()
+        self.item_dao = item_dao or ItemDAO(db)
+        self.deliverydriver_dao = deliverydriver_dao or DeliveryDriverDAO(db)
+        self.customer_dao = customer_dao or CustomerDAO(db)
+        self.order_dao = order_dao or OrderDAO(db)
+        self.delivery_dao = delivery_dao or DeliveryDAO(db)
+        self.delivery_service = delivery_service or DeliveryService(self.delivery_dao)
         self.active_carts = {}
 
     def get_customer(self, username: str) -> Customer | None:
@@ -45,7 +56,21 @@ class CustomerService:
         menu: list
             a list of all the exposed items
         """
-        menu = self.item_dao.find_all_exposed_item()
+        items = self.item_dao.find_all_exposed_item()
+
+        menu = []
+        for item in items:
+            menu.append(
+                {
+                    "id_item": item.id_item,
+                    "name_item": item.name_item,
+                    "price": item.price,
+                    "category": item.category,
+                    "stock": item.stock,
+                    "exposed": item.exposed,
+                }
+            )
+
         return menu
 
     def get_cart_for_user(self, username: str):
@@ -72,15 +97,15 @@ class CustomerService:
         for name_item, quantity in zip(name_items, quantities):
             name_item = name_item.lower()
             if name_item not in items_dict:
-                raise ValueError(f"Item '{name_item}' not found or not available.")
+                raise TypeError(f"Item '{name_item}' not found or not available.")
 
             item = items_dict[name_item]
 
             if quantity > item.stock:
                 raise ValueError(f"The quantity requested for '{name_item}' exceeds available stock.")
 
-            if item.id_item in cart:
-                raise ValueError(f"The item '{name_item}' is already in the cart.")
+            if item.name_item in cart:
+                raise TypeError(f"The item '{name_item}' is already in the cart.")
             else:
                 cart[item.name_item] = quantity
 
@@ -112,12 +137,13 @@ class CustomerService:
                     raise TypeError(f"{name_item} is not in the cart")
                 if new_number_item == 0:
                     del cart[item.name_item]
-                cart[item.name_item] = new_number_item
+                else:
+                    cart[item.name_item] = new_number_item
                 return cart
 
         raise ValueError(f"Item '{name_item}' not found in the list of items available.")
 
-    def delete_item(self, cart, name_item):
+    def delete_item(self, cart, name_item) -> dict:
         """Delete an item of the cart
 
         Parameters
@@ -140,8 +166,16 @@ class CustomerService:
                     raise TypeError(f"{name_item} is not in the cart")
                 del cart[item.name_item]
                 return cart
+        raise TypeError(f"{name_item} is not in the cart")
 
-    def validate_cart(self, cart, username_customer, validate, address: str):
+    def validate_cart(
+        self, cart, username_customer, validate: Literal["yes", "no"], address: Optional[str] = None
+    ) -> Order:
+        if address is None:
+            customer = self.get_customer(username_customer)
+            address = customer.address
+        else:
+            google_service.geocoding_address(address)
         if validate == "yes":
             order = Order(
                 id_order=None,
@@ -151,7 +185,7 @@ class CustomerService:
                 items=cart,
             )
             success = self.order_dao.create_order(order)
-            self.delivery_service.create([order])
+            self.delivery_service.create([self.order_dao.find_order_by_user(username_customer)[-1].id_order], [address])
             if not success:
                 raise ValueError("Failed to create order in the database.")
             for name_item, quantity in cart.items():
@@ -171,11 +205,11 @@ class CustomerService:
                 else:
                     raise ValueError(f"Item {name_item} not found in the database")
 
-            return f"Your cart has been validated. The order has been created: {order}"
+            return order
 
         raise TypeError("If you want to validate your cart you must enter: yes")
 
-    def view_order(self, username_customer: str):
+    def view_order(self, username_customer: str) -> Order:
         """See the last order of a customer
         Parameters
         -----

@@ -115,7 +115,8 @@ class CustomerService:
                     raise TypeError(f"{name_item} is not in the cart")
                 if new_number_item == 0:
                     del cart[item.name_item]
-                cart[item.name_item] = new_number_item
+                else:
+                    cart[item.name_item] = new_number_item
                 return cart
 
         raise ValueError(f"Item '{name_item}' not found in the list of items available.")
@@ -158,7 +159,9 @@ class CustomerService:
                 items=cart,
             )
             success = self.order_dao.create_order(order)
-            self.delivery_service.create([order])
+            self.delivery_service.create(
+                id_orders=[self.order_dao.find_order_by_user(username_customer)[-1].id_order], stops=[address]
+            )
             if not success:
                 raise ValueError("Failed to create order in the database.")
             for name_item, quantity in cart.items():

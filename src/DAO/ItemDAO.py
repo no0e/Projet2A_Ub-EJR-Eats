@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from src.Model.Item import ItemCreate, Item
+from src.Model.Item import Item, ItemCreate
 
 from .DBConnector import DBConnector
 
@@ -13,7 +13,7 @@ class ItemDAO:
 
     db_connector: DBConnector
 
-    def __init__(self, db_connector: DBConnector, test:bool = False):
+    def __init__(self, db_connector: DBConnector, test: bool = False):
         """
         Initialize the ItemDAO with a database connector.
 
@@ -23,7 +23,7 @@ class ItemDAO:
         if test:
             self.schema = "project_test_database"
         else:
-            self.schema = "project_database" 
+            self.schema = "project_database"
 
     def create_item(self, item: Item) -> bool:
         """
@@ -34,8 +34,10 @@ class ItemDAO:
         """
         try:
             raw_item = self.db_connector.sql_query(
-            """
-            INSERT INTO """+self.schema+""".items (name_item, price, category, stock, exposed)
+                """
+            INSERT INTO """
+                + self.schema
+                + """.items (name_item, price, category, stock, exposed)
             VALUES (%(name_item)s, %(price)s, %(category)s, %(stock)s, %(exposed)s)
             RETURNING id_item;
             """,
@@ -56,11 +58,15 @@ class ItemDAO:
 
     def update_item_exposed(self, id_item, exposed):
         """Met à jour l'exposition de l'item dans la base de données"""
-        query = """
-        UPDATE """+self.schema+""".items
+        query = (
+            """
+        UPDATE """
+            + self.schema
+            + """.items
         SET exposed = %s
         WHERE id_item = %s
         """
+        )
         self.db_connector.sql_query(query, [exposed, id_item], "execute")
 
     def find_item(self, id_item: int) -> Optional[Item]:
@@ -71,7 +77,7 @@ class ItemDAO:
         :return: An Item object if found, otherwise None.
         """
         raw_item = self.db_connector.sql_query(
-            "SELECT * FROM "+self.schema+".items WHERE id_item = %s;", [id_item], "one"
+            "SELECT * FROM " + self.schema + ".items WHERE id_item = %s;", [id_item], "one"
         )
 
         if raw_item is None:
@@ -93,7 +99,7 @@ class ItemDAO:
         :return: An Item object if found, otherwise None.
         """
         raw_item = self.db_connector.sql_query(
-            "SELECT * FROM "+self.schema+".items WHERE name_item = %s;", [name_item], "one"
+            "SELECT * FROM " + self.schema + ".items WHERE name_item = %s;", [name_item], "one"
         )
 
         if raw_item is None:
@@ -105,6 +111,7 @@ class ItemDAO:
             price=raw_item["price"],
             category=raw_item["category"],
             stock=raw_item["stock"],
+            exposed=raw_item["exposed"],
         )
 
     def find_all_exposed_item(self) -> List[Item]:
@@ -113,7 +120,9 @@ class ItemDAO:
 
         :return: A list of Item objects that are exposed.
         """
-        raw_items = self.db_connector.sql_query("SELECT * FROM "+self.schema+".items WHERE exposed = TRUE;", [], "all")
+        raw_items = self.db_connector.sql_query(
+            "SELECT * FROM " + self.schema + ".items WHERE exposed = TRUE;", [], "all"
+        )
 
         return [
             Item(
@@ -133,7 +142,7 @@ class ItemDAO:
         :return: A list of Item objects that are exposed.
         """
 
-        raw_items = self.db_connector.sql_query("SELECT * FROM "+self.schema+".items ", [], "all")
+        raw_items = self.db_connector.sql_query("SELECT * FROM " + self.schema + ".items ", [], "all")
 
         return [
             Item(
@@ -156,7 +165,9 @@ class ItemDAO:
         try:
             self.db_connector.sql_query(
                 """
-                UPDATE """+self.schema+""".items
+                UPDATE """
+                + self.schema
+                + """.items
                 SET name_item = %(name_item)s,
                     price = %(price)s,
                     category = %(category)s,
@@ -188,7 +199,7 @@ class ItemDAO:
         """
         try:
             self.db_connector.sql_query(
-                "DELETE FROM "+self.schema+".items WHERE id_item = %s;", [item.id_item], "none"
+                "DELETE FROM " + self.schema + ".items WHERE id_item = %s;", [item.id_item], "none"
             )
             return True
         except Exception as e:

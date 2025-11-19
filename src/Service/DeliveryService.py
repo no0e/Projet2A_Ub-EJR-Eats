@@ -56,13 +56,13 @@ class DeliveryService:
         duration = googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver, duration)
 
-        if not delivery.stops or len(delivery.stops) == 0:
-            raise ValueError("No delivery stops found")
         if not isinstance(delivery.stops, list):
             raise ValueError("Stops are not under a list format.")
+        if not delivery.stops or len(delivery.stops) == 0:
+            raise ValueError("No delivery stops found")
 
         destination_address = delivery.stops[-1]
-        destination_coords = googlemap.geocoding_address(destination_address)
+        destination_coords = [googlemap.geocoding_address(destination_address)]
         google_maps_link = googlemap.generate_google_maps_link(destination_coords)
 
         return {

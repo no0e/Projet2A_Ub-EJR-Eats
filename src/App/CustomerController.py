@@ -8,9 +8,12 @@ from src.App.JWTBearer import JWTBearer
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
 from src.DAO.UserDAO import UserDAO
+from src.DAO.ItemDAO import ItemDAO
+from src.DAO.DeliveryDAO import DeliveryDAO
+from src.DAO.OrderDAO import OrderDAO
 from src.Model.Customer import Customer
 from src.Service.CustomerService import CustomerService
-
+from src.Service.DeliveryService import DeliveryService
 from .init_app import user_service
 
 customer_router = APIRouter(prefix="/customer", tags=["Customer"])
@@ -18,6 +21,7 @@ customer_router = APIRouter(prefix="/customer", tags=["Customer"])
 # customer_router = APIRouter(prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))])
 # pour limiter les actions aux customer
 customer_service = CustomerService()
+
 
 db_connector = DBConnector()
 customer_dao = CustomerDAO(db_connector)

@@ -66,6 +66,16 @@ class UserService:
         check_password_strength(password)
         salt = create_salt()
         new_password = hash_password(password, salt)
+        self.user_repo.create_user(
+            User(
+                username=username,
+                firstname=firstname,
+                lastname=lastname,
+                password=new_password,
+                salt=salt,
+                account_type=account_type,
+            )
+        )
         if account_type == "Administrator":
             self.admin_repo.create(
                 Administrator(
@@ -103,16 +113,7 @@ class UserService:
                     address=address,
                 )
             )
-        self.user_repo.create_user(
-            User(
-                username=username,
-                firstname=firstname,
-                lastname=lastname,
-                password=new_password,
-                salt=salt,
-                account_type=account_type,
-            )
-        )
+        
         return User(
             username=username,
             firstname=firstname,

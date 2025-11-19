@@ -15,14 +15,22 @@ google_service = GoogleMap()
 
 
 class CustomerService:
-    def __init__(self):
-        self.db_connector = DBConnector()
-        self.item_dao = ItemDAO(self.db_connector)
-        self.deliverydriver_dao = DeliveryDriverDAO(self.db_connector)
-        self.customer_dao = CustomerDAO(self.db_connector)
-        self.order_dao = OrderDAO(self.db_connector)
-        self.delivery_dao = DeliveryDAO(self.db_connector)
-        self.delivery_service = DeliveryService(self.delivery_dao)
+    def __init__(
+        self,
+        item_dao: ItemDAO = None,
+        deliverydriver_dao: DeliveryDriverDAO = None,
+        customer_dao: CustomerDAO = None,
+        order_dao: OrderDAO = None,
+        delivery_dao: DeliveryDAO = None,
+        delivery_service: DeliveryService = None
+    ):
+        db = DBConnector()
+        self.item_dao = item_dao or ItemDAO(db)
+        self.deliverydriver_dao = deliverydriver_dao or DeliveryDriverDAO(db)
+        self.customer_dao = customer_dao or CustomerDAO(db)
+        self.order_dao = order_dao or OrderDAO(db)
+        self.delivery_dao = delivery_dao or DeliveryDAO(db)
+        self.delivery_service = delivery_service or DeliveryService(DeliveryDAO)
         self.active_carts = {}
 
     def get_customer(self, username: str) -> Customer | None:
@@ -48,7 +56,19 @@ class CustomerService:
         menu: list
             a list of all the exposed items
         """
-        menu = self.item_dao.find_all_exposed_item()
+        items = self.item_dao.find_all_exposed_item()
+
+        menu = []
+        for item in items:
+            menu.append({
+                "id_item": item.id_item,
+                "name_item": item.name_item,
+                "price": item.price,
+                "category": item.category,
+                "stock": item.stock,
+                "exposed": item.exposed
+            })
+
         return menu
 
     def get_cart_for_user(self, username: str):
@@ -82,7 +102,7 @@ class CustomerService:
             if quantity > item.stock:
                 raise ValueError(f"The quantity requested for '{name_item}' exceeds available stock.")
 
-            if item.id_item in cart:
+            if item.name_item in cart:
                 raise ValueError(f"The item '{name_item}' is already in the cart.")
             else:
                 cart[item.name_item] = quantity

@@ -6,6 +6,7 @@ from src.DAO.DBConnector import DBConnector
 from src.DAO.DeliveryDAO import DeliveryDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.ItemDAO import ItemDAO
+from src.DAO.OrderDAO import OrderDAO
 from src.DAO.UserDAO import UserDAO
 from src.Service.AdministratorService import AdministratorService
 from src.Service.CustomerService import CustomerService
@@ -14,6 +15,7 @@ from src.Service.GoogleMapService import GoogleMap
 from src.Service.ItemService import ItemService
 from src.Service.JWTService import JwtService
 from src.Service.UserService import UserService
+from src.Service.DeliveryService import DeliveryService
 
 load_dotenv()
 db_connector = DBConnector()
@@ -29,6 +31,6 @@ google_map_service = GoogleMap()
 jwt_service = JwtService()
 user_service = UserService(user_repo, admin_repo, driver_repo, customer_repo)
 admin_service = AdministratorService(user_repo, admin_repo, driver_repo, customer_repo)
-customer_service = CustomerService()
+customer_service = CustomerService(ItemDAO , DeliveryDAO ,  CustomerDAO , OrderDAO , DeliveryDAO ,  DeliveryService)
 driver_service = DeliveryDriverService(driver_repo, delivery_repo, google_map_service)
 item_service = ItemService(item_repo)

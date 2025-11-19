@@ -1,8 +1,8 @@
-from typing import Optional, List
+from typing import List, Optional
 
+from src.DAO.DBConnector import DBConnector
 from src.DAO.UserDAO import UserDAO
 from src.Model.DeliveryDriver import DeliveryDriver
-from src.DAO.DBConnector import DBConnector
 
 
 class DeliveryDriverDAO(UserDAO):
@@ -13,7 +13,9 @@ class DeliveryDriverDAO(UserDAO):
         if not isinstance(driver, DeliveryDriver):
             raise TypeError("The created driver must be of a type driver.")
         if self.get_by_username(driver.username) is None:
-            raise ValueError(f"Username {driver.username} does not exist in users although it should to create a driver.")
+            raise ValueError(
+                f"Username {driver.username} does not exist in users although it should to create a driver."
+            )
         raw_created_driver = self.db_connector.sql_query(
             """
             INSERT INTO """
@@ -38,11 +40,13 @@ class DeliveryDriverDAO(UserDAO):
             FROM """
             + self.schema
             + """.delivery_drivers as d
-            JOIN """+self.schema+""".users as u ON u.username = username
-            WHERE username = %s
+            JOIN """
+            + self.schema
+            + """.users as u ON u.username = d.username_delivery_driver
+            WHERE d.username_delivery_driver = %(username)s
         """
         )
-        raw = self.db_connector.sql_query(query, [username], return_type="one")
+        raw = self.db_connector.sql_query(query, {"username": username}, return_type="one")
         return DeliveryDriver(**raw) if raw else None
 
     def update_delivery_driver(
@@ -99,9 +103,7 @@ class DeliveryDriverDAO(UserDAO):
             # Map the query result keys to the DeliveryDriver constructor arguments
             return [
                 DeliveryDriver(
-                    username=r["username_delivery_driver"],
-                    vehicle=r["vehicle"],
-                    is_available=r["is_available"]
+                    username=r["username_delivery_driver"], vehicle=r["vehicle"], is_available=r["is_available"]
                 )
                 for r in rows
             ]

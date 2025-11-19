@@ -48,12 +48,10 @@ def accept_delivery(
     """TO accept a delivery as a delivery driver by typing its Id"""
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
-    delivery = delivery_dao.get_by_id(id_delivery)
     try:
-        delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
+        return delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
     except Exception as error:
         raise HTTPException(status_code=400, detail=str(error))
-    return google_service.generate_google_maps_link(google_service.geocoding_address(delivery.stops[-1]))
 
 
 @deliverydriver_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])

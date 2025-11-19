@@ -55,10 +55,12 @@ class DeliveryDAO:
         rows = self.db.sql_query(query, return_type="all") or []
         return [Delivery(**r) for r in rows]
 
-    def get_by_id(self, id_delivery: int):
+    def get_by_id(self, id_delivery: int) -> Delivery | None:
         query = "SELECT * FROM " + self.schema + ".deliveries WHERE id_delivery = %(id_delivery)s"
         row = self.db.sql_query(query, {"id_delivery": id_delivery}, return_type="one")
-        stops_raw = row.get("stops")
+        if not row:
+            raise ValueError(f"Delivery of id {id_delivery} does not exist.")
+        stops_raw = row.get("stops", [])
         if isinstance(stops_raw, str):
             stops = stops_raw.strip("{}").split(",")
         elif isinstance(stops_raw, list):
@@ -82,26 +84,31 @@ class DeliveryDAO:
         )
         return delivery if row else None
 
-    def set_delivery_accepted(self, id_delivery: int, username_driver: str, duration: int):
+    def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str, duration: int):
         query = (
             """
             UPDATE """
             + self.schema
             + """.deliveries
-            SET is_accepted = TRUE, username_delivery_driver = %(username_driver)s, duration = %(duration)s
+            SET is_accepted = TRUE, username_delivery_driver = %(username_delivery_driver)s, duration = %(duration)s
             WHERE id_delivery = %(id_delivery)s AND is_accepted = FALSE
         """
         )
-        self.db.sql_query(query, {"id_delivery": id_delivery, "username_driver": username_driver, "duration": duration})
-
-        id_order = self.get_by_id(id_delivery).id_orders[-1]
+        self.db.sql_query(
+            query,
+            {"id_delivery": id_delivery, "username_delivery_driver": username_delivery_driver, "duration": duration},
+        )
+        delivery = self.get_by_id(id_delivery)
+        if not delivery or not delivery.id_orders:
+            raise ValueError("Delivery or orders not found")
+        id_order = delivery.id_orders[-1]
         query = (
             """
             UPDATE """
             + self.schema
             + """.orders
-            SET username_delivery_driver = %(username_driver)s
+            SET username_delivery_driver = %(username_delivery_driver)s
             WHERE id_order = %(id_order)s
         """
         )
-        self.db.sql_query(query, {"id_order": id_order, "username_driver": username_driver})
+        self.db.sql_query(query, {"id_order": id_order, "username_delivery_driver": username_delivery_driver})

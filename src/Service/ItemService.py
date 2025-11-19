@@ -7,7 +7,6 @@ from src.Model.Item import Item
 
 class ItemService:
     def __init__(self, item_dao: ItemDAO):
-        self.db_connector = DBConnector()
         self.item_dao = item_dao
 
     def view_storage(self):

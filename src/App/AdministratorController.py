@@ -43,6 +43,7 @@ def Create_Accounts(
     lastname: str,
     account_type: Literal["Administrator", "DeliveryDriver", "Customer"],
 ) -> APIUser:
+    """Create an account of a customer,an administrator or a delivery driver"""
     try:
         check_password_strength(password=password)
     except Exception:
@@ -58,6 +59,7 @@ def Create_Accounts(
 
 @administrator_router.patch("/Edit_Accounts", status_code=status.HTTP_200_OK)
 def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "address", "vehicle"], new_value: str):
+    """Edit the accounts of other users"""
     if attribute == "address":
         if user_service.get_user(username).account_type != "Customer":
             raise ValueError("Only customers have an address.")
@@ -80,6 +82,7 @@ def Edit_Accounts(username: str, attribute: Literal["firstname", "lastname", "ad
 
 @administrator_router.get("/Storage/View", status_code=status.HTTP_200_OK)
 def View_Storage():
+    """See every item even the one that are not exposed"""
     try:
         storage = item_service.view_storage()
         print("Storage fetched:", storage)
@@ -92,12 +95,12 @@ def View_Storage():
 
 @administrator_router.post("/Storage/Create_Item", status_code=status.HTTP_201_CREATED)
 def Create_Item(
-    item: ItemCreate,
     name_item: str,
     price: float,
     stock: int,
     category: str = Query(..., description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
 ):
+    """Create an item"""
     try:
         new_item = item_service.create_item(name_item, price, category, stock)
         return {"message": "Item created successfully ", "item": new_item}
@@ -116,6 +119,7 @@ def Edit_Item(
     new_stock: int = None,
     availability: bool = Query(None, description="Is the item available ?", enum=[True, False]),
 ):
+    """Edit an item"""
     try:
         item_service.update(name_item, new_name, new_price, new_category, new_stock, availability)
     except Exception as e:
@@ -136,8 +140,9 @@ def Edit_Item(
     }
 
 
-@administrator_router.patch("/Storage/Delete_Item", status_code=status.HTTP_200_OK)
+@administrator_router.delete("/Storage/Delete_Item", status_code=status.HTTP_200_OK)
 def Delete_Item(name_item):
+    """Delete an item"""
     try:
         item_deleted = item_service.delete_item(name_item)
         return item_deleted

@@ -19,6 +19,7 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 
 @user_router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(username: str, password: str, firstname: str, lastname: str, address: str) -> APIUser:
+    "Create an account if you are a new customer"
     try:
         check_password_strength(password=password)
     except Exception:
@@ -49,4 +50,5 @@ def login(username: str, password: str) -> JWTResponse:
 
 @user_router.get("/me", dependencies=[Depends(JWTBearer())])
 def get_user_own_profile(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> APIUser:
+    "See your username and the type of your account"
     return get_user_from_credentials(credentials)

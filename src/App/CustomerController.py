@@ -40,6 +40,7 @@ def get_cart_for_user(username: str):
 
 @customer_router.get("/Menu", status_code=status.HTTP_201_CREATED)
 def View_menu():
+    "View the menu with the items available"
     try:
         menu = customer_service.view_menu()
         print("menu fetched:", menu)
@@ -50,12 +51,13 @@ def View_menu():
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.post("/add to cart", status_code=status.HTTP_200_OK)
-def order_items(
+@customer_router.post("/Add_to_Cart", status_code=status.HTTP_200_OK)
+def add_items_to_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
     item: List[str] = Query(..., description="Item name"),
     quantities: List[int] = Query(..., description="Quantity for each item"),
 ):
+    "Add items to your cart with the quantity wanted"
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -76,10 +78,11 @@ def order_items(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.post("/modify the cart", status_code=status.HTTP_200_OK)
+@customer_router.post("/Modify_Cart", status_code=status.HTTP_200_OK)
 def Modify_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())], name_item: str, new_quantity: int
 ):
+    "Modify the quantity of the items in your cart"
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -93,8 +96,9 @@ def Modify_cart(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.get("/Cart", status_code=status.HTTP_200_OK)
+@customer_router.get("/View_Cart", status_code=status.HTTP_200_OK)
 def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
+    "See your current cart only available with your actual token"
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -107,12 +111,13 @@ def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBe
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.post("/validate the cart", status_code=status.HTTP_200_OK)
+@customer_router.post("/Validate_Cart", status_code=status.HTTP_200_OK)
 def Validate_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
     validate: Literal["yes", "no"],
     address: str = None,
 ):
+    "Validate your cart to order it"
     username = get_user_from_credentials(credentials).username
     customer = customer_dao.find_by_username(username)
     if not customer:
@@ -133,8 +138,9 @@ def Validate_cart(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@customer_router.get("/Order", status_code=status.HTTP_200_OK)
+@customer_router.get("/View_Order", status_code=status.HTTP_200_OK)
 def View_order(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
+    "See your order"
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     try:

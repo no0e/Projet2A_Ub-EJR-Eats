@@ -10,8 +10,9 @@ google_service = GoogleMap()
 
 class CustomerDAO(UserDAO):
     """
-    Customer DAO class which inherit from UserDAO DAO class
-    All functions asks the database customers and collect data on it
+    Data Access Object (DAO) for interacting with the 'customers' table in the database.
+    It inherits from UserDAO class.
+    Provides methods to retrieve and insert user data.
     """
     def __init__(self, db_connector, test: bool = False):
         super().__init__(db_connector)
@@ -92,6 +93,7 @@ class CustomerDAO(UserDAO):
         Return
         ---
         bool
+            Returns True if the update succeed, False otherwise.
         """
         current_customer = self.find_by_username(username)
         if current_customer is None:

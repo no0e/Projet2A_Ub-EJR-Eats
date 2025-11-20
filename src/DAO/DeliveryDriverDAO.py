@@ -7,8 +7,9 @@ from src.Model.DeliveryDriver import DeliveryDriver
 
 class DeliveryDriverDAO(UserDAO):
     """
-    Delivery driver DAO class which inherit from UserDAO DAO class
-    All functions asks the database deliverydrivers and collect data on it
+    Data Access Object (DAO) for interacting with the 'deliverydrivers' table in the database.
+    It inherits from UserDAO class.
+    Provides methods to retrieve and insert user data.
     """
     def __init__(self, db_connector: DBConnector, test: bool = False):
         super().__init__(db_connector, test)

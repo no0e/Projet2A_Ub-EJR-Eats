@@ -25,6 +25,20 @@ class UserDAO:
 
 
     def get_by_username(self, username: str) -> Optional[User]:
+        """
+        Function that find a user by their username.
+
+        Parameters
+        ----------
+        username : str
+            Username of the user we want to find
+
+
+        Returns
+        -------
+        User | None
+            Returns a User if found, None otherwise
+        """
         raw_user = self.db_connector.sql_query(
             "SELECT * FROM "+self.schema+".users WHERE username=%s", [username], "one"
         )
@@ -41,6 +55,20 @@ class UserDAO:
         )
 
     def create_user(self, user: User) -> bool:
+        """
+        Function that create an instance of user in the users database.
+
+        Parameters
+        ----------
+        user : User
+            Model of user which will be created
+
+
+        Returns
+        -------
+        boolean
+            Returns True if the user has been created, False otherwise.
+        """
         if isinstance(user,User):
             raw_created_user = self.db_connector.sql_query(
                 """
@@ -70,13 +98,24 @@ class UserDAO:
         password: Optional[str] = None,
     ) -> bool:
         """
-        Update an existing user's firstname, lastname, and password in the database.
+        Update an existing user's attributes.
+        It could update any attribute among firstname, lastname and password.
 
-        :param user: The User object to update .
-        :param new_firstname: New first name.
-        :param new_lastname: New last name.
-        :param new_password: New password (hashed if needed).
-        :return: True if the update succeeded, False otherwise.
+        Parameters
+        ---
+        username: str
+            User's username
+        firstname: Optional[str] = None
+            User's firstname
+        lastname: Optional[str] = None
+            User's lastname
+        password: Optional[str] = None
+            User's password
+
+        Return
+        ---
+        bool
+            Returns True if the update succeed, False otherwise.
         """
         if not isinstance(self.get_by_username(username), User):
             return False
@@ -109,10 +148,17 @@ class UserDAO:
 
     def delete_user(self, user: User) -> bool:
         """
-        Delete an existing user from the database.
+        Function that delete a user.
 
-        :param user: The User object to delete.
-        :return: True if the deletion succeeded, False otherwise.
+        Parameters
+        ----------
+        user : User
+            User we want to delete
+
+        Returns
+        -------
+        boolean
+            Returns True if the user is deleted, False otherwise
         """
         if not isinstance(user, User):
             return False

@@ -5,8 +5,9 @@ from src.Model.Administrator import Administrator
 
 class AdministratorDAO(UserDAO):
     """
-    Administrator DAO class which inherit from UserDAO DAO class
-    All functions asks the database administrators and collect data on it
+    Data Access Object (DAO) for interacting with the 'deliveries' table in the database.
+    It inherits from UserDAO class.
+    Provides methods to retrieve and insert user data.
     """
 
     def __init__(self, db_connector: DBConnector, test: bool = False):
@@ -59,7 +60,7 @@ class AdministratorDAO(UserDAO):
         Administrator | None
             Returns an Administrator if found, None otherwise
         """
-        if not isinstance(username, str)
+        if not isinstance(username, str):
             raise TypeError("Username must be a string.")
         if self.get_by_username(username) is None:
             raise ValueError(f"Username {username} does not exist.")

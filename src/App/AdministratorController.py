@@ -9,11 +9,11 @@ from src.App.JWTBearer import JWTBearer
 from src.Model.APIUser import APIUser
 from src.Service.PasswordService import check_password_strength
 
-if TYPE_CHECKING:
-    from fastapi.security import HTTPAuthorizationCredentials
 
-    from src.Model.Item import Item
-    from src.Model.User import User
+from fastapi.security import HTTPAuthorizationCredentials
+
+from src.Model.Item import Item
+from src.Model.User import User
 
 from .init_app import (
     admin_service,

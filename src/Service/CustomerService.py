@@ -48,28 +48,27 @@ class CustomerService:
         """
         return self.customer_dao.find_by_username(username)
 
-    def view_menu(self) -> List[dict]:
+    def view_menu(self) -> list[dict]:
         """Function that returns all the items available
 
         Returns
         -------
-        List[dict]
+        list[dict]
             a list of all the exposed items.
         """
         items = self.item_dao.find_all_exposed_item()
 
-        menu = List[dict]
-        for item in items:
-            menu.append(
-                {
-                    "id_item": item.id_item,
-                    "name_item": item.name_item,
-                    "price": item.price,
-                    "category": item.category,
-                    "stock": item.stock,
-                    "exposed": item.exposed,
-                }
-            )
+        menu = [
+            {
+                "id_item": item.id_item,
+                "name_item": item.name_item,
+                "price": item.price,
+                "category": item.category,
+                "stock": item.stock,
+                "exposed": item.exposed,
+            }
+            for item in items
+        ]
 
         return menu
 

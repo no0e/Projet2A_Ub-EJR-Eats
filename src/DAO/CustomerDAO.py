@@ -15,7 +15,7 @@ class CustomerDAO(UserDAO):
     """
 
     def __init__(self, db_connector, test: bool = False):
-        super().__init__(db_connector)
+        super().__init__(db_connector, test)
 
     def create(self, customer: Customer) -> bool:
         """

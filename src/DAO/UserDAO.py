@@ -1,8 +1,3 @@
-from typing import Optional, Union
-
-from src.Model.Administrator import Administrator
-from src.Model.Customer import Customer
-from src.Model.DeliveryDriver import DeliveryDriver
 from src.Model.User import User
 
 from .DBConnector import DBConnector
@@ -16,13 +11,12 @@ class UserDAO:
 
     db_connector: DBConnector
 
-    def __init__(self, db_connector: DBConnector, test:bool = False):
+    def __init__(self, db_connector: DBConnector, test: bool = False):
         self.db_connector = db_connector
         if test:
             self.schema = "project_test_database"
         else:
             self.schema = "project_database"
-
 
     def get_by_username(self, username: str) -> Optional[User]:
         """
@@ -40,7 +34,7 @@ class UserDAO:
             Returns a User if found, None otherwise
         """
         raw_user = self.db_connector.sql_query(
-            "SELECT * FROM "+self.schema+".users WHERE username=%s", [username], "one"
+            "SELECT * FROM " + self.schema + ".users WHERE username=%s", [username], "one"
         )
         if raw_user is None:
             return None
@@ -69,10 +63,12 @@ class UserDAO:
         boolean
             Returns True if the user has been created, False otherwise.
         """
-        if isinstance(user,User):
+        if isinstance(user, User):
             raw_created_user = self.db_connector.sql_query(
                 """
-                INSERT INTO """+self.schema+""".users (username, firstname, lastname, password, salt, account_type)
+                INSERT INTO """
+                + self.schema
+                + """.users (username, firstname, lastname, password, salt, account_type)
                 VALUES (%(username)s, %(firstname)s, %(lastname)s, %(password)s, %(salt)s, %(account_type)s)
                 RETURNING *;
                 """,
@@ -127,7 +123,9 @@ class UserDAO:
             password = self.get_by_username(username).password
         updated_rows = self.db_connector.sql_query(
             """
-            UPDATE """+self.schema+""".users
+            UPDATE """
+            + self.schema
+            + """.users
             SET
                 firstname = %(firstname)s,
                 lastname = %(lastname)s,
@@ -164,7 +162,9 @@ class UserDAO:
             return False
         deleted_row = self.db_connector.sql_query(
             """
-            DELETE FROM """+self.schema+""".users
+            DELETE FROM """
+            + self.schema
+            + """.users
             WHERE username = %(username)s
             RETURNING *;
             """,

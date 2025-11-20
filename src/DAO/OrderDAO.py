@@ -1,7 +1,6 @@
 import json
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-from src.Model.Item import Item
 from src.Model.Order import Order
 
 from .DBConnector import DBConnector

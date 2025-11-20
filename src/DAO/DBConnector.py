@@ -1,5 +1,5 @@
 import os
-from typing import Literal, Optional, Union, List, Any, Dict
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import psycopg2
 from dotenv import load_dotenv
@@ -12,6 +12,7 @@ class DBConnector:
     """
     Class which connect our database to our DAO classes.
     """
+
     def __init__(self, config=None):
         if config is not None:
             self.host = config["host"]
@@ -33,7 +34,7 @@ class DBConnector:
         query: str,
         data: Optional[Union[tuple, list, dict]] = None,
         return_type: Optional[Literal["one", "all"]] = None,
-    )-> Optional[Dict[str, Any]] | List[Dict[str, Any]] | bool:
+    ) -> Optional[Dict[str, Any]] | List[Dict[str, Any]] | bool:
         """Execute a SQL query on the database and return results based on the specified type.
 
         Parameters

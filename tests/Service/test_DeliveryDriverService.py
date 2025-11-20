@@ -32,6 +32,19 @@ class MockDeliveryRepo:
         return [delivery for delivery in self.deliveries.values() if delivery.is_accepted is False]
 
     def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
+        if id_delivery == 4:
+            return False  
+
+        delivery = self.deliveries.get(id_delivery)
+
+        if not delivery:
+            raise ValueError("Delivery not found")
+
+        if not delivery.id_orders:
+            raise ValueError("Orders not found for delivery")
+
+        delivery.is_accepted = True
+        delivery.username_delivery_driver = username_delivery_driver
         delivery =  self.deliveries.get(id_delivery)
 
         if not delivery:
@@ -109,32 +122,23 @@ class MockGoogleRepo:
         if isinstance(destinations, list) and all(isinstance(d, str) for d in destinations):
             destination = destinations[-1]
             waypoints = "|".join(destinations[:-1])
-            
-        # 2. Cas des LISTES de Dictionnaires (coordonnées ou adresses complexes)
+
         elif isinstance(destinations, list) and isinstance(destinations[0], dict):
-            
-            # Si les dictionnaires contiennent l'adresse
             if "address" in destinations[0]:
                 destination = destinations[-1]["address"]
                 waypoints = "|".join(d["address"] for d in destinations[:-1])
-            
-            # Si les dictionnaires contiennent des coordonnées
+
             else:
                 destination = f"{destinations[-1]['lat']},{destinations[-1]['lng']}"
                 waypoints = "|".join(f"{d['lat']},{d['lng']}" for d in destinations[:-1])
-        
-        # 3. Cas où l'entrée est un simple DICTIONNAIRE (coordonnées par défaut du service)
+
         elif isinstance(destinations, dict):
-            # C'est le cas du fallback si delivery.stops est vide dans le service.
+
             destination = f"{destinations['lat']},{destinations['lng']}"
-            waypoints = "" # Pas de waypoints pour une destination unique dict
-            
-        # 4. Cas de la chaîne seule (si le service n'avait pas été corrigé)
-        # Ceci ne devrait plus arriver si le service passe une liste (comme convenu).
+            waypoints = ""
         else:
             raise TypeError("Destinations format is not recognized by the mock.")
-        
-        # Construction finale du lien
+
         return (
             "http://googleusercontent.com/maps.google.com/?"
             f"origin={origin}"
@@ -175,7 +179,8 @@ def delivery_repo():
     repo.deliveries = {
         1 : Delivery(id_delivery = 1, username_delivery_driver='ernesto', duration ='50', id_orders= [1, 2], stops= ['13 Main St.', '4 Salty Spring Av.'], is_accepted = True),
         2 : Delivery(id_delivery = 2, username_delivery_driver='ernesto1',duration = '15', id_orders = [1], stops= ['13 Main St.'], is_accepted = False),
-        3: Delivery(id_delivery=3, username_delivery_driver='driver_test', duration='10', id_orders=[3], stops=[], is_accepted=False)
+        3: Delivery(id_delivery=3, username_delivery_driver='driver_test', duration='10', id_orders=[3], stops=[], is_accepted=False),
+        4: Delivery(id_delivery=4, username_delivery_driver=None, duration='10', id_orders=[3], stops=['10 Failed St.'], is_accepted=False)
         }
     repo.orders ={
         1 : Order(id_order =None,username_customer= "bobbia",username_delivery_driver= "ernesto1", address="13 Main St.",items= {"galette saucisse": 2, "cola": 1}),
@@ -213,7 +218,7 @@ def test_get_driver_not_found(deliverydriver_service):
 
 def test_get_available_deliveries_success(deliverydriver_service):
     deliveries = deliverydriver_service.get_available_deliveries()
-    assert len(deliveries) == 2
+    assert len(deliveries) == 3
 
     d = deliveries[0]
 
@@ -249,3 +254,8 @@ def test_accept_delivery_with_no_stops(deliverydriver_service):
         "&waypoints="
     )
     assert delivery == {"delivery_id": 3, "google_maps_link": expected_link}
+
+def test_accept_delivery_failed_repo_update(deliverydriver_service):
+    with pytest.raises(ValueError) as error:
+        deliverydriver_service.accept_delivery(4, "ernesto1")
+    assert str(error.value) == "Delivery could not be accepted"

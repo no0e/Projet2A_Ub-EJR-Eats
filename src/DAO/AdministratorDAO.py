@@ -1,12 +1,32 @@
+from src.DAO.DBConnector import DBConnector
 from src.DAO.UserDAO import UserDAO
 from src.Model.Administrator import Administrator
-from src.DAO.DBConnector import DBConnector
+
 
 class AdministratorDAO(UserDAO):
+    """
+    Administrator DAO class which inherit from UserDAO DAO class
+    All functions asks the database administrators and collect data on
+    """
+
     def __init__(self, db_connector: DBConnector, test: bool = False):
         super().__init__(db_connector, test)
 
     def create(self, administrator: Administrator) -> bool:
+        """
+        Function that create an instance of administrator in the administrators database.
+
+        Parameters
+        ----------
+        administrator : Administrator
+            Model of administrator which will be created
+
+
+        Returns
+        -------
+        boolean
+            Returns True if the administrator has been created, False otherwise.
+        """
         if not isinstance(administrator, Administrator):
             raise TypeError("The created administrator should be type of administrator.")
         raw_created_admin = self.db_connector.sql_query(
@@ -24,8 +44,22 @@ class AdministratorDAO(UserDAO):
         )
         return raw_created_admin is not None
 
-    def find_by_username(self, username: str):
-        if not isinstance(username, str):
+    def find_by_username(self, username: str)-> Administrator | None:
+        """
+        Function that find an administrator by their username.
+
+        Parameters
+        ----------
+        username : str
+            Username of the administrator we want to find
+
+
+        Returns
+        -------
+        Administrator | None
+            Returns an Administrator if found, None otherwise
+        """
+        if not isinstance(username, str)
             raise TypeError("Username must be a string.")
         if self.get_by_username(username) is None:
             raise ValueError(f"Username {username} does not exist.")
@@ -45,6 +79,19 @@ class AdministratorDAO(UserDAO):
         return Administrator(**raw) if raw else None
 
     def delete(self, administrator: Administrator) -> bool:
+        """
+        Function that delete an administrator.
+
+        Parameters
+        ----------
+        administrator : Administrator
+            Administrator we want to delete
+
+        Returns
+        -------
+        boolean
+            Returns True if the administrator is deleted, False otherwise
+        """
         if not isinstance(administrator, Administrator):
             raise TypeError(f"{administrator} should be type of Administrator.")
         if self.find_by_username(administrator.username) is None:

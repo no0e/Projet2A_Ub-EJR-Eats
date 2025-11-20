@@ -84,13 +84,13 @@ class DeliveryDAO:
         )
         return delivery if row else None
 
-    def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str, duration: int):
+    def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
         query = (
             """
             UPDATE """
             + self.schema
             + """.deliveries
-            SET is_accepted = TRUE, username_delivery_driver = %(username_delivery_driver)s, duration = %(duration)s
+            SET is_accepted = TRUE, username_delivery_driver = %(username_delivery_driver)s
             WHERE id_delivery = %(id_delivery)s AND is_accepted = FALSE
         """
         )

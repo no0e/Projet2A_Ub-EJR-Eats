@@ -26,7 +26,7 @@ class DeliveryDriverService:
         DeliveryDriver
             Instance of the delivery driver with the assiociated username given.
         """
-        return self.delivery_repo.find_by_username(username)
+        return self.driver_repo.find_by_username(username)
 
     def get_available_deliveries(self) -> List[Delivery]:
         return self.delivery_repo.get_available_deliveries()

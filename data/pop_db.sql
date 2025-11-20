@@ -2,13 +2,13 @@
 -- password is "hardpwd123" hashed via PasswordService
 INSERT INTO project_database.users (username, password, firstname, lastname, salt, account_type) 
 VALUES
-('aliceasm', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Alice', 'Asm', 'salt', 'Administrator'),
-('bobbia', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Bob', 'Bia', 'salt', 'Customer'),
-('charliz', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Charles', 'Chic', 'saltysalt', 'Customer'),
-('drdavid', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'David', 'Douze', 'pepper', 'Customer'),
-('ernesto', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
-('ernesto1', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
-('fabriccio', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator');
+('aliceasm', 'd1f4dc5d8af8b647fe8c9c4ac5ad7fa11dff7e432a4957fffdfd72e8d301f1c1', 'Alice', 'Asm', '1', 'Administrator'),
+('bobbia', 'b065cf2aa43d057280eca6bd79026ca38663e4e4f9572bb1916ff02759981331', 'Bob', 'Bia', '2', 'Customer'),
+('charliz', 'b4a60bf401a1d7a0a41f030384ee5adfc86d404da8a195222428bebaeb945ef5', 'Charles', 'Chic', '3', 'Customer'),
+('drdavid', '7cda204ee3ba0db9a1bae13a315cec9774e4afb4f6bfa9ad0c6366ee24d6b99e', 'David', 'Douze', '4', 'Customer'),
+('ernesto', '1874a1ea895af317b69226428de014ce1ee9bd1df4b3f0f578906bc316a35387', 'Ernest', 'Eagle', '5', 'DeliveryDriver'),
+('ernesto1', '9a1e31ce0c6b87324d7ac5e517d24c94198ac78f22ca7aa9791bb91f9e0c727c', 'Ernest', 'Eagle', '6', 'DeliveryDriver'),
+('fabriccio', '65aa9251ff18bafae63a0dcd923719e2410d8c70af4a8bee53be33b881d182db', 'Fabrice', 'Fantastic', '7', 'Administrator');
 
 -- Administrators
 INSERT INTO project_database.administrators  (username_administrator) 

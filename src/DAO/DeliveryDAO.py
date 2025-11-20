@@ -14,6 +14,7 @@ class DeliveryDAO:
     Data Access Object (DAO) for interacting with the 'deliveries' table in the database.
     Provides methods to retrieve and insert user data.
     """
+
     def __init__(self, db_connector: DBConnector, test: bool = False):
         self.db = db_connector
         if test:
@@ -21,52 +22,52 @@ class DeliveryDAO:
         else:
             self.schema = "project_database"
 
-        def create(self, delivery: Delivery) -> bool:
-            """
-            Function that create an instance of delivery  in the deliveries database.
+    def create(self, delivery: Delivery) -> bool:
+        """
+        Function that create an instance of delivery  in the deliveries database.
 
-            Parameters
-            ----------
-            delivery : Delivery
-                Model of Delivery which will be created
+        Parameters
+        ----------
+        delivery : Delivery
+            Model of Delivery which will be created
 
 
-            Returns
-            -------
-            boolean
-                Returns True if the delivery has been created, False otherwise.
+        Returns
+        -------
+        boolean
+            Returns True if the delivery has been created, False otherwise.
+        """
+        if not isinstance(delivery, Delivery):
+            raise TypeError(f"The type of {delivery} should be Delivery.")
+        id_orders = delivery.id_orders
+        stops = delivery.stops
+        query = (
             """
-            if not isinstance(delivery, Delivery):
-                raise TypeError(f"The type of {delivery} should be Delivery.")
-            id_orders = delivery.id_orders
-            stops = delivery.stops
-            query = (
-                """
-                INSERT INTO """
-                + self.schema
-                + """.deliveries
-                (username_delivery_driver, duration, id_orders, stops, is_accepted)
-                VALUES ( %(username_delivery_driver)s, %(duration)s, %(id_orders)s, %(stops)s, %(is_accepted)s)
-                RETURNING id_delivery;
-            """
-            )
-            try:
-                id_delivery = self.db.sql_query(
-                    query,
-                    {
-                        "username_delivery_driver": delivery.username_delivery_driver,
-                        "duration": delivery.duration,
-                        "id_orders": id_orders,
-                        "stops": stops,
-                        "is_accepted": delivery.is_accepted,
-                    },
-                    return_type="one",
-                )["id_delivery"]
-                delivery.id_delivery = id_delivery
-                return True
-            except Exception as e:
-                print(f"[DeliveryDAO] Error creating delivery: {e}")
-                return False
+            INSERT INTO """
+            + self.schema
+            + """.deliveries
+            (username_delivery_driver, duration, id_orders, stops, is_accepted)
+            VALUES ( %(username_delivery_driver)s, %(duration)s, %(id_orders)s, %(stops)s, %(is_accepted)s)
+            RETURNING id_delivery;
+        """
+        )
+        try:
+            id_delivery = self.db.sql_query(
+                query,
+                {
+                    "username_delivery_driver": delivery.username_delivery_driver,
+                    "duration": delivery.duration,
+                    "id_orders": id_orders,
+                    "stops": stops,
+                    "is_accepted": delivery.is_accepted,
+                },
+                return_type="one",
+            )["id_delivery"]
+            delivery.id_delivery = id_delivery
+            return True
+        except Exception as e:
+            print(f"[DeliveryDAO] Error creating delivery: {e}")
+            return False
 
     def get_available_deliveries(self) -> List[Delivery]:
         """

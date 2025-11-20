@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from src.DAO.DBConnector import DBConnector
 from src.DAO.UserDAO import UserDAO
@@ -11,6 +11,7 @@ class DeliveryDriverDAO(UserDAO):
     It inherits from UserDAO class.
     Provides methods to retrieve and insert user data.
     """
+
     def __init__(self, db_connector: DBConnector, test: bool = False):
         super().__init__(db_connector, test)
 
@@ -69,7 +70,8 @@ class DeliveryDriverDAO(UserDAO):
         """
         query = (
             """
-            SELECT d.username_delivery_driver as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, d.vehicle, d.is_available
+            SELECT d.username_delivery_driver as username, u.firstname, u.lastname, u.salt, u.account_type, u.password,
+            d.vehicle, d.is_available
             FROM """
             + self.schema
             + """.delivery_drivers as d
@@ -157,13 +159,13 @@ class DeliveryDriverDAO(UserDAO):
         )
         return True
 
-    def drivers_available(self) -> List[DeliveryDriver]:
+    def drivers_available(self) -> list[DeliveryDriver]:
         """
         Function that shows all available drivers.
 
         Returns
         -------
-        List[DeliveryDriver]
+        list[DeliveryDriver]
             List of all available drivers
         """
         query = f"""
@@ -174,12 +176,7 @@ class DeliveryDriverDAO(UserDAO):
         try:
             rows = self.db_connector.sql_query(query, return_type="all")
             # Map the query result keys to the DeliveryDriver constructor arguments
-            return [
-                DeliveryDriver(
-                    username=r["username_delivery_driver"], vehicle=r["vehicle"], is_available=r["is_available"]
-                )
-                for r in rows
-            ]
+            return [self.find_by_username(r["username_delivery_driver"]) for r in rows]
         except Exception as e:
             # Log the error or handle it as needed
             print(f"Error fetching available drivers: {e}")

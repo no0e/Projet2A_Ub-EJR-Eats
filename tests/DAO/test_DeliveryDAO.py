@@ -21,10 +21,9 @@ def delivery_dao(db_connector):
 def test_create(delivery_dao):
     ResetDatabase().lancer(True)
     created_delivery = Delivery(
-        id_delivery=4,
         username_delivery_driver="ernesto",
         duration=40,
-        id_order = [1,3],
+        id_order = [3,4],
         stops = ['13 Main St.', '4 Salty Spring Av.'],
         is_accepted = False
     )

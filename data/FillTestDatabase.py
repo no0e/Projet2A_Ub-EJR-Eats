@@ -131,3 +131,5 @@ populate_db(
     n_orders=800,
     n_deliveries=300
 )
+
+#pour éxécuter : python -m data.FillTestDatabase

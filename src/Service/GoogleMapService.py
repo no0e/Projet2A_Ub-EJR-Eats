@@ -25,20 +25,20 @@ class GoogleMap:
         return {"lat": location["lat"], "lng": location["lng"]}
 
     def get_directions(self, destinations: list[dict], mode: str = "driving"):
-        """
-        Calcule la distance et la durée totales pour un itinéraire à plusieurs étapes.
+        """Function that computes the distance and duration for a itinerary.
 
         Parameters
         ----------
-        destinations : list[dict]
-            Liste de coordonnées GPS sous la forme [{"lat": 48.0, "lng": -1.7}, {...}, ...].
-            Le dernier élément est la destination finale.
-        mode : str
-            Mode de transport : "driving", "bicycling" ou "walking".
+        destinations: list[dict]
+            GPS coordinates under [{"lat": 48.0, "lng": -1.7}, {...}, ...] form.
+            The last element being the final destination.
+        mode: str
+            driver's way of delivering: "driving", "bicycling" ou "walking".
 
         Returns
         -------
-        dict : Contient la distance totale et la durée totale.
+        dict
+            Dict containing the total distance and duration of the itinerary.
         """
         if not destinations:
             raise ValueError("La liste des destinations ne peut pas être vide.")
@@ -76,8 +76,20 @@ class GoogleMap:
             "stops": len(destinations) - 1,
         }
 
-    def generate_google_maps_link(self, destinations: list[dict]):
-        """Génère un lien Google Maps avec plusieurs étapes."""
+    def generate_google_maps_link(self, destinations: list[dict]) -> str:
+        """Function that generate a link associated with the delivery itinerary.
+
+        Parameters
+        ----------
+        destinations: list[dict]
+            GPS coordinates under [{"lat": 48.0, "lng": -1.7}, {...}, ...] form.
+            The last element being the final destination.
+
+        Returns
+        -------
+        str
+            String of the link for the delivery.
+        """
         if not destinations:
             raise ValueError("La liste des destinations ne peut pas être vide.")
 

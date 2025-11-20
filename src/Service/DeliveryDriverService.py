@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List
 
 from src.DAO.DeliveryDAO import DeliveryDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
@@ -26,12 +26,33 @@ class DeliveryDriverService:
         DeliveryDriver
             Instance of the delivery driver with the assiociated username given.
         """
-        return self.delivery_repo.find_by_username(username)
+        return self.driver_repo.find_by_username(username)
 
     def get_available_deliveries(self) -> List[Delivery]:
+        """Function that shows all available deliveries.
+
+        Returns
+        -------
+        List[Delivery]
+            List of all deliveries that have not been accepted yet.
+        """
         return self.delivery_repo.get_available_deliveries()
 
     def accept_delivery(self, delivery_id: int, driver_username: str) -> dict:
+        """Function that launches the process of accepting a delivery.
+
+        Parameters
+        ----------
+        delivery_id : int
+            id of the accepted delivery
+        driver_username : str
+            driver's username
+
+        Returns
+        -------
+        dict
+            Dictionnary that provides the delivery's id and the googlemap link needed for the driver.
+        """
         deliveries = self.delivery_repo.get_available_deliveries()
         delivery = next((d for d in deliveries if d.id_delivery == delivery_id), None)
         if not delivery:
@@ -41,6 +62,9 @@ class DeliveryDriverService:
         if not success:
             raise ValueError("Delivery could not be accepted")
 
-        destination = delivery.stops[-1] if delivery.stops else {"lat": 48.050245, "lng": -1.741515}
+        if delivery.stops:
+            destination = delivery.stops
+        else:
+            destination = [{"lat": 48.050245, "lng": -1.741515}]
         link = self.google_service.generate_google_maps_link(destination)
         return {"delivery_id": delivery_id, "google_maps_link": link}

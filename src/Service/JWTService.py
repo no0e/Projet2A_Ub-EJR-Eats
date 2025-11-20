@@ -17,8 +17,19 @@ class JwtService:
         self.algorithm = algorithm
 
     def encode_jwt(self, username: str, account_type: str) -> JWTResponse:
-        """
-        Creates a token with a 10-minute expiry time containing username and account_type.
+        """Creates a token with a 10-minute expiry time containing username and account_type.
+
+        Parameters
+        ----------
+        username: str
+            user's username
+        account_type: str
+            user's account type
+
+        Returns
+        -------
+        JWTResponse
+            the token for account access.
         """
         payload = {
             "username": username,
@@ -29,14 +40,32 @@ class JwtService:
         return JWTResponse(access_token=token)
 
     def decode_jwt(self, token: str) -> dict:
-        """
-        Decodes a JWT and returns its payload.
+        """Decodes a JWT and returns its payload.
+
+        Parameters
+        ----------
+        token: str
+            access's token
+
+        Returns
+        -------
+        dict
+            JWT's payload
         """
         return jwt.decode(token, self.secret, algorithms=[self.algorithm])
 
     def validate_user_jwt(self, token: str) -> dict:
-        """
-        Validates the JWT.
+        """Validates the JWT.
+
+        Parameters
+        ----------
+        token: str
+            access's token
+
+        Returns
+        -------
+        dict
+            JWT's payload
         """
         decoded = self.decode_jwt(token)
         if decoded["expiry_timestamp"] < time.time():

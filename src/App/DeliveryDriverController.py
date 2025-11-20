@@ -32,28 +32,45 @@ deliverydriver_router = APIRouter(
 
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
-def view_available_deliveries():
-    """List of all non accepted deliveries"""
+def view_available_deliveries() -> dict:
+    """Function that shows the driver, all the non-accepted deliveries.
+
+    Returns
+    -------
+    dict
+        Returns a dict listing all the available deliveries.
+    """
     deliveries = delivery_service.get_available_deliveries()
     return {"available_deliveries": deliveries}
 
 
 @deliverydriver_router.post(
-    "/Delivery/accept/{id_delivery}", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())]
+    "/Delivery/Accept/{id_delivery}", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())]
 )
 def accept_delivery(
     id_delivery: int,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
-):
-    """TO accept a delivery as a delivery driver by typing its Id"""
+) -> dict:
+    """Function that allows the driver to accept a delivery by typing its id.
+
+    Parameters
+    -------
+    id_delivery: int
+        id of the delivery the driver wants to accept
+    credentials: HTTPAuthorizationCredentials
+        driver's credentials
+
+    Returns
+    -------
+    dict
+        Returns a dict summarising the delivery's information and providing the googlemap link.
+    """
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
-    delivery = delivery_dao.get_by_id(id_delivery)
     try:
-        delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
+        return delivery_service.accept_delivery(id_delivery, username_driver, vehicle_driver)
     except Exception as error:
-        raise HTTPException(status_code=400, detail=str(error))
-    return google_service.generate_google_maps_link(google_service.geocoding_address(delivery.stops[-1]))
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 
 @deliverydriver_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK, dependencies=[Depends(JWTBearer())])
@@ -64,19 +81,40 @@ def edit_profile(
     vehicle: Optional[str] = Query(None, description="Type of vehicle", enum=["driving", "walking", "bicycling"]),
     is_available: Optional[bool] = Query(None, description="Driver availability"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
-):
-    """Edit the attributes of the connected delivery driver."""
+) -> dict:
+    """Function that calls the function that update a delivery driver's profile.
+
+    Parameters
+    ----------
+    firstname: str
+        new driver's firstname, by default None
+    lastname: str
+        new driver's lastname, by default None
+    password: str
+        new driver's password, by default None
+    vehicle: str
+        new driver's way of delivering, by default None
+    is_available: bool
+        driver's availability, by default None
+    credentials: HTTPAuthorizationCredentials
+        customer's credentials
+
+    Returns
+    -------
+    dict
+        Returns a dict summarising all the delivery driver's new information.
+    """
 
     username = get_user_from_credentials(credentials).username
     try:
         driver_dao.update_delivery_driver(username, vehicle, is_available)
     except Exception as error:
-        raise HTTPException(status_code=403, detail=f"Error updating profile: {error}")
+        raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     try:
         user_service.update_user(username, firstname, lastname, password)
     except Exception as error:
-        raise HTTPException(status_code=403, detail=f"Error updating profile: {error}")
+        raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     return {
         "detail": "Profile updated successfully",

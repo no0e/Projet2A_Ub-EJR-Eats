@@ -19,23 +19,55 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 
 @user_router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(username: str, password: str, firstname: str, lastname: str, address: str) -> APIUser:
+    """Function that calls the function that create a new customer's account.
+
+    Parameters
+    ----------
+    username: str
+        user's username
+    password: str
+        user's password
+    firstname: str
+        users's firstname
+    lastname: str
+        user's lastname
+    address: str
+        user's address
+
+    Returns
+    -------
+    APIUser
+        Returns the APIUser that has juste been created.
+    """
     try:
         check_password_strength(password=password)
-    except Exception:
-        raise HTTPException(status_code=400, detail="Password too weak")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Password too weak") from e
     try:
         user: User = user_service.create_user(
             username=username, password=password, firstname=firstname, lastname=lastname, address=address
         )
     except Exception as error:
-        raise HTTPException(status_code=409, detail=f"{error}")
+        raise HTTPException(status_code=409, detail=f"{error}") from error
     return APIUser(username=user.username, account_type="Customer")
 
 
 @user_router.post("/jwt", status_code=status.HTTP_201_CREATED)
 def login(username: str, password: str) -> JWTResponse:
-    """
-    Authenticate with username and password and obtain a token
+    """Function that allows the users to athentificate theirselves by typing their username and password to obtain a
+    token.
+
+    Parameters
+    ----------
+    username: str
+        user's username
+    password: str
+        user's password
+
+    Returns
+    -------
+    JWTResponse
+        Returns the token needed to give access to a user their account.
     """
     try:
         user = validate_username_password(username=username, password=password, user_repo=user_repo)
@@ -49,4 +81,16 @@ def login(username: str, password: str) -> JWTResponse:
 
 @user_router.get("/me", dependencies=[Depends(JWTBearer())])
 def get_user_own_profile(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> APIUser:
+    """Function that allows the users to see their username and account's type.
+
+    Parameters
+    ----------
+    credentials: HTTPAuthorizationCredentials
+        user's credentials
+
+    Returns
+    -------
+    APIUser
+        Returns the APIUser authentificated.
+    """
     return get_user_from_credentials(credentials)

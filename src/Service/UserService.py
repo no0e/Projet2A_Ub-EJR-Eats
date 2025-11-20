@@ -117,7 +117,6 @@ class UserService:
                     address=address,
                 )
             )
-        
         return User(
             username=username,
             firstname=firstname,
@@ -157,13 +156,18 @@ class UserService:
         """
         return self.user_repo.get_by_username(username) is not None
 
-    def delete_user(self, username: str):
+    def delete_user(self, username: str) -> bool:
         """Function that delete a user from our data given their username.
 
         Parameters
         ----------
         username : str
             username of the user we want to delete.
+
+        Returns
+        -------
+        bool
+            True if the deletion is done, False otherwise.
         """
         self.user_repo.delete_user(self.get_user(username))
 
@@ -173,7 +177,7 @@ class UserService:
         firstname: Optional[str] = None,
         lastname: Optional[str] = None,
         password: Optional[str] = None,
-    ):
+    ) -> User:
         """Function that update the user's attributes.
 
         Parameters

@@ -12,13 +12,16 @@ def db_connector():
     db = DBConnector()
     yield db
 
+
 @pytest.fixture
 def user_dao(db_connector):
     return UserDAO(db_connector, test=True)
 
+
 @pytest.fixture
 def customer_dao(db_connector):
     return CustomerDAO(db_connector, test=True)
+
 
 def test_create(customer_dao, user_dao):
     ResetDatabase().lancer(True)
@@ -30,11 +33,12 @@ def test_create(customer_dao, user_dao):
         account_type=user_to_be_customer.account_type,
         password=user_to_be_customer.password,
         salt=user_to_be_customer.salt,
-        address="51 Rue Blaise Pascal, 35170 Bruz"
+        address="51 Rue Blaise Pascal, 35170 Bruz",
     )
     assert customer_dao.create(customer_to_create) is True
     with pytest.raises(TypeError):
         customer_dao.create(1)
+
 
 def test_find_by_username(customer_dao):
     ResetDatabase().lancer(True)
@@ -45,24 +49,26 @@ def test_find_by_username(customer_dao):
     with pytest.raises(TypeError):
         customer_dao.find_by_username(1)
 
+
 def test_delete(customer_dao):
     ResetDatabase().lancer(True)
+    with pytest.raises(TypeError):
+        customer_dao.delete("not a customer, just a string")
+    nonexistentcustomer = Customer(
+        username="nonexistent",
+        firstname="non",
+        lastname="existent",
+        password="pwd",
+        salt="salt",
+        account_type="Customer",
+        address="no adress",
+    )
+    with pytest.raises(ValueError):
+        customer_dao.delete(nonexistentcustomer)
     charliz = customer_dao.find_by_username("charliz")
     deletion = customer_dao.delete(charliz)
     assert deletion is True
-    nonexistentcustomer = Customer(
-            username="nonexistent",
-            firstname="non",
-            lastname="existent",
-            password="pwd",
-            salt="salt",
-            account_type="Customer",
-            address="no adress"
-        )
-    with pytest.raises(ValueError):
-        customer_dao.delete(nonexistentcustomer)
-    with pytest.raises(TypeError):
-        customer_dao.delete("not a customer")
+
 
 if __name__ == "__main__":
     pytest.main()

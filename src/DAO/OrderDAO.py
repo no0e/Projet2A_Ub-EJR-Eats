@@ -1,7 +1,6 @@
 import json
-from typing import Dict, List, Optional
+from typing import List, Optional
 
-from src.Model.Item import Item
 from src.Model.Order import Order
 
 from .DBConnector import DBConnector
@@ -9,8 +8,9 @@ from .DBConnector import DBConnector
 
 class OrderDAO:
     """
-    DAO pour les commandes.
-    Le champ 'items' est un dictionnaire {nom_item: quantité}.
+    Data Access Object (DAO) for interacting with the 'users' table in the database.
+    Provides methods to retrieve and insert user data.
+    Note : the attribute items is a dict.
     """
 
     db_connector: DBConnector
@@ -19,7 +19,19 @@ class OrderDAO:
         self.db_connector = db_connector
 
     def create_order(self, order: Order, test: bool = False) -> bool:
-        """Créer une commande dans la DB."""
+        """
+        Insert a new order into the database.
+
+        Parameters
+        ----------
+        order : Order
+            The Order object to insert.
+
+        Returns
+        -------
+        bool
+            True if insertion succeeded, False otherwise.
+        """
         try:
             schema = "project_test_database" if test else "project_database"
             if not isinstance(order.items, dict):
@@ -58,7 +70,19 @@ class OrderDAO:
             return False
 
     def find_order_by_id(self, id_order: int, test: bool = False) -> Optional[Order]:
-        """Trouver une commande par son ID."""
+        """
+        Retrieve a single order by its ID.
+
+        Parameters
+        ----------
+        id_order : int
+            The ID of the order to find.
+
+        Returns
+        -------
+        Optional[Order]
+            An Order object if found, otherwise None.
+        """
         schema = "project_test_database" if test else "project_database"
         raw_order = self.db_connector.sql_query(
             f"SELECT * FROM {schema}.orders WHERE id_order = %s;",
@@ -80,7 +104,19 @@ class OrderDAO:
         )
 
     def find_order_by_user(self, username_customer: str, test: bool = False) -> Optional[List[Order]]:
-        """Trouver toutes les commandes d'un utilisateur."""
+        """
+        Retrieve a single order by the username of its customer.
+
+        Parameters
+        ----------
+        username_customer : str
+            The username of the customer whose we want to find their orders.
+
+        Returns
+        -------
+        Optional[Order]
+            An Order object if found, otherwise None.
+        """
         schema = "project_test_database" if test else "project_database"
         raw_orders = self.db_connector.sql_query(
             f"SELECT * FROM {schema}.orders WHERE username_customer = %s;",
@@ -107,7 +143,19 @@ class OrderDAO:
         return orders
 
     def update(self, order: Order, test: bool = False) -> bool:
-        """Mettre à jour une commande."""
+        """
+        Update an existing order in the database.
+
+        Parameters
+        ----------
+        order : Order
+            The Order object containing updated data.
+
+        Returns
+        -------
+        bool
+            True if the update succeeded, False otherwise.
+        """
         try:
             schema = "project_test_database" if test else "project_database"
 
@@ -142,7 +190,19 @@ class OrderDAO:
             return False
 
     def delete(self, order: Order, test: bool = False) -> bool:
-        """Supprimer une commande."""
+        """
+        Delete an order from the database.
+
+        Parameters
+        ----------
+        order : Order
+            The Order object to delete.
+
+        Returns
+        -------
+        bool
+            True if deletion succeeded, False otherwise.
+        """
         try:
             schema = "project_test_database" if test else "project_database"
             self.db_connector.sql_query(

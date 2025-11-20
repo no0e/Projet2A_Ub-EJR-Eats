@@ -3,8 +3,8 @@ from typing import List, Optional
 import pytest
 
 from src.DAO.DBConnector import DBConnector
-from src.DAO.UserDAO import UserDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
+from src.DAO.UserDAO import UserDAO
 from src.Model.DeliveryDriver import DeliveryDriver
 from src.Utils.reset_db import ResetDatabase
 
@@ -14,9 +14,11 @@ def db_connector():
     db = DBConnector()
     yield db
 
+
 @pytest.fixture
 def user_dao(db_connector):
     return UserDAO(db_connector, test=True)
+
 
 @pytest.fixture
 def delivery_driver_dao(db_connector):
@@ -25,7 +27,7 @@ def delivery_driver_dao(db_connector):
 
 def test_create(delivery_driver_dao, user_dao):
     ResetDatabase().lancer(True)
-    user_to_be_driver = user_dao.get_by_username('futuredeliverydriver')
+    user_to_be_driver = user_dao.get_by_username("futuredeliverydriver")
     driver_to_create = DeliveryDriver(
         username=user_to_be_driver.username,
         firstname=user_to_be_driver.firstname,
@@ -33,10 +35,11 @@ def test_create(delivery_driver_dao, user_dao):
         account_type=user_to_be_driver.account_type,
         password=user_to_be_driver.password,
         salt=user_to_be_driver.salt,
-        vehicle="scooter",
+        vehicle="walking",
         is_available=True,
     )
     assert delivery_driver_dao.create(driver_to_create)
+
 
 def test_create_errors(delivery_driver_dao, user_dao):
     ResetDatabase().lancer(True)
@@ -50,14 +53,14 @@ def test_find_by_username(delivery_driver_dao):
     found_driver = delivery_driver_dao.find_by_username("ernesto")
     assert found_driver is not None
     assert found_driver.username == "ernesto"
-    assert found_driver.vehicle == "car"
+    assert found_driver.vehicle == "driving"
     assert not found_driver.is_available
 
 
 def test_update_delivery_driver(delivery_driver_dao):
     ResetDatabase().lancer(True)
     to_be_updated_driver = delivery_driver_dao.find_by_username("ernesto1")
-    updated_driver = delivery_driver_dao.update_delivery_driver(to_be_updated_driver, vehicle="car")
+    updated_driver = delivery_driver_dao.update_delivery_driver(to_be_updated_driver, vehicle="driving")
     missing_driver = None
     no_updated_driver = delivery_driver_dao.update_delivery_driver(missing_driver)
     assert updated_driver

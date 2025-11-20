@@ -1,5 +1,5 @@
 import os
-from typing import Literal, Optional, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 
 import psycopg2
 from dotenv import load_dotenv
@@ -9,6 +9,10 @@ load_dotenv()
 
 
 class DBConnector:
+    """
+    Class which connect our database to our DAO classes.
+    """
+
     def __init__(self, config=None):
         if config is not None:
             self.host = config["host"]
@@ -30,7 +34,31 @@ class DBConnector:
         query: str,
         data: Optional[Union[tuple, list, dict]] = None,
         return_type: Optional[Literal["one", "all"]] = None,
-    ):
+    ) -> Optional[Dict[str, Any]] | List[Dict[str, Any]] | bool:
+        """Execute a SQL query on the database and return results based on the specified type.
+
+        Parameters
+        ----------
+        query : str
+            The SQL query to execute
+        data : Optional[Union[tuple, list, dict]], optional
+            Data to pass for parameterized queries.
+            Example: `(1,)` for `WHERE id = %s`, or `{"id": 1}` for `WHERE id = %(id)s`.
+            Defaults to `None`.
+        return_type : Optional[Literal["one", "all"]], optional
+            Determines the return format:
+            - "one": Return a single row (or `None` if no results).
+            - "all": Return all rows.
+            - `None`: Return `True` to confirm query execution.
+            Defaults to `None`.
+
+        Returns
+        -------
+        Optional[Dict[str, Any]] | List[Dict[str, Any]] | bool
+            - If `return_type="one"`: A dictionary representing a single row, or `None`.
+            - If `return_type="all"`: A list of dictionaries (all rows).
+            - If `return_type=None`: `True` to confirm query execution.
+        """
         try:
             with psycopg2.connect(
                 host=self.host,

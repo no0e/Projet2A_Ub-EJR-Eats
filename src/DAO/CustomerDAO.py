@@ -3,16 +3,35 @@ from typing import Optional
 from src.DAO.UserDAO import UserDAO
 from src.Model.Customer import Customer
 from src.Service.GoogleMapService import GoogleMap
-from src.DAO.DBConnector import DBConnector
 
 google_service = GoogleMap()
 
 
 class CustomerDAO(UserDAO):
+    """
+    Data Access Object (DAO) for interacting with the 'customers' table in the database.
+    It inherits from UserDAO class.
+    Provides methods to retrieve and insert user data.
+    """
+
     def __init__(self, db_connector, test: bool = False):
-        super().__init__(db_connector)
+        super().__init__(db_connector, test)
 
     def create(self, customer: Customer) -> bool:
+        """
+        Function that create an instance of customer in the customers database.
+
+        Parameters
+        ----------
+        customer : Customer
+            Model of customer which will be created
+
+
+        Returns
+        -------
+        boolean
+            Returns True if the customer has been created, False otherwise.
+        """
         if not isinstance(customer, Customer):
             raise TypeError("The created customer should be type of Customer.")
         raw_created_customer = self.db_connector.sql_query(
@@ -28,7 +47,21 @@ class CustomerDAO(UserDAO):
         )
         return raw_created_customer is not None
 
-    def find_by_username(self, username: str):
+    def find_by_username(self, username: str) -> Customer | None:
+        """
+        Function that find an customer by their username.
+
+        Parameters
+        ----------
+        username : str
+            Username of the customer we want to find
+
+
+        Returns
+        -------
+        Customer | None
+            Returns an Customer if found, None otherwise
+        """
         if not isinstance(username, str):
             raise TypeError("Username should be a string.")
         query = (
@@ -60,6 +93,7 @@ class CustomerDAO(UserDAO):
         Return
         ---
         bool
+            Returns True if the update succeed, False otherwise.
         """
         current_customer = self.find_by_username(username)
         if current_customer is None:
@@ -92,8 +126,21 @@ class CustomerDAO(UserDAO):
         return True
 
     def delete(self, customer: Customer) -> bool:
+        """
+        Function that delete a customer.
+
+        Parameters
+        ----------
+        customer : Customer
+            Customer we want to delete
+
+        Returns
+        -------
+        boolean
+            Returns True if the customer is deleted, False otherwise
+        """
         if not isinstance(customer, Customer):
-            raise TypeError(f"{customer.username} should be type of Customer.")
+            raise TypeError(f"{customer} should be type of Customer.")
         if self.find_by_username(customer.username) is None:
             raise ValueError(f"{customer.username} doesn't exist.")
         self.db_connector.sql_query(

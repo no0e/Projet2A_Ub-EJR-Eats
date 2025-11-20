@@ -30,7 +30,7 @@ def test_delete_item(item_dao ):
     assert item_dao.find_item_by_name("galette saucisse" ) is None
 
 
-def test_update_item_exposed(item_dao ):
+def test_update_item_exposed(item_dao):
     ResetDatabase().lancer(True)
     # The item 1 has exposed=True
     item_dao.update_item_exposed(1, False )
@@ -41,16 +41,16 @@ def test_update_item_exposed(item_dao ):
     item_dao.update_item_exposed(1, True)
 
 
-def test_find_item(item_dao ):
+def test_find_item(item_dao):
     ResetDatabase().lancer(True)
-    item = item_dao.find_item(1 )
-    missing_item = item_dao.find_item(56 )
+    item = item_dao.find_item(1)
+    missing_item = item_dao.find_item(56) #non existent id
     assert item.id_item == 1
     assert item.name_item == "galette saucisse"
     assert item.price == 3.2
     assert item.category == "main dish"
     assert item.stock == 102
-    assert item.exposed is False
+    assert item.exposed is True
     assert missing_item is None
 
 
@@ -63,7 +63,7 @@ def test_find_item_by_name(item_dao ):
     assert item.price == 3.2
     assert item.category == "main dish"
     assert item.stock == 102
-    assert item.exposed is False
+    assert item.exposed is True
     assert missing_item is None
 
 

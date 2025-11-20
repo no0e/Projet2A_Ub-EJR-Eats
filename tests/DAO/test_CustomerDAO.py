@@ -47,9 +47,8 @@ def test_find_by_username(customer_dao):
 
 def test_delete(customer_dao):
     ResetDatabase().lancer(True)
-    charliz = customer_dao.find_by_username("charliz")
-    deletion = customer_dao.delete(charliz)
-    assert deletion is True
+    with pytest.raises(TypeError):
+        customer_dao.delete("not a customer, just a string")
     nonexistentcustomer = Customer(
             username="nonexistent",
             firstname="non",
@@ -61,8 +60,9 @@ def test_delete(customer_dao):
         )
     with pytest.raises(ValueError):
         customer_dao.delete(nonexistentcustomer)
-    with pytest.raises(TypeError):
-        customer_dao.delete("not a customer")
+    charliz = customer_dao.find_by_username("charliz")
+    deletion = customer_dao.delete(charliz)
+    assert deletion is True
 
 if __name__ == "__main__":
     pytest.main()

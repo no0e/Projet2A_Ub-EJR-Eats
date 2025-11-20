@@ -6,10 +6,28 @@ from src.Model.DeliveryDriver import DeliveryDriver
 
 
 class DeliveryDriverDAO(UserDAO):
+    """
+    Delivery driver DAO class which inherit from UserDAO DAO class
+    All functions asks the database deliverydrivers and collect data on it
+    """
     def __init__(self, db_connector: DBConnector, test: bool = False):
         super().__init__(db_connector, test)
 
     def create(self, driver: DeliveryDriver) -> bool:
+        """
+        Function that create an instance of delivery driver in the deliverydrivers database.
+
+        Parameters
+        ----------
+        driver : DeliveryDriver
+            Model of DeliveryDriver which will be created
+
+
+        Returns
+        -------
+        boolean
+            Returns True if the delivery driver has been created, False otherwise.
+        """
         if not isinstance(driver, DeliveryDriver):
             raise TypeError("The created driver must be of a type driver.")
         if self.get_by_username(driver.username) is None:
@@ -33,7 +51,21 @@ class DeliveryDriverDAO(UserDAO):
         )
         return raw_created_driver is not None
 
-    def find_by_username(self, username: str):
+    def find_by_username(self, username: str) -> DeliveryDriver | None:
+        """
+        Function that find a delivery driver by their username.
+
+        Parameters
+        ----------
+        username : str
+            Username of the delivery driver we want to find
+
+
+        Returns
+        -------
+        DeliveryDriver | None
+            Returns a DeliveryDriver if found, None otherwise
+        """
         query = (
             """
             SELECT d.username_delivery_driver as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, d.vehicle, d.is_available
@@ -52,6 +84,25 @@ class DeliveryDriverDAO(UserDAO):
     def update_delivery_driver(
         self, username: str, vehicle: Optional[str] = None, is_available: Optional[bool] = None
     ) -> bool:
+        """
+        Function that update attributes of a delivery driver by their username.
+        It could update any attributes among their vehicle and availability.
+
+        Parameters
+        ----------
+        username : str
+            Username of the customer we want to find
+        vehicle : Optional[str] = None
+            New vehicle, could be None if one wants to keep the previous one
+        is_available : Optional[bool] = None
+            New avaibility, could be None if one wants to keep the preivous one
+
+
+        Returns
+        -------
+        bool
+            Returns True if the update is done, False otherwise
+        """
         current_driver = self.find_by_username(username)
         if not isinstance(current_driver, DeliveryDriver):
             return False
@@ -84,6 +135,19 @@ class DeliveryDriverDAO(UserDAO):
         return True
 
     def delete(self, driver: DeliveryDriver) -> bool:
+        """
+        Function that delete a delivery driver.
+
+        Parameters
+        ----------
+        driver : DeliveryDriver
+            Driver we want to delete
+
+        Returns
+        -------
+        boolean
+            Returns True if the driver is deleted, False otherwise
+        """
         if not isinstance(driver, DeliveryDriver):
             return False
         self.db_connector.sql_query(
@@ -93,6 +157,14 @@ class DeliveryDriverDAO(UserDAO):
         return True
 
     def drivers_available(self) -> List[DeliveryDriver]:
+        """
+        Function that shows all available drivers.
+
+        Returns
+        -------
+        List[DeliveryDriver]
+            List of all available drivers
+        """
         query = f"""
             SELECT username_delivery_driver, vehicle, is_available
             FROM {self.schema}.delivery_drivers

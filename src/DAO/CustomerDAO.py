@@ -93,7 +93,7 @@ class CustomerDAO(UserDAO):
 
     def delete(self, customer: Customer) -> bool:
         if not isinstance(customer, Customer):
-            raise TypeError(f"{customer.username} should be type of Customer.")
+            raise TypeError(f"{customer} should be type of Customer.")
         if self.find_by_username(customer.username) is None:
             raise ValueError(f"{customer.username} doesn't exist.")
         self.db_connector.sql_query(

@@ -20,6 +20,8 @@ class DeliveryDAO:
             self.schema = "project_database"
 
     def create(self, delivery: Delivery) -> bool:
+        if not isinstance(delivery, Delivery):
+            raise TypeError(f"The type of {delivery} should be Delivery.")
         id_orders = delivery.id_orders
         stops = delivery.stops
         query = (
@@ -56,6 +58,8 @@ class DeliveryDAO:
         return [Delivery(**r) for r in rows]
 
     def get_by_id(self, id_delivery: int) -> Delivery | None:
+        if not isinstance(id_delivery, int):
+            raise TypeError(f"Your id_delivery is {id_delivery} but should be int.")
         query = "SELECT * FROM " + self.schema + ".deliveries WHERE id_delivery = %(id_delivery)s"
         row = self.db.sql_query(query, {"id_delivery": id_delivery}, return_type="one")
         if not row:

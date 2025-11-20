@@ -8,7 +8,7 @@ VALUES
 ('drdavid', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'David', 'Douze', 'pepper', 'Customer'),
 ('ernesto', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
 ('ernesto1', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Ernest', 'Eagle', 'no', 'DeliveryDriver'),
-('fabriccio', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator');
+('fabriccio', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Fabrice', 'Fantastic', 'mysalt', 'Administrator'),
 ('futureadministrator', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Future', 'Administrator', 'salty', 'Administrator'),
 ('futurecustomer', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Future', 'Customer', 'salty', 'Customer'),
 ('futuredeliverydriver', '364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe', 'Future', 'DeliveryDriver', 'salty', 'DeliveryDriver');
@@ -47,7 +47,7 @@ VALUES
 ('charliz', 'ernesto1', '4 Salty Spring Av.', '{"galette saucisse":39,"cola":2}'::jsonb);
 
 -- Deliveries
-INSERT INTO project_test_database.deliveries (username_delivery_driver, duration, id_orders, stops)
+INSERT INTO project_test_database.deliveries (id_delivery, username_delivery_driver, duration, id_orders, stops, is_accepted)
 VALUES 
-('ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.']),
-('ernesto1', '15', ARRAY[1], ARRAY['13 Main St.']);
+(1,'ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.'], True),
+(2,'ernesto1', '15', ARRAY[1], ARRAY['13 Main St.'], False);

@@ -1,6 +1,5 @@
 from typing import Optional
 
-from src.DAO.DBConnector import DBConnector
 from src.DAO.ItemDAO import ItemDAO
 from src.Model.Item import Item
 
@@ -9,12 +8,13 @@ class ItemService:
     def __init__(self, item_dao: ItemDAO):
         self.item_dao = item_dao
 
-    def view_storage(self):
-        """See all the items and their stockage even is their are not exposed
-        returns
-        -----
-        storage: dict
-            the items associated with their stock
+    def view_storage(self) -> dict:
+        """Function that shows all the items and their quantity even if they are not exposed
+
+        Returns
+        -------
+        dict
+            the items associated with their quantity stored.
         """
         storage = {}
         items = self.item_dao.find_all_item()
@@ -22,16 +22,26 @@ class ItemService:
             storage[item.name_item] = item.stock
         return storage
 
-    def create_item(self, name_item, price, category, stock, exposed=False):
-        """Create a new item
+    def create_item(self, name_item: str, price: float, category: str, stock: int, exposed=False) -> Item:
+        """Function that creates a new item.
 
         Parameters
-        -----
-        name_item: srt
-        price : float
+        ----------
+        name_item: str
+            name of the item
+        price: float
+            price of the item
         category: str
-        stock : int
+            category of the item
+        stock: int
+            quantity of the item
+        exposed: bool
+            if the item is ready to be sold, by default False
 
+        Returns
+        -------
+        Item
+            the item that has just been created.
         """
 
         if price < 0:
@@ -52,7 +62,19 @@ class ItemService:
             raise ValueError("Failed to create item in the database.")
         return new_item
 
-    def delete_item(self, name_delete):
+    def delete_item(self, name_delete) -> str:
+        """Function that deletes an item from the database.
+
+        Parameters
+        ----------
+        name_delete: str
+            name of the item to delete
+
+        Returns
+        -------
+        str
+            a message that confirms the item deletion.
+        """
         items = self.item_dao.find_all_item()
         for item in items:
             if item.name_item.lower() == name_delete.lower():
@@ -71,7 +93,28 @@ class ItemService:
         stock: Optional[int] = None,
         exposed: Optional[bool] = None,
     ):
-        """ """
+        """Function that deletes an item from the database.
+
+        Parameters
+        ----------
+        name_item: str
+            name of the item to modify
+        new_name: str
+            new value for its name, by default None
+        price: float
+            new value for its price, by default None
+        category: str
+            new value for its category, by default None
+        stock: int
+            new value for its quantity, by default None
+        exposed: bool
+            availability of the item, by default None
+
+        Returns
+        -------
+        Item
+            the item after modification.
+        """
         item = self.item_dao.find_item_by_name(name_item)
         if item is None:
             raise TypeError("This item does not exist.")

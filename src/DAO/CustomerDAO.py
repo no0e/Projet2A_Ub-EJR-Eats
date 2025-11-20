@@ -3,7 +3,6 @@ from typing import Optional
 from src.DAO.UserDAO import UserDAO
 from src.Model.Customer import Customer
 from src.Service.GoogleMapService import GoogleMap
-from src.DAO.DBConnector import DBConnector
 
 google_service = GoogleMap()
 
@@ -14,6 +13,7 @@ class CustomerDAO(UserDAO):
     It inherits from UserDAO class.
     Provides methods to retrieve and insert user data.
     """
+
     def __init__(self, db_connector, test: bool = False):
         super().__init__(db_connector)
 

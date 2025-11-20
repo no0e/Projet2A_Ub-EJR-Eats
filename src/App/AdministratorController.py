@@ -46,15 +46,15 @@ def Create_Accounts(
 
     Parameters
     ----------
-    username : str
+    username: str
         user's username
-    password : str
+    password: str
         user's password
-    firstname : str
+    firstname: str
         user's firstname
-    lastname : str
+    lastname: str
         user's lastname
-    account_type : str
+    account_type: str
         user's account type
 
 
@@ -79,14 +79,14 @@ def Create_Accounts(
 @administrator_router.patch("/Edit_Accounts", status_code=status.HTTP_200_OK)
 def Edit_Accounts(
     username: str, attribute: Literal["firstname", "lastname", "address", "vehicle"], new_value: str
-) -> str:
+) -> dict:
     """Function that modify a user's attribute by calling the different DAO's methods.
 
     Parameters
     ----------
-    username : str
+    username: str
         user's username
-    attribute : str
+    attribute: str
         user's attribute to modify
     new_value: str
         user's new value for the attribute selected
@@ -94,8 +94,8 @@ def Edit_Accounts(
 
     Returns
     -------
-    str
-        Returns a string that informs the user the modification has been done.
+    dict
+        Returns a dict that informs the user the modification has been done.
     """
     if attribute == "address":
         if user_service.get_user(username).account_type != "Customer":
@@ -142,7 +142,7 @@ def Create_Item(
     price: float,
     stock: int,
     category: str = Query(..., description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
-) -> str:
+) -> dict:
     """Function that calls the function to create an item.
 
     Parameters
@@ -158,8 +158,8 @@ def Create_Item(
 
     Returns
     -------
-    str
-        Returns a string that informs the user the item has been created.
+    dict
+        Returns a dict that informs the user the item has been created.
     """
     try:
         new_item = item_service.create_item(name_item, price, category, stock)
@@ -178,7 +178,7 @@ def Edit_Item(
     new_category: str = Query(None, description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
     new_stock: int = None,
     availability: bool = Query(None, description="Is the item available ?", enum=[True, False]),
-) -> str:
+) -> dict:
     """Function that calls the function to update an item.
 
     Parameters
@@ -198,8 +198,8 @@ def Edit_Item(
 
     Returns
     -------
-    str
-        Returns a string that informs the user the item has been updated.
+    dict
+        Returns a dict that informs the user the item has been updated.
     """
     try:
         item_service.update(name_item, new_name, new_price, new_category, new_stock, availability)
@@ -250,7 +250,7 @@ def edit_Profile(
     lastname: Optional[str] = Query(None, description="Last name"),
     password: Optional[str] = Query(None, description="Password"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
-):
+) -> dict:
     """Function that calls the function to update the user's own profile
 
     Parameters
@@ -266,8 +266,8 @@ def edit_Profile(
 
     Returns
     -------
-    Item
-        Returns the Item that has been deleted.
+    dict
+        Returns the dict summarising all the administrator's new information.
     """
 
     username = get_user_from_credentials(credentials).username

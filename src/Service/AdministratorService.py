@@ -1,12 +1,9 @@
-from typing import Optional, Union
+from typing import Optional
 
 from src.DAO.AdministratorDAO import AdministratorDAO
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.DAO.UserDAO import UserDAO
-from src.Model.Administrator import Administrator
-from src.Model.Customer import Customer
-from src.Model.DeliveryDriver import DeliveryDriver
 from src.Model.User import User
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 from src.Service.UserService import UserService
@@ -72,7 +69,9 @@ class AdministratorService:
         user = self.user_repo.get_by_username(user_username)
 
         if user is None:
-            raise ValueError(f"User with username '{user_username}' not found.")  # Tu peux aussi retourner None si tu préfères
+            raise ValueError(
+                f"User with username '{user_username}' not found."
+            )
         return user
 
     def username_exists(self, username: str) -> bool:
@@ -103,7 +102,13 @@ class AdministratorService:
             raise ValueError(f"User with username '{username}' not found.")
         self.user_repo.delete_user(user)
 
-    def update_user(self, username: str, firstname: Optional[str] =None, lastname: Optional[str] = None, password: Optional[str] = None):
+    def update_user(
+        self,
+        username: str,
+        firstname: Optional[str] = None,
+        lastname: Optional[str] = None,
+        password: Optional[str] = None,
+    ):
         """Function that update the user's attributes.
 
         Parameters
@@ -131,4 +136,3 @@ class AdministratorService:
             salt = create_salt()
             self.user_repo.get_user(username).password = hash_password(password, salt)
         return self.user_repo.get_user(username)
-

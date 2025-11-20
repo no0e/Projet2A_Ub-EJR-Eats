@@ -6,7 +6,7 @@ from src.Model.Administrator import Administrator
 class AdministratorDAO(UserDAO):
     """
     Administrator DAO class which inherit from UserDAO DAO class
-    All functions asks the database administrators and collect data on
+    All functions asks the database administrators and collect data on it
     """
 
     def __init__(self, db_connector: DBConnector, test: bool = False):

@@ -3,8 +3,8 @@ from typing import List, Optional
 import pytest
 
 from src.DAO.DBConnector import DBConnector
-from src.DAO.UserDAO import UserDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
+from src.DAO.UserDAO import UserDAO
 from src.Model.DeliveryDriver import DeliveryDriver
 from src.Utils.reset_db import ResetDatabase
 
@@ -14,9 +14,11 @@ def db_connector():
     db = DBConnector()
     yield db
 
+
 @pytest.fixture
 def user_dao(db_connector):
     return UserDAO(db_connector, test=True)
+
 
 @pytest.fixture
 def delivery_driver_dao(db_connector):
@@ -25,7 +27,7 @@ def delivery_driver_dao(db_connector):
 
 def test_create(delivery_driver_dao, user_dao):
     ResetDatabase().lancer(True)
-    user_to_be_driver = user_dao.get_by_username('futuredeliverydriver')
+    user_to_be_driver = user_dao.get_by_username("futuredeliverydriver")
     driver_to_create = DeliveryDriver(
         username=user_to_be_driver.username,
         firstname=user_to_be_driver.firstname,
@@ -37,6 +39,7 @@ def test_create(delivery_driver_dao, user_dao):
         is_available=True,
     )
     assert delivery_driver_dao.create(driver_to_create)
+
 
 def test_create_errors(delivery_driver_dao, user_dao):
     ResetDatabase().lancer(True)

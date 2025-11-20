@@ -64,9 +64,7 @@ def populate_db(n_admins, n_drivers, n_customers, n_items, n_orders, n_deliverie
             VALUES (%s,%s)
         """, (u, fake.address().replace("\n", ", ")))
 
-    # ------------------------------------------------------------
-    # ITEMS
-    # ------------------------------------------------------------
+   
     item_ids = []
     for _ in range(n_items):
         row = db.sql_query("""
@@ -83,9 +81,7 @@ def populate_db(n_admins, n_drivers, n_customers, n_items, n_orders, n_deliverie
         ), return_type="one")
         item_ids.append(row["id_item"])
 
-    # ------------------------------------------------------------
-    # ORDERS
-    # ------------------------------------------------------------
+ 
     order_ids = []
     for _ in range(n_orders):
         items_json = [

@@ -116,6 +116,29 @@ def Edit_Accounts(
         "detail": "Account updated successfully",
     }
 
+@administrator_router.delete("/Storage/Delete_User", status_code=status.HTTP_200_OK)
+def Delete_User(username) -> bool:
+    """Function that calls the function to delete an User.
+
+    Parameters
+    -------
+    username: str
+        username of the user
+
+    Returns
+    -------
+    bool
+        True the User that has been deleted.
+        False otherwise
+    """
+    try:
+        user_deleted = administrator_router_service.delete_user(username)
+        return user_deleted
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except (TypeError, ValueError) as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
 
 @administrator_router.get("/Storage/View", status_code=status.HTTP_200_OK)
 def View_Storage() -> dict:

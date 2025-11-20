@@ -48,17 +48,17 @@ class CustomerService:
         """
         return self.customer_dao.find_by_username(username)
 
-    def view_menu(self):
-        """See all the item disponible
+    def view_menu(self) -> List[dict]:
+        """Function that returns all the items available
 
-        Return
-        ----
-        menu: list
-            a list of all the exposed items
+        Returns
+        -------
+        List[dict]
+            a list of all the exposed items.
         """
         items = self.item_dao.find_all_exposed_item()
 
-        menu = []
+        menu = List[dict]
         for item in items:
             menu.append(
                 {
@@ -73,28 +73,41 @@ class CustomerService:
 
         return menu
 
-    def get_cart_for_user(self, username: str):
-        """Retourne le panier de l'utilisateur associé à son token"""
+    def get_cart_for_user(self, username: str) -> dict:
+        """Function that returns the user's cart.
+
+        Parameters
+        ----------
+        username: str
+            username of the active customer
+
+        Returns
+        -------
+        dict
+            Returns the cart of the active customer.
+        """
         return self.active_carts.get(username)
 
-    def add_item_cart(self, username, cart, name_items: List[str], quantities: List[int]) -> dict:
-        """add the quantity of the item choose into the cart
+    def add_item_cart(self, username: str, cart: dict, name_items: List[str], quantities: List[int]) -> dict:
+        """Function that adds the quantity of the item choose into the cart
 
-        parameters
-        -----
+        Parameters
+        ----------
+        username: str
+            username of the customer we want to manage the cart
         name_item : str
              the name of the item wanted
         number_item : int
             the quantoty wanted
 
         Returns
-        ----
-        price_cart : float
-            the price of the cart
+        -------
+        dict
+            Returns the cart after modification.
         """
         items = self.item_dao.find_all_exposed_item()
         items_dict = {item.name_item.lower(): item for item in items}
-        for name_item, quantity in zip(name_items, quantities):
+        for name_item, quantity in zip(name_items, quantities, strict=True):
             name_item = name_item.lower()
             if name_item not in items_dict:
                 raise TypeError(f"Item '{name_item}' not found or not available.")
@@ -111,11 +124,11 @@ class CustomerService:
 
         return cart
 
-    def modify_cart(self, cart, name_item: str, new_number_item: int):
-        """modify the cart by changing the quatity wanted of an item
+    def modify_cart(self, cart: dict, name_item: str, new_number_item: int) -> dict:
+        """Function that modifies the cart by changing the quantity wanted of an item
 
         Parameters
-        ----
+        ----------
         cart: dict
             the cart of the user
         name_item: str
@@ -124,9 +137,9 @@ class CustomerService:
             the new quantity wanted
 
         Returns
-        -----
-        cart: dict
-            the new cart
+        -------
+        dict
+            Returns the cart after modification.
         """
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
@@ -143,21 +156,20 @@ class CustomerService:
 
         raise ValueError(f"Item '{name_item}' not found in the list of items available.")
 
-    def delete_item(self, cart, name_item) -> dict:
-        """Delete an item of the cart
+    def delete_item(self, cart: dict, name_item: str) -> dict:
+        """Function that removes an item from the cart
 
         Parameters
-        ----
+        ----------
         cart: dict
-            the cart of the user
+            the current user's cart
         name_item: str
-            name of the item that the user want to delete
-
+            name of the item that the user wants to delete
 
         Returns
-        -----
-        cart: dict
-            the new cart
+        -------
+        dict
+            Returns the cart after modification.
         """
         all_item_available = self.item_dao.find_all_exposed_item()
         for item in all_item_available:
@@ -169,8 +181,26 @@ class CustomerService:
         raise TypeError(f"{name_item} is not in the cart")
 
     def validate_cart(
-        self, cart, username_customer, validate: Literal["yes", "no"], address: Optional[str] = None
+        self, cart: dict, username_customer: str, validate: Literal["yes", "no"], address: Optional[str] = None
     ) -> Order:
+        """Function that removes an item from the cart
+
+        Parameters
+        ----------
+        cart: dict
+            the current user's cart
+        username_customer: str
+            customer's username
+        validate: str
+            whether the customer wants to validate ("yes") their cart or not ("no")
+        address: str
+            delivery's address, by default None
+
+        Returns
+        -------
+        Order
+            Returns the order that has just been created.
+        """
         if address is None:
             customer = self.get_customer(username_customer)
             address = customer.address
@@ -210,16 +240,17 @@ class CustomerService:
         raise TypeError("If you want to validate your cart you must enter: yes")
 
     def view_order(self, username_customer: str) -> Order:
-        """See the last order of a customer
+        """Function that returns the last order of a customer.
+
         Parameters
-        -----
+        ----------
         username_customer: str
             the name of the customer
 
         Returns
-        ------
-        order : Order
-            the last order of the user
+        -------
+        Order
+            Returns the last user's order.
         """
         order_user = self.order_dao.find_order_by_user(username_customer)
         if not order_user:
@@ -228,8 +259,19 @@ class CustomerService:
         last_order = max(order_user, key=lambda order: order.id_order)
         return last_order
 
-    def view_cart(self, cart):
-        """See the cart with the price"""
+    def view_cart(self, cart: dict) -> dict:
+        """Function that returns the cart with its total amount.
+
+        Parameters
+        ----------
+        cart: dict
+            the customer's active cart
+
+        Returns
+        -------
+        dict
+            Returns the user's cart with its price.
+        """
         items = self.item_dao.find_all_item()
         price_cart = sum(item.price * cart[item.name_item] for item in items if item.name_item in cart)
 

@@ -60,7 +60,7 @@ def test_find_by_username(delivery_driver_dao):
 def test_update_delivery_driver(delivery_driver_dao):
     ResetDatabase().lancer(True)
     to_be_updated_driver = delivery_driver_dao.find_by_username("ernesto1")
-    updated_driver = delivery_driver_dao.update_delivery_driver(to_be_updated_driver, vehicle="driving")
+    updated_driver = delivery_driver_dao.update_delivery_driver(to_be_updated_driver.username, vehicle="driving")
     missing_driver = None
     no_updated_driver = delivery_driver_dao.update_delivery_driver(missing_driver)
     assert updated_driver

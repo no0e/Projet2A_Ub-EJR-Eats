@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test", "typing"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:cae3a2513654776c0bc1bedab572f1909b83bda488f69dfe227c7366e3b443a2"
+content_hash = "sha256:11d99cdb3ca7b5ac94d8c6d697b8a527a61964d2678f20945fdd801ef6bc3660"
 
 [[metadata.targets]]
 requires_python = "==3.12.*"
@@ -106,6 +106,18 @@ files = [
     {file = "coverage-7.10.5-cp312-cp312-win_arm64.whl", hash = "sha256:672a6c1da5aea6c629819a0e1461e89d244f78d7b60c424ecf4f1f2556c041d8"},
     {file = "coverage-7.10.5-py3-none-any.whl", hash = "sha256:0be24d35e4db1d23d0db5c0f6a74a962e2ec83c426b5cac09f4234aadef38e4a"},
     {file = "coverage-7.10.5.tar.gz", hash = "sha256:f2e57716a78bc3ae80b2207be0709a3b2b63b9f2dcf9740ee6ac03588a2015b6"},
+]
+
+[[package]]
+name = "faker"
+version = "38.2.0"
+summary = ""
+dependencies = [
+    "tzdata",
+]
+files = [
+    {file = "faker-38.2.0-py3-none-any.whl", hash = "sha256:35fe4a0a79dee0dc4103a6083ee9224941e7d3594811a50e3969e547b0d2ee65"},
+    {file = "faker-38.2.0.tar.gz", hash = "sha256:20672803db9c7cb97f9b56c18c54b915b6f1d8991f63d1d673642dc43f5ce7ab"},
 ]
 
 [[package]]
@@ -436,6 +448,15 @@ dependencies = [
 files = [
     {file = "typing_inspection-0.4.1-py3-none-any.whl", hash = "sha256:389055682238f53b04f7badcb49b989835495a96700ced5dab2d8feae4b26f51"},
     {file = "typing_inspection-0.4.1.tar.gz", hash = "sha256:6ae134cc0203c33377d43188d4064e9b357dba58cff3185f22924610e70a9d28"},
+]
+
+[[package]]
+name = "tzdata"
+version = "2025.2"
+summary = ""
+files = [
+    {file = "tzdata-2025.2-py2.py3-none-any.whl", hash = "sha256:1a403fada01ff9221ca8044d701868fa132215d84beb92242d9acd2147f667a8"},
+    {file = "tzdata-2025.2.tar.gz", hash = "sha256:b60a638fcc0daffadf82fe0f57e53d06bdec2f36c4df66280ae79bce6bd6f2b9"},
 ]
 
 [[package]]

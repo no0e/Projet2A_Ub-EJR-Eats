@@ -65,7 +65,6 @@ class GoogleMap:
             else:
                 raise Exception(f"Erreur Directions: {data['status']}")
 
-        # Agrégation de toutes les étapes ("legs")
         legs = data["routes"][0]["legs"]
         total_distance = sum(leg["distance"]["value"] for leg in legs) / 1000  # km
         total_duration = sum(leg["duration"]["value"] for leg in legs) / 60  # minutes

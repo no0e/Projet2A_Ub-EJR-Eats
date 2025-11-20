@@ -10,6 +10,18 @@ class JWTBearer(HTTPBearer):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request) -> HTTPAuthorizationCredentials:
+        """Function that validates the Bearer token from an incoming HTTP request.
+
+        Parameters
+        ----------
+        request: Request
+            The incoming HTTP request object containing headers.
+
+        Returns
+        -------
+        HTTPAuthorizationCredentials
+            Returns the validated Bearer token credentials, including the token string.
+        """
         credentials: HTTPAuthorizationCredentials | None = await super().__call__(request)
         if not credentials:
             raise HTTPException(status_code=403, detail="Invalid authorization code.")

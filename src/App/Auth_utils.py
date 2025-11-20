@@ -5,12 +5,25 @@ from fastapi.security import HTTPAuthorizationCredentials
 
 from src.App.JWTBearer import JWTBearer
 from src.Model.APIUser import APIUser
-from src.Service.JWTService import jwt_service
 
 from .init_app import jwt_service, user_repo
 
+_dependency = Depends(JWTBearer())
+
 
 def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIUser:
+    """Function that returns a user given their credentials.
+
+    Parameters
+    ----------
+    credentials: HTTPAuthorizationCredentials
+        user's credentials
+
+    Returns
+    -------
+    APIUser
+        Returns the APIUser associated.
+    """
     token = credentials.credentials
     try:
         payload = jwt_service.decode_jwt(token)
@@ -30,7 +43,21 @@ def get_user_from_credentials(credentials: HTTPAuthorizationCredentials) -> APIU
 
 
 def require_account_type(required_account_type: Literal["Administrator", "DeliveryDriver", "Customer"]):
-    def wrapper(credentials: HTTPAuthorizationCredentials = Depends(JWTBearer())):
+    """This function returns a dependency that ensures the authenticated user has the required account type.
+
+    Parameters
+    ----------
+    required_account_type: str
+        The account type required to access the endpoint.
+
+    Returns
+    -------
+    Callable
+        A FastAPI dependency function that validates the authenticated user's role
+        and returns the decoded JWT payload if authorised.
+    """
+
+    def wrapper(credentials: HTTPAuthorizationCredentials = _dependency):
         payload = jwt_service.decode_jwt(credentials.credentials)
         user_account_type = payload.get("account_type")
         if user_account_type != required_account_type:

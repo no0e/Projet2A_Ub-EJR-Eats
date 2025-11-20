@@ -124,10 +124,10 @@ def populate_db(n_admins, n_drivers, n_customers, n_items, n_orders, n_deliverie
 
 
 populate_db(
-    n_admins=3,
-    n_drivers=10,
-    n_customers=25,
-    n_items=40,
-    n_orders=80,
-    n_deliveries=30
+    n_admins=30,
+    n_drivers=100,
+    n_customers=250,
+    n_items=400,
+    n_orders=800,
+    n_deliveries=300
 )

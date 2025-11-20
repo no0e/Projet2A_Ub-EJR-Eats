@@ -24,7 +24,7 @@ class DeliveryDAO:
 
     def create(self, delivery: Delivery) -> bool:
         """
-        Function that create an instance of delivery  in the deliveries database.
+        Function that create an instance of delivery in the deliveries database.
 
         Parameters
         ----------

@@ -155,7 +155,7 @@ class DeliveryDAO:
         )
         self.db.sql_query(
             query,
-            {"id_delivery": id_delivery, "username_delivery_driver": username_delivery_driver, "duration": duration},
+            {"id_delivery": id_delivery, "username_delivery_driver": username_delivery_driver},
         )
         delivery = self.get_by_id(id_delivery)
         if not delivery or not delivery.id_orders:

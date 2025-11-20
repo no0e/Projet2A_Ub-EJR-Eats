@@ -74,14 +74,21 @@ class MockDeliveryRepo:
         if not success:
             raise ValueError("Delivery could not be accepted")
 
-        # ------------------------------------------------------------------
-        # CORRECTION ICI: 
-        # Si delivery.stops existe, utilisez toute la liste des stops
-        # S'il n'y a pas de stops (devrait être impossible avec un mock correct), utilisez la valeur par défaut dans une liste.
+        # ----------------------------------------------------------------------
+        # CORRECTION : On passe la liste complète des stops au service Google.
+        # Le service Google (ou le mock) est responsable de déterminer la destination
+        # finale (le dernier stop) et les waypoints (les stops intermédiaires).
         
-        stops_to_send = delivery.stops if delivery.stops else [{"lat": 48.050245, "lng": -1.741515}]
-        link = self.google_service.generate_google_maps_link(stops_to_send)
-       
+        if delivery.stops:
+            destinations_for_map = delivery.stops  # Passe ['13 Main St.']
+        else:
+            # Fallback (doit être cohérent avec ce que le mock attend - ici, un dict unique)
+            # MAIS ATTENTION : Si le mock attend une liste (Cas 1 ou 2), il faut encapsuler !
+            destinations_for_map = [{"lat": 48.050245, "lng": -1.741515}]
+            
+        link = self.google_service.generate_google_maps_link(destinations_for_map)
+        # ----------------------------------------------------------------------
+
         return {"delivery_id": delivery_id, "google_maps_link": link}
 
 class MockGoogleRepo:
@@ -91,27 +98,45 @@ class MockGoogleRepo:
     def generate_google_maps_link(self, destinations):
         if not destinations:
             raise ValueError("The list of destinations cannot be empty")
-
+    
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"
 
-        # Nouvelle vérification: Si c'est une liste de strings (adresses)
-        if isinstance(destinations[0], str): # <-- Ajout de cette condition
-            destination = destinations[-1] # L'adresse de destination finale
-            waypoints = "|".join(d for d in destinations[:-1])
+        # Déclarations par défaut pour éviter les erreurs d'initialisation
+        destination = ""
+        waypoints = ""
 
-        # Si le mock reçoit des dicts avec "address"
-        elif isinstance(destinations[0], dict) and "address" in destinations[0]:
-            destination = destinations[-1]["address"]
-            waypoints = "|".join(d["address"] for d in destinations[:-1])
-
-        # Si le mock reçoit des dicts de coordonnées
+        # 1. Cas d'une LISTE de chaînes (adresses)
+        if isinstance(destinations, list) and all(isinstance(d, str) for d in destinations):
+            destination = destinations[-1]
+            waypoints = "|".join(destinations[:-1])
+            
+        # 2. Cas des LISTES de Dictionnaires (coordonnées ou adresses complexes)
+        elif isinstance(destinations, list) and isinstance(destinations[0], dict):
+            
+            # Si les dictionnaires contiennent l'adresse
+            if "address" in destinations[0]:
+                destination = destinations[-1]["address"]
+                waypoints = "|".join(d["address"] for d in destinations[:-1])
+            
+            # Si les dictionnaires contiennent des coordonnées
+            else:
+                destination = f"{destinations[-1]['lat']},{destinations[-1]['lng']}"
+                waypoints = "|".join(f"{d['lat']},{d['lng']}" for d in destinations[:-1])
+        
+        # 3. Cas où l'entrée est un simple DICTIONNAIRE (coordonnées par défaut du service)
+        elif isinstance(destinations, dict):
+            # C'est le cas du fallback si delivery.stops est vide dans le service.
+            destination = f"{destinations['lat']},{destinations['lng']}"
+            waypoints = "" # Pas de waypoints pour une destination unique dict
+            
+        # 4. Cas de la chaîne seule (si le service n'avait pas été corrigé)
+        # Ceci ne devrait plus arriver si le service passe une liste (comme convenu).
         else:
-            destination = f"{destinations[-1]['lat']},{destinations[-1]['lng']}"
-            waypoints = "|".join(f"{d['lat']},{d['lng']}" for d in destinations[:-1])
-
+            raise TypeError("Destinations format is not recognized by the mock.")
+        
+        # Construction finale du lien
         return (
-            # Correction: Ajout du "?" pour les paramètres et suppression du "0" superflu.
-            "http://googleusercontent.com/maps.google.com/?" 
+            "http://googleusercontent.com/maps.google.com/?"
             f"origin={origin}"
             f"&destination={destination}"
             f"&waypoints={waypoints}"
@@ -149,7 +174,8 @@ def delivery_repo():
 
     repo.deliveries = {
         1 : Delivery(id_delivery = 1, username_delivery_driver='ernesto', duration ='50', id_orders= [1, 2], stops= ['13 Main St.', '4 Salty Spring Av.'], is_accepted = True),
-        2 : Delivery(id_delivery = 2, username_delivery_driver='ernesto1',duration = '15', id_orders = [1], stops= ['13 Main St.'], is_accepted = False)
+        2 : Delivery(id_delivery = 2, username_delivery_driver='ernesto1',duration = '15', id_orders = [1], stops= ['13 Main St.'], is_accepted = False),
+        3: Delivery(id_delivery=3, username_delivery_driver='driver_test', duration='10', id_orders=[3], stops=[], is_accepted=False)
         }
     repo.orders ={
         1 : Order(id_order =None,username_customer= "bobbia",username_delivery_driver= "ernesto1", address="13 Main St.",items= {"galette saucisse": 2, "cola": 1}),
@@ -181,9 +207,13 @@ def test_get_driver_success(deliverydriver_service):
     assert driver.account_type=="DeliveryDriver"
     assert driver.is_available is False
 
+def test_get_driver_not_found(deliverydriver_service):
+    driver = deliverydriver_service.get_driver("non_existent_driver")
+    assert driver is None
+
 def test_get_available_deliveries_success(deliverydriver_service):
     deliveries = deliverydriver_service.get_available_deliveries()
-    assert len(deliveries) == 1
+    assert len(deliveries) == 2
 
     d = deliveries[0]
 
@@ -197,9 +227,25 @@ def test_get_available_deliveries_success(deliverydriver_service):
 def test_accept_delivery_success(deliverydriver_service):
     delivery = deliverydriver_service.accept_delivery(2, "ernesto1")
     expected_link = (
-        "http://googleusercontent.com/maps.google.com/?" # Correction ici
+        "http://googleusercontent.com/maps.google.com/?"
         "origin=48.111339,-1.68002"
         "&destination=13 Main St."
         "&waypoints="
     )
-    assert delivery == {"delivery_id": 2, "google_maps_link": expected_link} # Correction ici
+    assert delivery == {"delivery_id": 2, "google_maps_link": expected_link} 
+
+def test_accept_delivery_failed(deliverydriver_service):
+    with pytest.raises(ValueError) as error_delivery:
+        deliverydriver_service.accept_delivery(1, "ernesto")
+    assert str(error_delivery.value) == "Delivery not available or already accepted"
+
+def test_accept_delivery_with_no_stops(deliverydriver_service):
+    delivery = deliverydriver_service.accept_delivery(3, "ernesto1")
+
+    expected_link = (
+        "http://googleusercontent.com/maps.google.com/?"
+        "origin=48.111339,-1.68002"
+        "&destination=48.050245,-1.741515" 
+        "&waypoints="
+    )
+    assert delivery == {"delivery_id": 3, "google_maps_link": expected_link}

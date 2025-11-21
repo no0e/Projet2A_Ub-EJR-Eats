@@ -91,9 +91,9 @@ deliverydao = MockDeliveryDAO()
 def item_repo():
     repo = MockItemRepo()
 
-    repo.create_item(Item(name_item="galette saucisse", price=3.2, category="main course", stock=102, exposed=True))
-    repo.create_item(Item(name_item="vegetarian galette", price=3.0, category="main dish", stock=30, exposed=False))
-    repo.create_item(Item(name_item="cola", price=2.0, category="drink", stock=501, exposed=True))
+    repo.create_item(Item(name_item="galette saucisse", price=320, category="main course", stock=102, exposed=True))
+    repo.create_item(Item(name_item="vegetarian galette", price=300, category="main dish", stock=30, exposed=False))
+    repo.create_item(Item(name_item="cola", price=200, category="drink", stock=501, exposed=True))
 
     return repo
 

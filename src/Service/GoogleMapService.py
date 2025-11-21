@@ -6,7 +6,7 @@ GOOGLE_API_KEY = "AIzaSyDGimtwk_7rL05kEHAihqXZojrqIsw4AGE"
 class GoogleMap:
     def __init__(self, restaurant_location="51 rue Blaise Pascal, 35170 Bruz"):
         self.restaurant_location = restaurant_location
-        self.restaurant_coords = {"lat": 48.050245, "lng": -1.741515}
+        self.restaurant_coords = {"lat": 48.050886, "lng": -1.742031}
 
     def geocoding_address(self, address: str):
         """Convertit une adresse en coordonnées GPS."""

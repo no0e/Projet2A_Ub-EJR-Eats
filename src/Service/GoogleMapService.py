@@ -6,7 +6,7 @@ GOOGLE_API_KEY = "AIzaSyDGimtwk_7rL05kEHAihqXZojrqIsw4AGE"
 class GoogleMap:
     def __init__(self, restaurant_location="51 rue Blaise Pascal, 35170 Bruz"):
         self.restaurant_location = restaurant_location
-        self.restaurant_coords = {"lat": 48.050886, "lng": -1.742031}
+        self.restaurant_coords = {"lat": 48.05089, "lng": -1.74203}
 
     def geocoding_address(self, address: str):
         """Convertit une adresse en coordonnées GPS."""
@@ -22,7 +22,7 @@ class GoogleMap:
                 raise Exception(f"Erreur Geocoding: {data['status']}")
 
         location = data["results"][0]["geometry"]["location"]
-        return {"lat": location["lat"], "lng": location["lng"]}
+        return {"lat": round(location["lat"], 5), "lng": round(location["lng"], 5)}
 
     def get_directions(self, destinations: list[dict], mode: str = "driving"):
         """Function that computes the distance and duration for a itinerary.
@@ -40,7 +40,7 @@ class GoogleMap:
         dict
             Dict containing the total distance and duration of the itinerary.
         """
-        if not destinations:
+        if not destinations or len(destinations) == 0:
             raise ValueError("La liste des destinations ne peut pas être vide.")
 
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"
@@ -90,7 +90,7 @@ class GoogleMap:
         str
             String of the link for the delivery.
         """
-        if not destinations:
+        if not destinations or len(destinations) == 0:
             raise ValueError("La liste des destinations ne peut pas être vide.")
 
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"

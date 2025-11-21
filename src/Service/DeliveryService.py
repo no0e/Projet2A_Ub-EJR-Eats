@@ -4,8 +4,6 @@ from src.DAO.DeliveryDAO import DeliveryDAO
 from src.Model.Delivery import Delivery
 from src.Service.GoogleMapService import GoogleMap
 
-googlemap = GoogleMap(restaurant_location="51 rue Blaise Pascal, 35170 Bruz")
-
 
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
@@ -44,8 +42,7 @@ class DeliveryService:
             A dict summarising information of the available deliveries.
         """
         # duration = googlemap.get_directions(destinations = list, mode: str = "driving")["duration_min"]
-        deliveries = self.delivery_repo.get_available_deliveries()
-        return [delivery.__dict__ for delivery in deliveries]
+        return self.delivery_repo.get_available_deliveries()
 
     def accept_delivery(self, id_delivery: int, username_driver: str, vehicle: str) -> dict:
         """Function that allows a driver to accept a delivery, updates the database and provides a googlemap link.
@@ -70,10 +67,9 @@ class DeliveryService:
         if delivery.is_accepted:
             raise ValueError("Delivery already accepted")
 
-        dests = List[dict]
+        dests: List[dict] = []
         for i in delivery.stops:
-            dests.append(googlemap.geocoding_address(i))
-        duration = googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
+            dests.append(self.googlemap.geocoding_address(i))
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
 
         if not isinstance(delivery.stops, list):
@@ -82,8 +78,8 @@ class DeliveryService:
             raise ValueError("No delivery stops found")
 
         destination_address = delivery.stops[-1]
-        destination_coords = [googlemap.geocoding_address(destination_address)]
-        google_maps_link = googlemap.generate_google_maps_link(destination_coords)
+        destination_coords = [self.googlemap.geocoding_address(destination_address)]
+        google_maps_link = self.googlemap.generate_google_maps_link(destination_coords)
 
         return {
             "message": "Delivery accepted successfully",

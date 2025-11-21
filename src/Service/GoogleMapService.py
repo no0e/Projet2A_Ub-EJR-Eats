@@ -8,8 +8,19 @@ class GoogleMap:
         self.restaurant_location = restaurant_location
         self.restaurant_coords = {"lat": 48.05089, "lng": -1.74203}
 
-    def geocoding_address(self, address: str):
-        """Convertit une adresse en coordonnées GPS."""
+    def geocoding_address(self, address: str) -> dict:
+        """Function that transforms an address into its GPS coordinates.
+
+        Parameters
+        ----------
+        address: str
+            the address written as a str
+
+        Returns
+        -------
+        dict
+            Dict containing the latitude and longitude values for the address.
+        """
         url = "https://maps.googleapis.com/maps/api/geocode/json"
         params = {"address": address, "key": GOOGLE_API_KEY}
         response = requests.get(url, params=params)
@@ -17,14 +28,14 @@ class GoogleMap:
 
         if data["status"] != "OK":
             if data["status"] == "ZERO_RESULTS":
-                raise TypeError(f"L’adresse {address} est introuvable")
+                raise TypeError(f"The address: {address} is not found.")
             else:
-                raise Exception(f"Erreur Geocoding: {data['status']}")
+                raise Exception(f"Geocoding Error: {data['status']}")
 
         location = data["results"][0]["geometry"]["location"]
         return {"lat": round(location["lat"], 5), "lng": round(location["lng"], 5)}
 
-    def get_directions(self, destinations: list[dict], mode: str = "driving"):
+    def get_directions(self, destinations: list[dict], mode: str = "driving") -> dict:
         """Function that computes the distance and duration for a itinerary.
 
         Parameters
@@ -41,7 +52,7 @@ class GoogleMap:
             Dict containing the total distance and duration of the itinerary.
         """
         if not destinations or len(destinations) == 0:
-            raise ValueError("La liste des destinations ne peut pas être vide.")
+            raise ValueError("The destination list cannot be empty or null.")
 
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"
         destination = f"{destinations[-1]['lat']},{destinations[-1]['lng']}"
@@ -61,9 +72,9 @@ class GoogleMap:
 
         if data["status"] != "OK":
             if data["status"] == "ZERO_RESULTS":
-                raise Exception("Aucun itinéraire trouvé")
+                raise Exception("No itinerary found.")
             else:
-                raise Exception(f"Erreur Directions: {data['status']}")
+                raise Exception(f"Directions Error: {data['status']}")
 
         legs = data["routes"][0]["legs"]
         total_distance = sum(leg["distance"]["value"] for leg in legs) / 1000  # km
@@ -91,7 +102,7 @@ class GoogleMap:
             String of the link for the delivery.
         """
         if not destinations or len(destinations) == 0:
-            raise ValueError("La liste des destinations ne peut pas être vide.")
+            raise ValueError("The destination list cannot be empty or null.")
 
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"
         destination = f"{destinations[-1]['lat']},{destinations[-1]['lng']}"

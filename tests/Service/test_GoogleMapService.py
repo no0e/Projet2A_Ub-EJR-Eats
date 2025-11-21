@@ -11,7 +11,7 @@ def test_geocoding_address():
     assert round(address["lng"], 5) == -1.74203
     with pytest.raises(Exception) as exception:
         google_service.geocoding_address("hdjdhfyej")
-    assert str(exception.value) == "L’adresse hdjdhfyej est introuvable"
+    assert str(exception.value) == "The address: hdjdhfyej is not found."
 
 
 def test_get_directions():
@@ -23,10 +23,10 @@ def test_get_directions():
     assert itinerary["stops"] == 1
     with pytest.raises(ValueError) as error:
         google_service.get_directions([], "driving")
-    assert str(error.value) == "La liste des destinations ne peut pas être vide."
+    assert str(error.value) == "The destination list cannot be empty or null."
     with pytest.raises(ValueError) as error:
         google_service.get_directions(None, "driving")
-    assert str(error.value) == "La liste des destinations ne peut pas être vide."
+    assert str(error.value) == "The destination list cannot be empty or null."
 
 
 def test_generate_google_maps_link():
@@ -42,7 +42,7 @@ def test_generate_google_maps_link():
     )
     with pytest.raises(ValueError) as error:
         google_service.get_directions([])
-    assert str(error.value) == "La liste des destinations ne peut pas être vide."
+    assert str(error.value) == "The destination list cannot be empty or null."
     with pytest.raises(ValueError) as error:
         google_service.get_directions(None)
-    assert str(error.value) == "La liste des destinations ne peut pas être vide."
+    assert str(error.value) == "The destination list cannot be empty or null."

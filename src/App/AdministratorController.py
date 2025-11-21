@@ -132,7 +132,7 @@ def Edit_Item(
 ) -> dict:
     """If you want to edit an item (name, price, quantity etc.)."""
     try:
-        item_service.update(name_item, new_name, int(new_price * 100), new_category, new_stock, availability)
+        item_service.update(name_item, new_name, new_price , new_category, new_stock, availability)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except (TypeError, ValueError) as e:
@@ -152,8 +152,19 @@ def Edit_Item(
 
 
 @administrator_router.delete("/Storage/Delete_Item", status_code=status.HTTP_200_OK)
-def Delete_Item(name_item) -> Item:
-    """If you want to delete an item from the EJR database."""
+def Delete_Item(name_item) -> str:
+    """Function that calls the function to delete an item.
+
+    Parameters
+    -------
+    name_item: str
+        item's name
+
+    Returns
+    -------
+    Item
+        Returns the Item that has been deleted.
+    """
     try:
         item_deleted = item_service.delete_item(name_item)
         return item_deleted

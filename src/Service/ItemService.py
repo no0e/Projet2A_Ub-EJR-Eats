@@ -126,7 +126,7 @@ class ItemService:
         if price is not None:
             if price < 0:
                 raise ValueError("The item price should not be negative.")
-            item.price = price
+            item.price = int(price * 100)
         if category is not None:
             if category not in ("starter", "main course", "dessert", "drink"):
                 raise TypeError("The category is not registered. Must be one of: starter, main course, dessert, drink.")

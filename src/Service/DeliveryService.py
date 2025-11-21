@@ -5,6 +5,7 @@ from src.Model.Delivery import Delivery
 from src.Service.GoogleMapService import GoogleMap
 
 
+
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
 
@@ -83,6 +84,7 @@ class DeliveryService:
         dests: List[dict] = []
         for i in delivery.stops:
             dests.append(self.googlemap.geocoding_address(i))
+        duration = self.googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
 
         if not isinstance(delivery.stops, list):

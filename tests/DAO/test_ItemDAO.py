@@ -2,7 +2,7 @@ import pytest
 
 from src.DAO.DBConnector import DBConnector
 from src.DAO.ItemDAO import ItemDAO
-from src.Model.Item import Item, ItemCreate
+from src.Model.Item import Item
 from src.Utils.reset_db import ResetDatabase
 
 
@@ -48,7 +48,7 @@ def test_find_item(item_dao):
     missing_item = item_dao.find_item(56)  # non existent id
     assert item.id_item == 1
     assert item.name_item == "galette saucisse"
-    assert item.price == 3.2
+    assert item.price == 320
     assert item.category == "main dish"
     assert item.stock == 102
     assert item.exposed is True
@@ -61,7 +61,7 @@ def test_find_item_by_name(item_dao):
     missing_item = item_dao.find_item_by_name("disgusting galette")
     assert item.id_item == 1
     assert item.name_item == "galette saucisse"
-    assert item.price == 3.2
+    assert item.price == 320
     assert item.category == "main dish"
     assert item.stock == 102
     assert item.exposed is True
@@ -85,7 +85,7 @@ def test_find_all_item(item_dao):
 def test_update_item(item_dao):
     ResetDatabase().launch(True)
     future_updated_item = Item(
-        id_item=1, name_item="galette saucisse update", price=4.2, category="starter", stock=100, exposed=False
+        id_item=1, name_item="galette saucisse update", price=420, category="starter", stock=100, exposed=False
     )
     upated_item = item_dao.update(future_updated_item)
     assert upated_item is True

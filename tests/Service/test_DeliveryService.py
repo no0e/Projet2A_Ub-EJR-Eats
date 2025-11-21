@@ -1,6 +1,8 @@
-from src.Model.Delivery import Delivery
-from typing import Optional, List
+from typing import List, Optional
+
 import pytest
+
+from src.Model.Delivery import Delivery
 from src.Service.DeliveryService import DeliveryService
 
 

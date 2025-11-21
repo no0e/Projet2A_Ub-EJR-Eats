@@ -2,7 +2,7 @@ import pytest
 
 from src.DAO.DBConnector import DBConnector
 from src.DAO.ItemDAO import ItemDAO
-from src.Model.Item import Item, ItemCreate
+from src.Model.Item import Item
 from src.Utils.reset_db import ResetDatabase
 from src.Service.ItemService import ItemService
 

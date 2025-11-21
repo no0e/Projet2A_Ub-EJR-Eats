@@ -129,7 +129,6 @@ class MockGoogleMap:
 
 
 @pytest.fixture
-@pytest.fixture
 def delivery_repo():
     repo = MockDeliveryRepo()
 

@@ -1,12 +1,9 @@
 from typing import List, Optional
 import pytest
 
-from src.DAO.DeliveryDAO import DeliveryDAO
-from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
 from src.Model.Delivery import Delivery
 from src.Model.Order import Order
 from src.Model.DeliveryDriver import DeliveryDriver
-from src.Service.GoogleMapService import GoogleMap
 from src.Service.DeliveryDriverService import DeliveryDriverService
 
 

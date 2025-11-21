@@ -173,21 +173,20 @@ def Edit_Profile(
 
     username = get_user_from_credentials(credentials).username
     try:
-        customer_dao.update_customer(username, address)
+        customer = customer_dao.update_customer(username, address)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     try:
-        user_service.update_user(username, firstname, lastname, password)
+        user = user_service.update_user(username, firstname, lastname, password)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     return {
         "detail": "Profile updated successfully",
-        "firstname": firstname,
-        "lastname": lastname,
-        "password": password,
-        "address": address,
+        "firstname": user.firstname,
+        "lastname": user.lastname,
+        "address": customer.address,
     }

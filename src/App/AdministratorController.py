@@ -175,13 +175,12 @@ def Edit_Profile(
     username = get_user_from_credentials(credentials).username
 
     try:
-        user_service.update_user(username, firstname, lastname, password)
+        user = user_service.update_user(username, firstname, lastname, password)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     return {
         "detail": "Profile updated successfully",
-        "firstname": firstname,
-        "lastname": lastname,
-        "password": password,
+        "firstname": user.firstname,
+        "lastname": user.lastname,
     }

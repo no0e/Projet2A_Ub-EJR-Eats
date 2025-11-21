@@ -20,7 +20,7 @@ def delivery_dao(db_connector):
 
 
 def test_create(delivery_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     created_delivery = Delivery(
         id_order=[3, 4],
         stops=["13 Main St.", "4 Salty Spring Av."],
@@ -33,13 +33,13 @@ def test_create(delivery_dao):
 
 
 def test_get_available_deliveries(delivery_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     available_deliveries = delivery_dao.get_available_deliveries()
     assert len(available_deliveries) == 1
 
 
 def test_get_by_id(delivery_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     delivery = delivery_dao.get_by_id(1)
     assert delivery.username_delivery_driver == "ernesto"
     assert delivery.duration == 50
@@ -64,4 +64,4 @@ def test_set_delivery_accepted(delivery_dao):
 
 if __name__ == "__main__":
     pytest.main()
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)

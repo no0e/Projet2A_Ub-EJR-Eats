@@ -23,7 +23,7 @@ def administrator_dao(db_connector):
 
 
 def test_create(administrator_dao,user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     user_to_be_administrator = user_dao.get_by_username('futureadministrator')
     administrator_to_create = Administrator(
         username=user_to_be_administrator.username,
@@ -39,7 +39,7 @@ def test_create(administrator_dao,user_dao):
 
 
 def test_find_by_username(administrator_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     found_user = administrator_dao.find_by_username("aliceasm")
     assert found_user is not None
     with pytest.raises(TypeError):
@@ -49,7 +49,7 @@ def test_find_by_username(administrator_dao):
 
 
 def test_delete(administrator_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     admin_to_delete = administrator_dao.find_by_username("fabriccio")
     deletion = administrator_dao.delete(admin_to_delete)
     assert deletion is True
@@ -70,4 +70,4 @@ def test_delete(administrator_dao):
 
 if __name__ == "__main__":
     pytest.main()
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)

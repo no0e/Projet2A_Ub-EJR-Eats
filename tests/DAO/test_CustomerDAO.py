@@ -24,7 +24,7 @@ def customer_dao(db_connector):
 
 
 def test_create(customer_dao, user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     user_to_be_customer = user_dao.get_by_username("futurecustomer")
     customer_to_create = Customer(
         username=user_to_be_customer.username,
@@ -41,7 +41,7 @@ def test_create(customer_dao, user_dao):
 
 
 def test_find_by_username(customer_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     found_customer = customer_dao.find_by_username("charliz")
     nonexistentcustomer = customer_dao.find_by_username("nonexistentcustomer")
     assert found_customer is not None
@@ -51,7 +51,7 @@ def test_find_by_username(customer_dao):
 
 
 def test_delete(customer_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     with pytest.raises(TypeError):
         customer_dao.delete("not a customer, just a string")
     nonexistentcustomer = Customer(
@@ -72,4 +72,4 @@ def test_delete(customer_dao):
 
 if __name__ == "__main__":
     pytest.main()
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)

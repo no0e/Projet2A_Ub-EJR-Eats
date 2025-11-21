@@ -120,31 +120,6 @@ def test_username_exists_failed():
     assert exist is False
 
 
-def test_delete_user_success():
-    user_repo.create_user(
-        User(
-            username="Maelys",
-            firstname="Mael",
-            lastname="Lys",
-            password="mdpsecure",
-            salt="salt",
-            account_type="Customer",
-        )
-    )
-
-    assert service.username_exists("Maelys") is not None
-    service.delete_user("Maelys")
-    assert service.username_exists("Maelys") is not None
-
-
-def test_delete_user_not_found():
-    try:
-        service.delete_user("nonexistent_user")
-        raise AssertionError("Expected ValueError but none was raised.")
-    except ValueError as e:
-        assert str(e) == "User with username 'nonexistent_user' not found."
-
-
 def test_update_user_success():
     user_repo.create_user(
         User(

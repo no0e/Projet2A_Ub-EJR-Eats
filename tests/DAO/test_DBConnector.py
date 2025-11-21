@@ -3,6 +3,7 @@ from src.DAO.DBConnector import DBConnector
 
 load_dotenv()
 
+
 def test_connection():
     db = DBConnector()
     try:
@@ -10,6 +11,7 @@ def test_connection():
         print("Connection successful! Result:", result)
     except Exception as e:
         print("Connection failed:", e)
+
 
 if __name__ == "__main__":
     test_connection()

@@ -10,7 +10,7 @@ googlemap = GoogleMap(restaurant_location="51 rue Blaise Pascal, 35170 Bruz")
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
 
-    def __init__(self, delivery_repo: DeliveryDAO, google_maps : GoogleMap):
+    def __init__(self, delivery_repo: DeliveryDAO, google_maps: GoogleMap):
         self.delivery_repo = delivery_repo
         self.googlemap = google_maps
 

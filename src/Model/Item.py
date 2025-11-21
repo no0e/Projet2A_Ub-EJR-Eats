@@ -10,4 +10,3 @@ class Item(BaseModel):
     category: str
     stock: int
     exposed: bool = False
-

@@ -187,7 +187,7 @@ def Create_Item(
         Returns a dict that informs the user the item has been created.
     """
     try:
-        new_item = item_service.create_item(name_item, int(price*100), category, stock)
+        new_item = item_service.create_item(name_item, int(price * 100), category, stock)
         return {"message": "Item created successfully ", "item": new_item}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
@@ -227,7 +227,7 @@ def Edit_Item(
         Returns a dict that informs the user the item has been updated.
     """
     try:
-        item_service.update(name_item, new_name, int(new_price*100), new_category, new_stock, availability)
+        item_service.update(name_item, new_name, int(new_price * 100), new_category, new_stock, availability)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except (TypeError, ValueError) as e:
@@ -239,7 +239,7 @@ def Edit_Item(
     return {
         "detail": "Item updated successfully",
         "name_item": item.name_item,
-        "price": round(item.price/100, 2),
+        "price": round(item.price / 100, 2),
         "category": item.category,
         "stock": item.stock,
         "availability": item.exposed,

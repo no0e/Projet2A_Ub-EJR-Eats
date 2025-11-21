@@ -4,12 +4,11 @@ import pytest
 from src.Service.DeliveryService import DeliveryService
 
 
-
 class MockDeliveryRepo:
     def __init__(self):
         self.deliveries = {}
 
-    def create(self, delivery : Delivery):
+    def create(self, delivery: Delivery):
         delivery.id_item = self.auto_id
         self.auto_id += 1
 
@@ -26,7 +25,7 @@ class MockDeliveryRepo:
     def get_available_deliveries(self) -> List[Delivery]:
         return [delivery for delivery in self.deliveries.values() if delivery.is_accepted is False]
 
-    def get_by_id(self, id_delivery)-> Delivery:
+    def get_by_id(self, id_delivery) -> Delivery:
         return self.deliveries.get(id_delivery)
 
     def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
@@ -43,7 +42,7 @@ class MockDeliveryRepo:
 
         delivery.is_accepted = True
         delivery.username_delivery_driver = username_delivery_driver
-        delivery =  self.deliveries.get(id_delivery)
+        delivery = self.deliveries.get(id_delivery)
 
         if not delivery:
             raise ValueError("Delivery not found")
@@ -66,9 +65,9 @@ class MockDeliveryRepo:
         # Le **service** attend que ce mock retourne aussi *destinations*
         destinations = [
             {
-                "lat": 48.117266,     # ex coords → à ajuster si besoin
+                "lat": 48.117266,  # ex coords → à ajuster si besoin
                 "lng": -1.6777926,
-                "address": stop
+                "address": stop,
             }
             for stop in delivery.stops
         ]
@@ -89,14 +88,14 @@ class MockDeliveryRepo:
         # CORRECTION : On passe la liste complète des stops au service Google.
         # Le service Google (ou le mock) est responsable de déterminer la destination
         # finale (le dernier stop) et les waypoints (les stops intermédiaires).
-        
+
         if delivery.stops:
             destinations_for_map = delivery.stops  # Passe ['13 Main St.']
         else:
             # Fallback (doit être cohérent avec ce que le mock attend - ici, un dict unique)
             # MAIS ATTENTION : Si le mock attend une liste (Cas 1 ou 2), il faut encapsuler !
             destinations_for_map = [{"lat": 48.050245, "lng": -1.741515}]
-            
+
         link = self.google_service.generate_google_maps_link(destinations_for_map)
         # ----------------------------------------------------------------------
 
@@ -124,8 +123,8 @@ class MockGoogleMap:
 
     def generate_google_maps_link(self, destination_coords: List[dict]) -> str:
         """Simulate the creation of a Google Maps link."""
-        lat = destination_coords[0]['lat']
-        lng = destination_coords[0]['lng']
+        lat = destination_coords[0]["lat"]
+        lng = destination_coords[0]["lng"]
         return f"https://mock.google.com/maps?q={lat},{lng}"
 
 
@@ -134,24 +133,53 @@ def delivery_repo():
     repo = MockDeliveryRepo()
 
     repo.deliveries = {
-        1: Delivery(id_delivery = 1, username_delivery_driver='ernesto', duration ='50', id_orders= [1, 2], stops= ['13 Main St.', '4 Salty Spring Av.'], is_accepted = True),
-        2: Delivery(id_delivery = 2, username_delivery_driver='ernesto1',duration = '15', id_orders = [1], stops= ['13 Main St.'], is_accepted = False),
-        3: Delivery(id_delivery=3, username_delivery_driver='driver_test', duration='10', id_orders=[3], stops=[], is_accepted=True),
-        4: Delivery(id_delivery=4, username_delivery_driver=None, duration='10', id_orders=[3], stops=['10 Failed St.'], is_accepted=False)
-        }
+        1: Delivery(
+            id_delivery=1,
+            username_delivery_driver="ernesto",
+            duration="50",
+            id_orders=[1, 2],
+            stops=["13 Main St.", "4 Salty Spring Av."],
+            is_accepted=True,
+        ),
+        2: Delivery(
+            id_delivery=2,
+            username_delivery_driver="ernesto1",
+            duration="15",
+            id_orders=[1],
+            stops=["13 Main St."],
+            is_accepted=False,
+        ),
+        3: Delivery(
+            id_delivery=3,
+            username_delivery_driver="driver_test",
+            duration="10",
+            id_orders=[3],
+            stops=[],
+            is_accepted=True,
+        ),
+        4: Delivery(
+            id_delivery=4,
+            username_delivery_driver=None,
+            duration="10",
+            id_orders=[3],
+            stops=["10 Failed St."],
+            is_accepted=False,
+        ),
+    }
     return repo
+
 
 @pytest.fixture
 def googlemap():
     return MockGoogleMap()
 
+
 @pytest.fixture
 def delivery_service(delivery_repo, googlemap):
     return DeliveryService(delivery_repo, googlemap)
 
+
 def test_create_success(delivery_service):
-    delivery = delivery_service.create([1, 2], ['13 Main St.', '4 Salty Spring Av.'])
-    assert delivery.id_orders == [1,2]
-    assert delivery.stops == ['13 Main St.', '4 Salty Spring Av.']
-
-
+    delivery = delivery_service.create([1, 2], ["13 Main St.", "4 Salty Spring Av."])
+    assert delivery.id_orders == [1, 2]
+    assert delivery.stops == ["13 Main St.", "4 Salty Spring Av."]

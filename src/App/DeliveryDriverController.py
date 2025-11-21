@@ -33,13 +33,7 @@ deliverydriver_router = APIRouter(
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
 def view_available_deliveries(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> dict:
-    """Function that shows the driver, all the non-accepted deliveries.
-
-    Returns
-    -------
-    dict
-        Returns a dict listing all the available deliveries.
-    """
+    """If you want to see all available deliveries."""
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
     deliveries = delivery_service.get_available_deliveries(vehicle_driver)
@@ -53,20 +47,7 @@ def accept_delivery(
     id_delivery: int,
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())],
 ) -> dict:
-    """Function that allows the driver to accept a delivery by typing its id.
-
-    Parameters
-    -------
-    id_delivery: int
-        id of the delivery the driver wants to accept
-    credentials: HTTPAuthorizationCredentials
-        driver's credentials
-
-    Returns
-    -------
-    dict
-        Returns a dict summarising the delivery's information and providing the googlemap link.
-    """
+    """If you want to accept a delivery by typing its id."""
     username_driver = get_user_from_credentials(credentials).username
     vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
     try:
@@ -84,45 +65,23 @@ def edit_profile(
     is_available: Optional[bool] = Query(None, description="Driver availability"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ) -> dict:
-    """Function that calls the function that update a delivery driver's profile.
-
-    Parameters
-    ----------
-    firstname: str
-        new driver's firstname, by default None
-    lastname: str
-        new driver's lastname, by default None
-    password: str
-        new driver's password, by default None
-    vehicle: str
-        new driver's way of delivering, by default None
-    is_available: bool
-        driver's availability, by default None
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-
-    Returns
-    -------
-    dict
-        Returns a dict summarising all the delivery driver's new information.
-    """
+    """If you want to update your own profile."""
 
     username = get_user_from_credentials(credentials).username
     try:
-        driver_dao.update_delivery_driver(username, vehicle, is_available)
+        driver = driver_dao.update_delivery_driver(username, vehicle, is_available)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     try:
-        user_service.update_user(username, firstname, lastname, password)
+        user = user_service.update_user(username, firstname, lastname, password)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     return {
         "detail": "Profile updated successfully",
-        "firstname": firstname,
-        "lastname": lastname,
-        "password": password,
-        "vehicle": vehicle,
-        "is_available": is_available,
+        "firstname": user.firstname,
+        "lastname": user.lastname,
+        "vehicle": driver.vehicle,
+        "is_available": driver.is_available,
     }

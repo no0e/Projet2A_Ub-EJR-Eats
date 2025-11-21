@@ -14,10 +14,8 @@ from src.Service.CustomerService import CustomerService
 from .init_app import user_service
 
 customer_router = APIRouter(
-    prefix="/customer",
-     tags=["Customer"],
-      dependencies=[Depends(require_account_type("Customer"))]
-      )
+    prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))]
+)
 
 customer_service = CustomerService()
 
@@ -51,13 +49,7 @@ def get_cart_for_user(username: str) -> dict:
 
 @customer_router.get("/Menu", status_code=status.HTTP_201_CREATED)
 def View_menu() -> List[dict]:
-    """Function that print the available menu to the customer.
-
-    Returns
-    -------
-    List[dict]
-        Returns the available menu.
-    """
+    """If you want to see the EJR's current menu."""
     try:
         menu = customer_service.view_menu()
         print("menu fetched:", menu)
@@ -74,22 +66,7 @@ def add_items_to_cart(
     item: Annotated[List[str], Query(description="Item name")],
     quantities: Annotated[List[int], Query(description="Quantity for each item")],
 ) -> dict:
-    """Function that add items to the active customer's cart.
-
-    Parameters
-    ----------
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-    item: List[str]
-        List of the item's name the customer wants to add
-    quantities: List[int]
-        List of the quantities paired with the items the customer wants to add
-
-    Returns
-    -------
-    dict
-        Returns the user's cart after modification.
-    """
+    """If you want to add an item to your cart."""
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -114,22 +91,7 @@ def add_items_to_cart(
 def Modify_cart(
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())], name_item: str, new_quantity: int
 ) -> dict:
-    """Function that modify the customer's cart's content.
-
-    Parameters
-    ----------
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-    name_item: str
-        name of the item the customer wants to modify
-    new_quantity: int
-        new quantity of that item
-
-    Returns
-    -------
-    dict
-        Returns the user's cart after modification.
-    """
+    """If you want to change an item's quantity from your cart."""
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -145,18 +107,7 @@ def Modify_cart(
 
 @customer_router.get("/View_Cart", status_code=status.HTTP_200_OK)
 def View_cart(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]):
-    """Functon that shows the customer's current cart only available with their actual token.
-
-    Parameters
-    ----------
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-
-    Returns
-    -------
-    dict
-        Returns the user's current cart.
-    """
+    """If you want to see your current cart."""
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     cart = get_cart_for_user(username_customer)
@@ -175,22 +126,7 @@ def Validate_cart(
     validate: Literal["yes", "no"],
     address: Optional[str] = None,
 ) -> str:
-    """Functon that allows the customer to validate his cart to launch their order.
-
-    Parameters
-    ----------
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-    validate: str
-        whether the customer wants to validate ("yes") or not ("no") their cart
-    address: str
-        address of the delivery, by default None
-
-    Returns
-    -------
-    str
-        Returns a message confirming the order's launching.
-    """
+    """If you want to validate your cart and place an order."""
     username = get_user_from_credentials(credentials).username
     customer = customer_dao.find_by_username(username)
     if not customer:
@@ -213,18 +149,7 @@ def Validate_cart(
 
 @customer_router.get("/View_Order", status_code=status.HTTP_200_OK)
 def View_order(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> Order:
-    """Functon that shows the customer their order.
-
-    Parameters
-    ----------
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-
-    Returns
-    -------
-    Order
-        Returns the customer's order.
-    """
+    """If you want to see your order."""
     customer = get_user_from_credentials(credentials)
     username_customer = customer.username
     try:
@@ -237,51 +162,31 @@ def View_order(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTB
 
 
 @customer_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK)
-def edit_Profile(
+def Edit_Profile(
     firstname: Optional[str] = Query(None, description="First name"),
     lastname: Optional[str] = Query(None, description="Last name"),
     password: Optional[str] = Query(None, description="Password"),
     address: Optional[str] = Query(None, description="Postal address"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ) -> dict:
-    """Function that calls the function that update a customer's profile.
-
-    Parameters
-    ----------
-    firstname: str
-        new customer's firstname, by default None
-    lastname: str
-        new customer's lastname, by default None
-    password: str
-        new customer's password, by default None
-    address: str
-        new customer's address, by default None
-    credentials: HTTPAuthorizationCredentials
-        customer's credentials
-
-    Returns
-    -------
-    dict
-        Returns a dict summarising all the customer's new information.
-    """
+    """If you want to edit your own profile."""
 
     username = get_user_from_credentials(credentials).username
     try:
-        customer_dao.update_customer(username, address)
+        customer = customer_dao.update_customer(username, address)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     try:
-        user_service.update_user(username, firstname, lastname, password)
+        user = user_service.update_user(username, firstname, lastname, password)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     return {
         "detail": "Profile updated successfully",
-        "firstname": firstname,
-        "lastname": lastname,
-        "password": password,
-        "address": address,
+        "firstname": user.firstname,
+        "lastname": user.lastname,
+        "address": customer.address,
     }

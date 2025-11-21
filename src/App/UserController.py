@@ -19,25 +19,7 @@ user_router = APIRouter(prefix="/users", tags=["Users"])
 
 @user_router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(username: str, password: str, firstname: str, lastname: str, address: str) -> APIUser:
-    """Function that calls the function that create a new customer's account.
-
-    Parameters
-    ----------
-    username: str
-        user's username
-    password: str
-        user's password
-    firstname: str
-        users's firstname
-    lastname: str
-        user's lastname
-    address: str
-        user's address
-
-    Returns
-    -------
-    APIUser
-        Returns the APIUser that has juste been created.
+    """If you want to create a customer's account.
     """
     try:
         check_password_strength(password=password)
@@ -54,20 +36,7 @@ def create_user(username: str, password: str, firstname: str, lastname: str, add
 
 @user_router.post("/jwt", status_code=status.HTTP_201_CREATED)
 def login(username: str, password: str) -> JWTResponse:
-    """Function that allows the users to athentificate theirselves by typing their username and password to obtain a
-    token.
-
-    Parameters
-    ----------
-    username: str
-        user's username
-    password: str
-        user's password
-
-    Returns
-    -------
-    JWTResponse
-        Returns the token needed to give access to a user their account.
+    """If you want to log in to the application with your username and password.
     """
     try:
         user = validate_username_password(username=username.lower(), password=password, user_repo=user_repo)
@@ -81,16 +50,6 @@ def login(username: str, password: str) -> JWTResponse:
 
 @user_router.get("/me", dependencies=[Depends(JWTBearer())])
 def get_user_own_profile(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> APIUser:
-    """Function that allows the users to see their username and account's type.
-
-    Parameters
-    ----------
-    credentials: HTTPAuthorizationCredentials
-        user's credentials
-
-    Returns
-    -------
-    APIUser
-        Returns the APIUser authentificated.
+    """If you want to check your username and type of account.
     """
     return get_user_from_credentials(credentials)

@@ -13,25 +13,27 @@ def db_connector():
     db = DBConnector()
     yield db
 
+
 @pytest.fixture
 def user_dao(db_connector):
     return UserDAO(db_connector, test=True)
+
 
 @pytest.fixture
 def administrator_dao(db_connector):
     return AdministratorDAO(db_connector, test=True)
 
 
-def test_create(administrator_dao,user_dao):
+def test_create(administrator_dao, user_dao):
     ResetDatabase().launch(True)
-    user_to_be_administrator = user_dao.get_by_username('futureadministrator')
+    user_to_be_administrator = user_dao.get_by_username("futureadministrator")
     administrator_to_create = Administrator(
         username=user_to_be_administrator.username,
         firstname=user_to_be_administrator.firstname,
         lastname=user_to_be_administrator.lastname,
         account_type=user_to_be_administrator.account_type,
         password=user_to_be_administrator.password,
-        salt=user_to_be_administrator.salt
+        salt=user_to_be_administrator.salt,
     )
     assert administrator_dao.create(administrator_to_create)
     with pytest.raises(TypeError):

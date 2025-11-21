@@ -21,6 +21,7 @@ class MockDriverRepo:
     def find_by_username(self, username: str) -> Optional[DeliveryDriver]:
         return self.drivers.get(username)
 
+
 class MockDeliveryRepo:
     def __init__(self):
         self.deliveries = {}
@@ -33,7 +34,7 @@ class MockDeliveryRepo:
 
     def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
         if id_delivery == 4:
-            return False  
+            return False
 
         delivery = self.deliveries.get(id_delivery)
 
@@ -45,7 +46,7 @@ class MockDeliveryRepo:
 
         delivery.is_accepted = True
         delivery.username_delivery_driver = username_delivery_driver
-        delivery =  self.deliveries.get(id_delivery)
+        delivery = self.deliveries.get(id_delivery)
 
         if not delivery:
             raise ValueError("Delivery not found")
@@ -68,9 +69,9 @@ class MockDeliveryRepo:
         # Le **service** attend que ce mock retourne aussi *destinations*
         destinations = [
             {
-                "lat": 48.117266,     # ex coords → à ajuster si besoin
+                "lat": 48.117266,  # ex coords → à ajuster si besoin
                 "lng": -1.6777926,
-                "address": stop
+                "address": stop,
             }
             for stop in delivery.stops
         ]
@@ -91,18 +92,19 @@ class MockDeliveryRepo:
         # CORRECTION : On passe la liste complète des stops au service Google.
         # Le service Google (ou le mock) est responsable de déterminer la destination
         # finale (le dernier stop) et les waypoints (les stops intermédiaires).
-        
+
         if delivery.stops:
             destinations_for_map = delivery.stops  # Passe ['13 Main St.']
         else:
             # Fallback (doit être cohérent avec ce que le mock attend - ici, un dict unique)
             # MAIS ATTENTION : Si le mock attend une liste (Cas 1 ou 2), il faut encapsuler !
             destinations_for_map = [{"lat": 48.050245, "lng": -1.741515}]
-            
+
         link = self.google_service.generate_google_maps_link(destinations_for_map)
         # ----------------------------------------------------------------------
 
         return {"delivery_id": delivery_id, "google_maps_link": link}
+
 
 class MockGoogleRepo:
     def __init__(self):
@@ -111,7 +113,7 @@ class MockGoogleRepo:
     def generate_google_maps_link(self, destinations):
         if not destinations:
             raise ValueError("The list of destinations cannot be empty")
-    
+
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"
 
         # Déclarations par défaut pour éviter les erreurs d'initialisation
@@ -133,7 +135,6 @@ class MockGoogleRepo:
                 waypoints = "|".join(f"{d['lat']},{d['lng']}" for d in destinations[:-1])
 
         elif isinstance(destinations, dict):
-
             destination = f"{destinations['lat']},{destinations['lng']}"
             waypoints = ""
         else:
@@ -152,69 +153,115 @@ def driver_repo():
     repo = MockDriverRepo()
 
     repo.drivers = {
-        'ernesto': DeliveryDriver(username="ernesto",
+        "ernesto": DeliveryDriver(
+            username="ernesto",
             firstname="Ernest",
             lastname="Eagle",
             password="364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe",
             salt="no",
             account_type="DeliveryDriver",
             vehicle="car",
-            is_available=False),
-        'ernesto1': DeliveryDriver(username="ernesto1",
+            is_available=False,
+        ),
+        "ernesto1": DeliveryDriver(
+            username="ernesto1",
             firstname="Ernest",
             lastname="Eagle",
             salt="no",
             account_type="DeliveryDriver",
             password="364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe",
             vehicle="foot",
-            is_available=True)
-        }
+            is_available=True,
+        ),
+    }
 
     return repo
+
 
 @pytest.fixture
 def delivery_repo():
     repo = MockDeliveryRepo()
 
     repo.deliveries = {
-        1 : Delivery(id_delivery = 1, username_delivery_driver='ernesto', duration ='50', id_orders= [1, 2], stops= ['13 Main St.', '4 Salty Spring Av.'], is_accepted = True),
-        2 : Delivery(id_delivery = 2, username_delivery_driver='ernesto1',duration = '15', id_orders = [1], stops= ['13 Main St.'], is_accepted = False),
-        3: Delivery(id_delivery=3, username_delivery_driver='driver_test', duration='10', id_orders=[3], stops=[], is_accepted=False),
-        4: Delivery(id_delivery=4, username_delivery_driver=None, duration='10', id_orders=[3], stops=['10 Failed St.'], is_accepted=False)
-        }
-    repo.orders ={
-        1 : Order(id_order =None,username_customer= "bobbia",username_delivery_driver= "ernesto1", address="13 Main St.",items= {"galette saucisse": 2, "cola": 1}),
-        2 : Order(id_order =None,username_customer= "bobbia",username_delivery_driver= "ernesto",address= "13 Main St.",items= {"galette saucisse": 39})
+        1: Delivery(
+            id_delivery=1,
+            username_delivery_driver="ernesto",
+            duration="50",
+            id_orders=[1, 2],
+            stops=["13 Main St.", "4 Salty Spring Av."],
+            is_accepted=True,
+        ),
+        2: Delivery(
+            id_delivery=2,
+            username_delivery_driver="ernesto1",
+            duration="15",
+            id_orders=[1],
+            stops=["13 Main St."],
+            is_accepted=False,
+        ),
+        3: Delivery(
+            id_delivery=3,
+            username_delivery_driver="driver_test",
+            duration="10",
+            id_orders=[3],
+            stops=[],
+            is_accepted=False,
+        ),
+        4: Delivery(
+            id_delivery=4,
+            username_delivery_driver=None,
+            duration="10",
+            id_orders=[3],
+            stops=["10 Failed St."],
+            is_accepted=False,
+        ),
+    }
+    repo.orders = {
+        1: Order(
+            id_order=None,
+            username_customer="bobbia",
+            username_delivery_driver="ernesto1",
+            address="13 Main St.",
+            items={"galette saucisse": 2, "cola": 1},
+        ),
+        2: Order(
+            id_order=None,
+            username_customer="bobbia",
+            username_delivery_driver="ernesto",
+            address="13 Main St.",
+            items={"galette saucisse": 39},
+        ),
     }
 
     return repo
+
 
 @pytest.fixture
 def google_repo():
     return MockGoogleRepo()
 
+
 @pytest.fixture
 def deliverydriver_service(driver_repo, delivery_repo, google_repo):
-    return DeliveryDriverService(
-        driver_repo=driver_repo,
-        delivery_repo=delivery_repo,
-        google_service=google_repo
-    )
+    return DeliveryDriverService(driver_repo=driver_repo, delivery_repo=delivery_repo, google_service=google_repo)
+
 
 def test_get_driver_success(deliverydriver_service):
     driver = deliverydriver_service.get_driver("ernesto")
     assert driver.username == "ernesto"
     assert driver.vehicle == "car"
-    assert driver.firstname== "Ernest"
-    assert driver.lastname=="Eagle"
-    assert driver.password=="364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe"
-    assert driver.salt=="no"
-    assert driver.account_type=="DeliveryDriver"
+    assert driver.firstname == "Ernest"
+    assert driver.lastname == "Eagle"
+    assert driver.password == "364a9f83d2ab94505ba9baecd0fe59c88b082f982e8d8cf8070171bae171fcbe"
+    assert driver.salt == "no"
+    assert driver.account_type == "DeliveryDriver"
     assert driver.is_available is False
+
 
 def test_get_driver_not_found(deliverydriver_service):
     driver = deliverydriver_service.get_driver("non_existent_driver")
     assert driver is None
+
 
 def test_get_available_deliveries_success(deliverydriver_service):
     deliveries = deliverydriver_service.get_available_deliveries()
@@ -229,20 +276,20 @@ def test_get_available_deliveries_success(deliverydriver_service):
     assert d.stops == ["13 Main St."]
     assert d.is_accepted is False
 
+
 def test_accept_delivery_success(deliverydriver_service):
     delivery = deliverydriver_service.accept_delivery(2, "ernesto1")
     expected_link = (
-        "http://googleusercontent.com/maps.google.com/?"
-        "origin=48.111339,-1.68002"
-        "&destination=13 Main St."
-        "&waypoints="
+        "http://googleusercontent.com/maps.google.com/?origin=48.111339,-1.68002&destination=13 Main St.&waypoints="
     )
-    assert delivery == {"delivery_id": 2, "google_maps_link": expected_link} 
+    assert delivery == {"delivery_id": 2, "google_maps_link": expected_link}
+
 
 def test_accept_delivery_failed(deliverydriver_service):
     with pytest.raises(ValueError) as error_delivery:
         deliverydriver_service.accept_delivery(1, "ernesto")
     assert str(error_delivery.value) == "Delivery not available or already accepted"
+
 
 def test_accept_delivery_with_no_stops(deliverydriver_service):
     delivery = deliverydriver_service.accept_delivery(3, "ernesto1")
@@ -250,10 +297,11 @@ def test_accept_delivery_with_no_stops(deliverydriver_service):
     expected_link = (
         "http://googleusercontent.com/maps.google.com/?"
         "origin=48.111339,-1.68002"
-        "&destination=48.050245,-1.741515" 
+        "&destination=48.050245,-1.741515"
         "&waypoints="
     )
     assert delivery == {"delivery_id": 3, "google_maps_link": expected_link}
+
 
 def test_accept_delivery_failed_repo_update(deliverydriver_service):
     with pytest.raises(ValueError) as error:

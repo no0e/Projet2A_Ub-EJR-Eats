@@ -69,9 +69,7 @@ class AdministratorService:
         user = self.user_repo.get_by_username(user_username)
 
         if user is None:
-            raise ValueError(
-                f"User with username '{user_username}' not found."
-            )
+            raise ValueError(f"User with username '{user_username}' not found.")
         return user
 
     def username_exists(self, username: str) -> bool:

@@ -45,7 +45,7 @@ class AdministratorDAO(UserDAO):
         )
         return raw_created_admin is not None
 
-    def find_by_username(self, username: str)-> Administrator | None:
+    def find_by_username(self, username: str) -> Administrator | None:
         """
         Function that find an administrator by their username.
 

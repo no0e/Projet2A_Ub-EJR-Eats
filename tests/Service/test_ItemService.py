@@ -53,32 +53,25 @@ class MockItemRepo:
         return True
 
 
-
 item_repo = MockItemRepo()
 item_service = ItemService(item_repo)
+
 
 @pytest.fixture
 def item_service():
     repo = MockItemRepo()
 
-    repo.create_item(Item(name_item = "galette saucisse",price = 300, category ="main course", stock =102, exposed =True))
-    repo.create_item(Item(name_item = "vegetarian galette",
-        price = 300,
-        category = "main dish",
-        stock =  30,
-        exposed =  False))
-    repo.create_item(Item(name_item = "cola",
-        price = 200,
-        category = "drink",
-        stock =  501,
-        exposed =  True))
+    repo.create_item(Item(name_item="galette saucisse", price=300, category="main course", stock=102, exposed=True))
+    repo.create_item(Item(name_item="vegetarian galette", price=300, category="main dish", stock=30, exposed=False))
+    repo.create_item(Item(name_item="cola", price=200, category="drink", stock=501, exposed=True))
 
     return ItemService(repo)
 
 
 def test_view_storage(item_service):
     storage = item_service.view_storage()
-    assert storage == {"galette saucisse": 102,"vegetarian galette": 30,"cola": 501}
+    assert storage == {"galette saucisse": 102, "vegetarian galette": 30, "cola": 501}
+
 
 def test_create_item_success(item_service):
     item = item_service.create_item("Burger", 1200, "starter", 50)
@@ -89,13 +82,17 @@ def test_create_item_success(item_service):
     assert item.stock == 50
     assert item.exposed == False
 
+
 def test_create_item_failed(item_service):
     with pytest.raises(ValueError) as error_price:
         item_service.create_item("Pizza", -1200, "starter", 50)
     assert str(error_price.value) == "The item price should not be negative."
     with pytest.raises(TypeError) as error_category:
         item_service.create_item("Pizza", 1200, "dish", 50)
-    assert str(error_category.value) == "The category is not registered. Must be one of: starter, main course, dessert, drink."
+    assert (
+        str(error_category.value)
+        == "The category is not registered. Must be one of: starter, main course, dessert, drink."
+    )
     with pytest.raises(ValueError) as error_stock:
         item_service.create_item("Pizza", 1200, "starter", -50)
     assert str(error_stock.value) == "Stock can't be negative."
@@ -103,16 +100,18 @@ def test_create_item_failed(item_service):
         item_service.create_item("galette saucisse", 1200, "starter", 50)
     assert str(error_name.value) == "The item name is already attributed."
 
+
 def test_change_name_item_success(item_service):
     item = item_service.update(name_item="galette saucisse", new_name="Pizza")
     assert item.name_item == "Pizza"
+
 
 def test_change_name_item_failed(item_service):
     with pytest.raises(TypeError) as error_oldname:
         item_service.update(name_item="galette saucisse", new_name="vegetarian galette")
     assert str(error_oldname.value) == "The new name is already attributed."
     with pytest.raises(TypeError) as error_newname:
-        item_service.update(name_item="Pizza",new_name= "galette")
+        item_service.update(name_item="Pizza", new_name="galette")
     assert str(error_newname.value) == "This item does not exist."
 
 
@@ -121,10 +120,12 @@ def test_delete_item_success(item_service):
     success = item_service.delete_item("Pizza")
     assert success == "The item Pizza is deleted from the database"
 
+
 def test_delete_item_failed(item_service):
     with pytest.raises(TypeError) as error_name:
         item_service.delete_item("Pizza")
     assert str(error_name.value) == "The item to delete doesn't exist."
+
 
 def test_modify_price_success(item_service):
     item_service.create_item("Burger", 1200, "starter", 50)
@@ -137,16 +138,17 @@ def test_modify_price_success(item_service):
     assert new_item.category == "starter"
     assert new_item.stock == 50
     assert new_item.exposed == False
-    assert new_item == Item(id_item = 4,name_item = "Burger",price =500, category ="starter", stock = 50, exposed =False)
+    assert new_item == Item(id_item=4, name_item="Burger", price=500, category="starter", stock=50, exposed=False)
 
 
 def test_modify_price_failed(item_service):
     with pytest.raises(ValueError) as error_price:
-        item_service.update(name_item="galette saucisse",price= -500)
+        item_service.update(name_item="galette saucisse", price=-500)
     assert str(error_price.value) == "The item price should not be negative."
     with pytest.raises(TypeError) as error_name:
-        item_service.update(name_item="Pizza",price=500 )
+        item_service.update(name_item="Pizza", price=500)
     assert str(error_name.value) == "This item does not exist."
+
 
 def test_modify_stock_success(item_service):
     item_service.create_item("Burger", 12, "starter", 50)
@@ -160,30 +162,36 @@ def test_modify_stock_failed(item_service):
         item_service.update(name_item="galette saucisse", stock=-5)
     assert str(error_stock.value) == "Stock can't be negative."
     with pytest.raises(TypeError) as error_name:
-        item_service.update(name_item="Pizza",stock=5 )
+        item_service.update(name_item="Pizza", stock=5)
     assert str(error_name.value) == "This item does not exist."
+
 
 def test_modify_category_success(item_service):
     item_service.create_item("Burger", 1200, "starter", 50)
     new_item = item_service.update(name_item="Burger", category="main course")
     assert new_item.category == "main course"
 
+
 def test_modify_category_failed(item_service):
     item_service.create_item("Burger", 1200, "starter", 50)
     with pytest.raises(TypeError) as error_category:
-        item_service.update(name_item="Burger",category="dish")
-    assert str(error_category.value) == "The category is not registered. Must be one of: starter, main course, dessert, drink."
+        item_service.update(name_item="Burger", category="dish")
+    assert (
+        str(error_category.value)
+        == "The category is not registered. Must be one of: starter, main course, dessert, drink."
+    )
     with pytest.raises(TypeError) as error_name:
-        item_service.update(name_item="Pizza", category="main course" )
+        item_service.update(name_item="Pizza", category="main course")
     assert str(error_name.value) == "This item does not exist."
 
+
 def test_change_availability_success(item_service):
-    item =item_service.create_item("Burger", 1200, "starter", 50)
+    item = item_service.create_item("Burger", 1200, "starter", 50)
     new_item = item_service.update(name_item="Burger", exposed=True)
     assert new_item.exposed is True
-    
+
 
 def test_change_availability_failed(item_service):
     with pytest.raises(TypeError) as error_name:
-        item_service.update(name_item="Pizza", exposed=True )
+        item_service.update(name_item="Pizza", exposed=True)
     assert str(error_name.value) == "This item does not exist."

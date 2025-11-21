@@ -58,3 +58,5 @@ The server will run on `localhost:8000`, and the API documentation can be access
 For the test database:
 
 > pdm run filldatabase test
+
+# To try every features here a admin credentials

@@ -25,7 +25,7 @@ from .init_app import (
 
 administrator_router = APIRouter(
  prefix="/administrator",
- tags=["Administrator"], dependencies=[Depends(require_account_type("Admin"))]
+ tags=["Administrator"], dependencies=[Depends(require_account_type("Administrator"))]
  )
 
 

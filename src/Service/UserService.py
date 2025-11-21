@@ -179,14 +179,17 @@ class UserService:
             self.admin_repo.delete(self.admin_repo.find_by_username(username))
         elif self.get_user(username).account_type == "DeliveryDriver":
             self.driver_repo.delete(self.driver_repo.find_by_username(username))
-            for order in self.order_repo.find_order_by_driver(username):
-                self.order_repo.delete(order)
-            for delivery in self.delivery_repo.find_delivery_by_driver(username):
-                self.delivery_repo.delete(delivery)
+            if order_repo.find_order_by_driver(username) is not None:
+                for order in order_repo.find_order_by_driver(username):
+                    order_repo.delete(order)
+            if delivery_repo.find_delivery_by_driver(username) is not None:
+                for delivery in delivery_repo.find_delivery_by_driver(username):
+                    delivery_repo.delete(delivery)
         else:
             self.customer_repo.delete(self.customer_repo.find_by_username(username))
-            for order in self.order_repo.find_order_by_user(username):
-                self.order_repo.delete(order)
+            if order_repo.find_order_by_user(username) is not None:
+                for order in order_repo.find_order_by_user(username):
+                    order_repo.delete(order)
         return True if self.user_repo.delete_user(self.get_user(username)) else False
 
     def update_user(

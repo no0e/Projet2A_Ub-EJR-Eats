@@ -1,19 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Literal, Optional
+from typing import Annotated, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.security import HTTPAuthorizationCredentials
 
 from src.App.Auth_utils import get_user_from_credentials, require_account_type
 from src.App.JWTBearer import JWTBearer
 from src.Model.APIUser import APIUser
-from src.Service.PasswordService import check_password_strength
-
-
-from fastapi.security import HTTPAuthorizationCredentials
-
 from src.Model.Item import Item
 from src.Model.User import User
+from src.Service.PasswordService import check_password_strength
 
 from .init_app import (
     admin_service,
@@ -69,7 +66,11 @@ def Create_Accounts(
         raise HTTPException(status_code=400, detail="Password too weak") from e
     try:
         user: User = admin_service.create_user(
-            username=username, password=password, firstname=firstname, lastname=lastname, account_type=account_type
+            username=username.lower(),
+            password=password,
+            firstname=firstname,
+            lastname=lastname,
+            account_type=account_type,
         )
     except Exception as error:
         raise HTTPException(status_code=409, detail=f"{error}") from error
@@ -116,9 +117,10 @@ def Edit_Accounts(
         "detail": "Account updated successfully",
     }
 
+
 @administrator_router.delete("/Storage/Delete_User", status_code=status.HTTP_200_OK)
 def Delete_User(username) -> bool:
-    """Function that calls the function to delete an User.
+    """Function that calls the function to delete a User.
 
     Parameters
     -------
@@ -185,7 +187,7 @@ def Create_Item(
         Returns a dict that informs the user the item has been created.
     """
     try:
-        new_item = item_service.create_item(name_item, price, category, stock)
+        new_item = item_service.create_item(name_item, int(price*100), category, stock)
         return {"message": "Item created successfully ", "item": new_item}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
@@ -225,7 +227,7 @@ def Edit_Item(
         Returns a dict that informs the user the item has been updated.
     """
     try:
-        item_service.update(name_item, new_name, new_price, new_category, new_stock, availability)
+        item_service.update(name_item, new_name, int(new_price*100), new_category, new_stock, availability)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except (TypeError, ValueError) as e:
@@ -237,7 +239,7 @@ def Edit_Item(
     return {
         "detail": "Item updated successfully",
         "name_item": item.name_item,
-        "price": item.price,
+        "price": round(item.price/100, 2),
         "category": item.category,
         "stock": item.stock,
         "availability": item.exposed,

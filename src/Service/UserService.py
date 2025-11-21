@@ -2,7 +2,10 @@ from typing import Optional
 
 from src.DAO.AdministratorDAO import AdministratorDAO
 from src.DAO.CustomerDAO import CustomerDAO
+from src.DAO.DBConnector import DBConnector
+from src.DAO.DeliveryDAO import DeliveryDAO
 from src.DAO.DeliveryDriverDAO import DeliveryDriverDAO
+from src.DAO.OrderDAO import OrderDAO
 from src.DAO.UserDAO import UserDAO
 from src.Model.Administrator import Administrator
 from src.Model.Customer import Customer
@@ -11,7 +14,10 @@ from src.Model.User import User
 from src.Service.GoogleMapService import GoogleMap
 from src.Service.PasswordService import check_password_strength, create_salt, hash_password
 
+db_connector = DBConnector()
 google_service = GoogleMap()
+order_repo = OrderDAO(db_connector)
+delivery_repo = DeliveryDAO(db_connector)
 
 
 class UserService:
@@ -169,7 +175,19 @@ class UserService:
         bool
             True if the deletion is done, False otherwise.
         """
-        self.user_repo.delete_user(self.get_user(username))
+        if self.get_user(username).account_type == "Administrator":
+            self.admin_repo.delete(self.admin_repo.find_by_username(username))
+        elif self.get_user(username).account_type == "DeliveryDriver":
+            self.driver_repo.delete(self.driver_repo.find_by_username(username))
+            for order in self.order_repo.find_order_by_driver(username):
+                self.order_repo.delete(order)
+            for delivery in self.delivery_repo.find_delivery_by_driver(username):
+                self.delivery_repo.delete(delivery)
+        else:
+            self.customer_repo.delete(self.customer_repo.find_by_username(username))
+            for order in self.order_repo.find_order_by_user(username):
+                self.order_repo.delete(order)
+        return True if self.user_repo.delete_user(self.get_user(username)) else False
 
     def update_user(
         self,

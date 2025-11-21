@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from src.DAO.OrderDAO import OrderDAO
 from src.Model.Delivery import Delivery
@@ -172,3 +172,66 @@ class DeliveryDAO:
         """
         )
         self.db.sql_query(query, {"id_order": id_order, "username_delivery_driver": username_delivery_driver})
+
+    def find_delivery_by_driver(self, username_delivery_driver: str, test: bool = False) -> Optional[List[Delivery]]:
+        """
+        Retrieve a single delivery by the username of its delivery driver.
+
+        Parameters
+        ----------
+        username_delivery_driver : str
+            The username of the delivery driver whose we want to find their deliveries.
+
+        Returns
+        -------
+        Optional[List[Delivery]]
+            An Delivery object if found, otherwise None.
+        """
+        schema = "project_test_database" if test else "project_database"
+        raw_deliveries = self.db_connector.sql_query(
+            f"SELECT * FROM {schema}.deliveries WHERE username_delivery_driver = %s;",
+            [username_delivery_driver],
+            "all",
+        )
+        if not raw_deliveries:
+            return None
+
+        deliveries = list[Delivery]
+        for raw_delivery in raw_deliveries:
+            deliveries.append(
+                Delivery(
+                    id_order=raw_delivery["id_delivery"],
+                    username_delivery_driver=raw_delivery["username_delivery_driver"],
+                    duration=raw_delivery["duration"],
+                    id_orders=raw_delivery["id_orders"],
+                    stops=raw_delivery["stops"],
+                    is_accepted=raw_delivery["is_accepted"],
+                )
+            )
+        return deliveries
+
+    def delete(self, delivery: Delivery, test: bool = False) -> bool:
+        """
+        Delete a delivery from the database.
+
+        Parameters
+        ----------
+        delivery : Delivery
+            The Delivery object to delete.
+
+        Returns
+        -------
+        bool
+            True if deletion succeeded, False otherwise.
+        """
+        try:
+            schema = "project_test_database" if test else "project_database"
+            self.db_connector.sql_query(
+                f"DELETE FROM {schema}.deliveries WHERE id_delivery = %s;",
+                [delivery.id_delivery],
+                "none",
+            )
+            return True
+        except Exception as e:
+            print(f"[OrderDAO] Error deleting order: {e}")
+            return False

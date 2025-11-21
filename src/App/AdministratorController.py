@@ -83,7 +83,7 @@ def Edit_Accounts(
 def Delete_User(username) -> bool:
     """If you want to delete another user's account."""
     try:
-        user_deleted = admin_service.delete_user(username)
+        user_deleted = user_service.delete_user(username)
         return user_deleted
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

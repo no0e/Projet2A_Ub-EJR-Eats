@@ -142,6 +142,45 @@ class OrderDAO:
             )
         return orders
 
+    def find_order_by_driver(self, username_delivery_driver: str, test: bool = False) -> Optional[List[Order]]:
+        """
+        Retrieve a single order by the username of its delivery driver.
+
+        Parameters
+        ----------
+        username_delivery_driver : str
+            The username of the delivery driver whose we want to find their orders.
+
+        Returns
+        -------
+        Optional[Order]
+            An Order object if found, otherwise None.
+        """
+        schema = "project_test_database" if test else "project_database"
+        raw_orders = self.db_connector.sql_query(
+            f"SELECT * FROM {schema}.orders WHERE username_delivery_driver = %s;",
+            [username_delivery_driver],
+            "all",
+        )
+        if not raw_orders:
+            return None
+
+        orders = []
+        for raw_order in raw_orders:
+            raw_items = raw_order.get("items") or {}
+            items_dict = json.loads(raw_items) if isinstance(raw_items, str) else raw_items
+
+            orders.append(
+                Order(
+                    id_order=raw_order["id_order"],
+                    username_customer=raw_order["username_customer"],
+                    username_delivery_driver=raw_order["username_delivery_driver"],
+                    address=raw_order["address"],
+                    items=items_dict,
+                )
+            )
+        return orders
+
     def update(self, order: Order, test: bool = False) -> bool:
         """
         Update an existing order in the database.

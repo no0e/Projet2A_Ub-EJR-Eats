@@ -87,19 +87,6 @@ class AdministratorService:
         """
         return self.user_repo.get_by_username(username) is not None
 
-    def delete_user(self, username: str):
-        """Function that delete a user from our data given their username.
-
-        Parameters
-        ----------
-        username : str
-            username of the user we want to delete.
-        """
-        user = self.get_user(username)
-        if user is None:
-            raise ValueError(f"User with username '{username}' not found.")
-        return self.user_repo.delete_user(user)
-
     def update_user(
         self,
         username: str,

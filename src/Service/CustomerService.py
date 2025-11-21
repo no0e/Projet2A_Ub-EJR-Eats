@@ -30,7 +30,9 @@ class CustomerService:
         self.customer_dao = customer_dao or CustomerDAO(db)
         self.order_dao = order_dao or OrderDAO(db)
         self.delivery_dao = delivery_dao or DeliveryDAO(db)
-        self.delivery_service = delivery_service or DeliveryService(self.delivery_dao)
+        self.delivery_service = delivery_service or DeliveryService(
+            delivery_repo=self.delivery_dao, google_maps=google_service
+        )
         self.active_carts = {}
 
     def get_customer(self, username: str) -> Customer | None:

@@ -246,7 +246,7 @@ def Edit_Item(
 
 
 @administrator_router.delete("/Storage/Delete_Item", status_code=status.HTTP_200_OK)
-def Delete_Item(name_item) -> Item:
+def Delete_Item(name_item) -> str:
     """Function that calls the function to delete an item.
 
     Parameters

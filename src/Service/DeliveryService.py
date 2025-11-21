@@ -5,6 +5,7 @@ from src.Model.Delivery import Delivery
 from src.Service.GoogleMapService import GoogleMap
 
 
+
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
 
@@ -41,7 +42,7 @@ class DeliveryService:
         dict
             A dict summarising information of the available deliveries.
         """
-        # duration = googlemap.get_directions(destinations = list, mode: str = "driving")["duration_min"]
+       
         return self.delivery_repo.get_available_deliveries()
 
     def accept_delivery(self, id_delivery: int, username_driver: str, vehicle: str) -> dict:
@@ -70,6 +71,7 @@ class DeliveryService:
         dests: List[dict] = []
         for i in delivery.stops:
             dests.append(self.googlemap.geocoding_address(i))
+        duration = self.googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
 
         if not isinstance(delivery.stops, list):

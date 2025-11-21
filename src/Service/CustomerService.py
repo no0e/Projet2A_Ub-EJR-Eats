@@ -64,7 +64,7 @@ class CustomerService:
             {
                 "id_item": item.id_item,
                 "name_item": item.name_item,
-                "price": round(item.price / 100, 2),
+                "price": float(round(item.price / 100, 2)),
                 "category": item.category,
                 "stock": item.stock,
                 "exposed": item.exposed,

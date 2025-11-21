@@ -51,3 +51,8 @@ INSERT INTO project_test_database.deliveries (id_delivery, username_delivery_dri
 VALUES 
 (1,'ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.'], True),
 (2,'ernesto1', '15', ARRAY[1], ARRAY['13 Main St.'], False);
+
+SELECT setval(
+  pg_get_serial_sequence('project_test_database.deliveries', 'id_delivery'),
+  (SELECT MAX(id_delivery) FROM project_test_database.deliveries)
+);

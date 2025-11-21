@@ -41,14 +41,13 @@ class DeliveryService:
         for d in deliveries:
             base = d.__dict__.copy()
 
-            # Transformation des adresses en coordonnées GPS
+            # adress -> GPS
             coords = [self.googlemap.geocoding_address(addr) for addr in d.stops]
 
-            # Vérifie qu'il y a au moins une coordonnée
+            # any coords ?
             if not coords:
                 continue
 
-            # Appel à Google Directions avec la bonne structure
             route = self.googlemap.get_directions(destinations=coords, mode=vehicule)
 
             base["duration_min"] = route["duration_min"]

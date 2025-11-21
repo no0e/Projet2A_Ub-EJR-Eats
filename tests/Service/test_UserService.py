@@ -2,6 +2,7 @@ from typing import Optional
 
 import pytest
 
+from src.Model.Customer import Customer
 from src.Model.User import User
 from src.Service.UserService import UserService
 
@@ -9,9 +10,13 @@ from src.Service.UserService import UserService
 class MockUserRepo:
     def __init__(self):
         self.users = {}
+        self.customers: MockCustomerRepo = {}
+        self.admins: MockAdminRepo = {}
+        self.drivers: MockDriverRepo = {}
 
     def create_user(self, user: User) -> bool:
         self.users[user.username] = user
+        self.customers[user.username] = user
         return True
 
     def get_by_username(self, username: str) -> Optional[User]:
@@ -52,6 +57,12 @@ class MockCustomerRepo:
 
     def create(self, customer):
         self.customers[customer.username] = customer
+
+    def delete(self, username):
+        self.customers.pop(username, None)
+
+    def find_by_username(self, username):
+        return self.customers[username]
 
 
 user_repo = MockUserRepo()

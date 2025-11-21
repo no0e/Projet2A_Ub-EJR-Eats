@@ -39,7 +39,7 @@ start = "pdm run __main__.py"
 reset = "pdm run python -m  src.Utils.reset_db"
 typecheck = "pyrefly check"
 install = "pdm install requirements.txt"
-filldatabase = "pdm run python -m src.Utils.FillTestDatabase"
+filldatabase = "python -m src.Utils.FillTestDatabase"
 
 [tool.ruff]
 line-length = 120

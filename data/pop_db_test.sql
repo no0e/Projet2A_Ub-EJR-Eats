@@ -47,7 +47,7 @@ VALUES
 ('charliz', 'ernesto1', '4 Salty Spring Av.', '{"galette saucisse":39,"cola":2}'::jsonb);
 
 -- Deliveries
-INSERT INTO project_test_database.deliveries (id_delivery, username_delivery_driver, duration, id_orders, stops, is_accepted)
+INSERT INTO project_test_database.deliveries (username_delivery_driver, duration, id_orders, stops, is_accepted)
 VALUES 
-(1,'ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.'], True),
-(2,'ernesto1', '15', ARRAY[1], ARRAY['13 Main St.'], False);
+('ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.'], True),
+('ernesto1', '15', ARRAY[1], ARRAY['13 Main St.'], False);

@@ -221,6 +221,7 @@ def test_accept_delivery_success(delivery_service):
     assert message == {
         "message": "Delivery accepted successfully",
         "delivery_id": 4,
+        "duration": 30,
         "google_maps_link": "https://mock.google.com/maps?q=48.8566,2.3522",
     }
 

@@ -8,7 +8,6 @@ from fastapi.security import HTTPAuthorizationCredentials
 from src.App.Auth_utils import get_user_from_credentials, require_account_type
 from src.App.JWTBearer import JWTBearer
 from src.Model.APIUser import APIUser
-from src.Model.Item import Item
 from src.Model.User import User
 from src.Service.PasswordService import check_password_strength
 

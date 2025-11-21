@@ -11,10 +11,10 @@ from .UserController import user_router
 def run_app(reset_db=False):
     app = FastAPI(
         title="Ub’EJR Eats",
-        description="This API allows you to connect user to the ENSAI Junior Restaurant.<br>"
-        "As a customer you can create a cart by choosing items from the menu. You can then order it.<br>"
-        "As a delivery driver you can see the pendant orders . You will be provided a map with the itinary.<br>"
-        "As an administrator, you can manage user accounts and items in the menus.",
+        description="This API allows you to be connected as a user to the ENSAI Junior Restaurant app.<br>"
+        "- As a customer you can create a cart by choosing items from the menu. You can then order it.<br>"
+        "- As a delivery driver you can see the pendant orders. You will be provided a map with the itinerary.<br>"
+        "- As an administrator, you can manage user accounts and items in the menus.",
     )
 
     app.include_router(user_router)

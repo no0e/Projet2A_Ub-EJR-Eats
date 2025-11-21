@@ -49,7 +49,6 @@ class MockItemRepo:
 
 
 item_repo = MockItemRepo()
-item_service = ItemService(item_repo)
 
 
 @pytest.fixture
@@ -75,7 +74,7 @@ def test_create_item_success(item_service):
     assert item.price == 1200
     assert item.category == "starter"
     assert item.stock == 50
-    assert item.exposed == False
+    assert item.exposed is False
 
 
 def test_create_item_failed(item_service):
@@ -132,7 +131,7 @@ def test_modify_price_success(item_service):
     assert new_item.price == 50000
     assert new_item.category == "starter"
     assert new_item.stock == 50
-    assert new_item.exposed == False
+    assert new_item.exposed is False
     assert new_item == Item(id_item=4, name_item="Burger", price=50000, category="starter", stock=50, exposed=False)
 
 
@@ -181,7 +180,7 @@ def test_modify_category_failed(item_service):
 
 
 def test_change_availability_success(item_service):
-    item = item_service.create_item("Burger", 1200, "starter", 50)
+    item_service.create_item("Burger", 1200, "starter", 50)
     new_item = item_service.update(name_item="Burger", exposed=True)
     assert new_item.exposed is True
 

@@ -114,7 +114,7 @@ class CustomerDAO(UserDAO):
             return False
 
         query = (
-            f"""UPDATE """
+            """UPDATE """
             + self.schema
             + """.customers
             SET {", ".join(set_clause)}

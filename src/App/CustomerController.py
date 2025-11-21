@@ -3,7 +3,7 @@ from typing import Annotated, List, Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 
-from src.App.Auth_utils import get_user_from_credentials, require_account_type
+from src.App.Auth_utils import get_user_from_credentials
 from src.App.JWTBearer import JWTBearer
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector

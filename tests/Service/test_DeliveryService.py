@@ -21,7 +21,7 @@ class MockDeliveryRepo:
         3. Met à jour l'objet Delivery avec le nouvel ID.
         4. Retourne True si l'insertion "réussit". (Simule le comportement de la BDD).
         """
-        
+
         # 1. Simuler la vérification de type (TypeError)
         if not isinstance(delivery, Delivery):
              # Simule l'erreur qui se produit avant l'appel à la BDD
@@ -29,14 +29,14 @@ class MockDeliveryRepo:
 
         # 2. Simuler l'attribution de l'ID par la BDD (RETURNING id_delivery)
         new_id = self.auto_id
-        self.auto_id += 1 
+        self.auto_id += 1
 
         # 3. Mettre à jour l'objet (delivery.id_delivery = id_delivery)
         delivery.id_delivery = new_id
 
         # Simuler le stockage réussi dans la "base de données" interne
         self.deliveries[new_id] = delivery
-        
+
         # 4. Retourner True (Simule une insertion réussie)
         return True
 
@@ -133,7 +133,7 @@ class MockGoogleMap:
         if "Lyon" in address:
             return {"lat": 45.7640, "lng": 4.8357}
         if "Unknown address" in address:
-            raise TypeError(f"The address is unfoundable")
+            raise TypeError("The address is unfoundable")
         return {"lat": 0.0, "lng": 0.0}
 
     def get_directions(self, destinations: List[dict], mode: str) -> dict:

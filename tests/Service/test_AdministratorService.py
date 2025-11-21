@@ -1,6 +1,5 @@
 from typing import Optional
 from unittest.mock import patch
-import pytest
 
 from src.Model.Administrator import Administrator
 from src.Model.User import User

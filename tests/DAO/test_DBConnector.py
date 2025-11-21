@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+
 from src.DAO.DBConnector import DBConnector
 
 load_dotenv()

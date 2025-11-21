@@ -35,9 +35,9 @@ VALUES
 -- Items
 INSERT INTO project_test_database.items (name_item, price, category, stock, exposed)
 VALUES 
-('galette saucisse', 320, 'main dish', 102, True),
-('vegetarian galette', 300, 'main dish', 30, False),
-('cola', 200, 'drink', 501, True);
+('galette saucisse', 3.2, 'main dish', 102, True),
+('vegetarian galette', 3.0, 'main dish', 30, False),
+('cola', 2.0, 'drink', 501, True);
 
 -- Orders with string keys in items (adapted for tests)
 INSERT INTO project_test_database.orders (username_customer, username_delivery_driver, address, items)
@@ -47,12 +47,7 @@ VALUES
 ('charliz', 'ernesto1', '4 Salty Spring Av.', '{"galette saucisse":39,"cola":2}'::jsonb);
 
 -- Deliveries
-INSERT INTO project_test_database.deliveries (id_delivery, username_delivery_driver, duration, id_orders, stops, is_accepted)
+INSERT INTO project_test_database.deliveries (username_delivery_driver, duration, id_orders, stops, is_accepted)
 VALUES 
-(1,'ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.'], True),
-(2,'ernesto1', '15', ARRAY[1], ARRAY['13 Main St.'], False);
-
-SELECT setval(
-  pg_get_serial_sequence('project_test_database.deliveries', 'id_delivery'),
-  (SELECT MAX(id_delivery) FROM project_test_database.deliveries)
-);
+('ernesto', '50', ARRAY[1, 2], ARRAY['13 Main St.', '4 Salty Spring Av.'], True),
+('ernesto1', '15', ARRAY[1], ARRAY['13 Main St.'], False);

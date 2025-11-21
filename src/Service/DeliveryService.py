@@ -10,8 +10,9 @@ googlemap = GoogleMap(restaurant_location="51 rue Blaise Pascal, 35170 Bruz")
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
 
-    def __init__(self, delivery_repo: DeliveryDAO):
+    def __init__(self, delivery_repo: DeliveryDAO, google_maps : GoogleMap):
         self.delivery_repo = delivery_repo
+        self.googlemap = google_maps
 
     def create(self, id_orders: List[int], stops: List[str]) -> Delivery:
         """Function that creates a new delivery
@@ -73,7 +74,7 @@ class DeliveryService:
         for i in delivery.stops:
             dests.append(googlemap.geocoding_address(i))
         duration = googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
-        self.delivery_repo.set_delivery_accepted(id_delivery, username_driver, duration)
+        self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
 
         if not isinstance(delivery.stops, list):
             raise ValueError("Stops are not under a list format.")

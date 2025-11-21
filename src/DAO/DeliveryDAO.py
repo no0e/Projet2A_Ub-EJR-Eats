@@ -188,7 +188,7 @@ class DeliveryDAO:
             An Delivery object if found, otherwise None.
         """
         schema = "project_test_database" if test else "project_database"
-        raw_deliveries = self.db_connector.sql_query(
+        raw_deliveries = self.db.sql_query(
             f"SELECT * FROM {schema}.deliveries WHERE username_delivery_driver = %s;",
             [username_delivery_driver],
             "all",
@@ -226,7 +226,7 @@ class DeliveryDAO:
         """
         try:
             schema = "project_test_database" if test else "project_database"
-            self.db_connector.sql_query(
+            self.db.sql_query(
                 f"DELETE FROM {schema}.deliveries WHERE id_delivery = %s;",
                 [delivery.id_delivery],
                 "none",

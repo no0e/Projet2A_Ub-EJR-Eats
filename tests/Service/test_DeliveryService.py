@@ -10,33 +10,17 @@ class MockDeliveryRepo:
         self.auto_id = 1
 
     def create(self, delivery: Delivery) -> bool:
-        """
-        Simule la création d'une instance de livraison en base de données.
-        
-        Comportement simulé :
-        1. Lève TypeError si le type n'est pas Delivery.
-        2. Simule l'attribution d'un nouvel ID_delivery par la BDD.
-        3. Met à jour l'objet Delivery avec le nouvel ID.
-        4. Retourne True si l'insertion "réussit". (Simule le comportement de la BDD).
-        """
-        
-        # 1. Simuler la vérification de type (TypeError)
         if not isinstance(delivery, Delivery):
-             # Simule l'erreur qui se produit avant l'appel à la BDD
              raise TypeError(f"The type of {delivery} should be Delivery.")
 
-        # 2. Simuler l'attribution de l'ID par la BDD (RETURNING id_delivery)
         new_id = self.auto_id
         self.auto_id += 1 
 
-        # 3. Mettre à jour l'objet (delivery.id_delivery = id_delivery)
         delivery.id_delivery = new_id
 
-        # Simuler le stockage réussi dans la "base de données" interne
         self.deliveries[new_id] = delivery
-        
-        # 4. Retourner True (Simule une insertion réussie)
-        return True
+
+        return delivery
 
     def find_by_username(self, username: str) -> Optional[Delivery]:
         return self.deliveries.get(username)
@@ -47,7 +31,7 @@ class MockDeliveryRepo:
     def get_by_id(self, id_delivery) -> Delivery:
         return self.deliveries.get(id_delivery)
 
-    def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
+    """def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
         if id_delivery == 4:
             return False
 
@@ -68,57 +52,40 @@ class MockDeliveryRepo:
 
         if not delivery.id_orders:
             raise ValueError("Orders not found for delivery")
-
-        # Simule : is_accepted = TRUE + driver assigné
         delivery.is_accepted = True
         delivery.username_delivery_driver = username_delivery_driver
-
-        # Simule : UPDATE orders SET username_delivery_driver
         last_order_id = delivery.id_orders[-1]
         if str(last_order_id) not in self.orders:
-            # crée un mock d'ordre si nécessaire
             self.orders[str(last_order_id)] = {"id_order": last_order_id}
 
         self.orders[str(last_order_id)]["username_delivery_driver"] = username_delivery_driver
-
-        # Le **service** attend que ce mock retourne aussi *destinations*
         destinations = [
             {
-                "lat": 48.117266,  # ex coords → à ajuster si besoin
+                "lat": 48.117266,
                 "lng": -1.6777926,
                 "address": stop,
             }
             for stop in delivery.stops
         ]
 
-        return delivery, destinations
+        return delivery, destinations"""
 
-    def accept_delivery(self, delivery_id: int, driver_username: str) -> dict:
-        deliveries = self.delivery_repo.get_available_deliveries()
-        delivery = next((d for d in deliveries if d.id_delivery == delivery_id), None)
-        if not delivery:
-            raise ValueError("Delivery not available or already accepted")
+    def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
+        if id_delivery == 4:
+            return False
 
-        success = self.delivery_repo.set_delivery_accepted(delivery_id, driver_username)
-        if not success:
-            raise ValueError("Delivery could not be accepted")
+        delivery = self.deliveries.get(id_delivery)
+        delivery.is_accepted = True
+        delivery.username_delivery_driver = username_delivery_driver
+        
+        last_order_id = delivery.id_orders[-1]
 
-        # ----------------------------------------------------------------------
-        # CORRECTION : On passe la liste complète des stops au service Google.
-        # Le service Google (ou le mock) est responsable de déterminer la destination
-        # finale (le dernier stop) et les waypoints (les stops intermédiaires).
+        if str(last_order_id) not in self.orders:
+             self.orders[str(last_order_id)] = {"id_order": last_order_id}
 
-        if delivery.stops:
-            destinations_for_map = delivery.stops  # Passe ['13 Main St.']
-        else:
-            # Fallback (doit être cohérent avec ce que le mock attend - ici, un dict unique)
-            # MAIS ATTENTION : Si le mock attend une liste (Cas 1 ou 2), il faut encapsuler !
-            destinations_for_map = [{"lat": 48.050245, "lng": -1.741515}]
+        self.orders[str(last_order_id)]["username_delivery_driver"] = username_delivery_driver
 
-        link = self.google_service.generate_google_maps_link(destinations_for_map)
-        # ----------------------------------------------------------------------
-
-        return {"delivery_id": delivery_id, "google_maps_link": link}
+        return True
 
 
 class MockGoogleMap:
@@ -152,38 +119,46 @@ def delivery_repo():
     repo = MockDeliveryRepo()
 
     repo.deliveries = {
-        1: Delivery(
+        1: repo.create(Delivery(
             id_delivery=1,
             username_delivery_driver="ernesto",
             duration="50",
             id_orders=[1, 2],
             stops=["13 Main St.", "4 Salty Spring Av."],
             is_accepted=True,
-        ),
-        2: create(Delivery(
-            id_delivery=None,
+        )),
+        2: repo.create(Delivery(
+            id_delivery=2,
             username_delivery_driver="ernesto1",
             duration="15",
             id_orders=[1],
             stops=["13 Main St."],
             is_accepted=False,
         )),
-        3: Delivery(
+        3: repo.create(Delivery(
             id_delivery=3,
             username_delivery_driver="driver_test",
             duration="10",
             id_orders=[3],
             stops=[],
             is_accepted=True,
-        ),
-        4: Delivery(
-            id_delivery=4,
+        )),
+        4: repo.create(Delivery(
+            id_delivery= 4,
             username_delivery_driver=None,
             duration="10",
             id_orders=[3],
-            stops=["10 Failed St."],
+            stops=["Paris"],
             is_accepted=False,
-        ),
+        )),
+        5: repo.create(Delivery(
+            id_delivery= 5,
+            username_delivery_driver=None,
+            duration="10",
+            id_orders=[3],
+            stops=["Paris"],
+            is_accepted=False,
+        ))
     }
     return repo
 
@@ -202,5 +177,56 @@ def test_create_success(delivery_service):
     delivery = delivery_service.create([1, 2], ["13 Main St.", "4 Salty Spring Av."])
     assert delivery.id_orders == [1, 2]
     assert delivery.stops == ["13 Main St.", "4 Salty Spring Av."]
-    assert delivery.id_delivery == 5
+    assert delivery.id_delivery == 6
+
+def test_create_failure(delivery_service, delivery_repo):
+    original_create = delivery_repo.create
+
+    def failing_create(delivery: Delivery):
+        return False
+    delivery_repo.create = failing_create
+
+    with pytest.raises(ValueError, match="Failed to create delivery in the database."):
+        delivery_service.create([10, 11], ["Test St."])
+    delivery_repo.create = original_create
+
+
+def test_get_available_deliveries_success(delivery_service):
+    deliveries = delivery_service.get_available_deliveries()
+    assert len(deliveries)== 3
+    delivery1 = deliveries[0]
+    assert delivery1.username_delivery_driver== "ernesto1"
+    assert delivery1.duration==15
+    assert delivery1.id_orders==[1]
+    assert delivery1.stops==["13 Main St."]
+
+def test_accept_delivery_success(delivery_service):
+    message = delivery_service.accept_delivery(4, "ernesto", 'driving')
+    assert message == {"message": "Delivery accepted successfully",
+            "delivery_id": 4,
+            "google_maps_link": 'https://mock.google.com/maps?q=48.8566,2.3522'            }
+
+def test_accept_delivery_failed(delivery_service):
+    with pytest.raises(ValueError) as error_id:
+        delivery_service.accept_delivery(6, "driver_no_stops", 'driving')
+    assert str(error_id.value) == "Delivery not found"
+    with pytest.raises(ValueError) as error_id_not:
+        delivery_service.accept_delivery(1, "driver_no_stops", 'driving')
+    assert str(error_id_not.value) == "Delivery already accepted"
+
+def test_accept_delivery_already_accepted(delivery_service):
+    with pytest.raises(ValueError) as error_driver:
+        delivery_service.accept_delivery(1, "driver", 'driving')
+    assert str(error_driver.value) == "Delivery already accepted"
+
+
+def test_accept_delivery_unfoundable_address(delivery_service, delivery_repo):
+    new_delivery = Delivery(
+        username_delivery_driver=None, duration="20", id_orders=[6], 
+        stops=["Unknown address"], 
+        is_accepted=False, id_delivery=8
+    )
+    id_delivery = delivery_repo.create(new_delivery).id_delivery 
+    with pytest.raises(TypeError, match="The address is unfoundable"):
+        delivery_service.accept_delivery(id_delivery, "driver_fail", 'driving')
 

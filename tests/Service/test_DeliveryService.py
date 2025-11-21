@@ -14,7 +14,6 @@ class MockDeliveryRepo:
     def create(self, delivery: Delivery) -> bool:
         """
         Simule la création d'une instance de livraison en base de données.
-        
         Comportement simulé :
         1. Lève TypeError si le type n'est pas Delivery.
         2. Simule l'attribution d'un nouvel ID_delivery par la BDD.

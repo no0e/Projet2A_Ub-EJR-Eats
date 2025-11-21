@@ -45,9 +45,9 @@ class OrderDAO:
 
             items_json = json.dumps(order.items)
             query = f"""
-                INSERT INTO {schema}.orders 
+                INSERT INTO {schema}.orders
                     (username_customer, username_delivery_driver, address, items)
-                VALUES 
+                VALUES
                     (%(username_customer)s, %(username_delivery_driver)s, %(address)s, %(items)s)
                 RETURNING id_order;
             """

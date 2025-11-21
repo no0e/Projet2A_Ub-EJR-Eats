@@ -94,10 +94,10 @@ def test_create_user_weak_password():
 
 
 def test_create_user_admin_and_driver():
-    admin_user = service.create_user("adm1", "Alice", "Admin", "securePass1", account_type="Administrator")
+    service.create_user("adm1", "Alice", "Admin", "securePass1", account_type="Administrator")
     assert admin_repo.admins["adm1"].username == "adm1"
 
-    driver_user = service.create_user("driver1", "Bob", "Drive", "securePass2", account_type="DeliveryDriver")
+    service.create_user("driver1", "Bob", "Drive", "securePass2", account_type="DeliveryDriver")
     assert driver_repo.drivers["driver1"].username == "driver1"
     assert driver_repo.drivers["driver1"].vehicle == "driving"
 

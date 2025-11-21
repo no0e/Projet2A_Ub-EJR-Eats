@@ -3,7 +3,7 @@ from typing import Annotated, List, Literal, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from fastapi.security import HTTPAuthorizationCredentials
 
-from src.App.Auth_utils import get_user_from_credentials
+from src.App.Auth_utils import get_user_from_credentials, require_account_type
 from src.App.JWTBearer import JWTBearer
 from src.DAO.CustomerDAO import CustomerDAO
 from src.DAO.DBConnector import DBConnector
@@ -13,10 +13,12 @@ from src.Service.CustomerService import CustomerService
 
 from .init_app import user_service
 
-customer_router = APIRouter(prefix="/customer", tags=["Customer"])
-# remplacer cette ligne par :
-# customer_router = APIRouter(prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))])
-# pour limiter les actions aux customer
+customer_router = APIRouter(
+    prefix="/customer",
+     tags=["Customer"],
+      dependencies=[Depends(require_account_type("Customer"))]
+      )
+
 customer_service = CustomerService()
 
 

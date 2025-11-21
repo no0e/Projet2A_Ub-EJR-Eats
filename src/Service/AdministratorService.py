@@ -98,7 +98,7 @@ class AdministratorService:
         user = self.get_user(username)
         if user is None:
             raise ValueError(f"User with username '{username}' not found.")
-        self.user_repo.delete_user(user)
+        return self.user_repo.delete_user(user)
 
     def update_user(
         self,

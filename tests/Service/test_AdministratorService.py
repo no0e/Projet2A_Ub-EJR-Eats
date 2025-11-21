@@ -1,6 +1,5 @@
 from typing import Optional
 from unittest.mock import patch
-import pytest
 
 from src.Model.Administrator import Administrator
 from src.Model.User import User
@@ -141,7 +140,7 @@ def test_delete_user_success():
 def test_delete_user_not_found():
     try:
         service.delete_user("nonexistent_user")
-        assert False, "Expected an exception but none was raised."
+        raise AssertionError("Expected ValueError but none was raised.")
     except ValueError as e:
         assert str(e) == "User with username 'nonexistent_user' not found."
 

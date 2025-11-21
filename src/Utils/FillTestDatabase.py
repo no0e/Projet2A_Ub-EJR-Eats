@@ -1,6 +1,7 @@
+import argparse
 import json
 import random
-import argparse
+
 from faker import Faker
 
 from src.DAO.DBConnector import DBConnector

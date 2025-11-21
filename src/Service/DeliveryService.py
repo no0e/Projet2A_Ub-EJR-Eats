@@ -85,4 +85,5 @@ class DeliveryService:
             "message": "Delivery accepted successfully",
             "delivery_id": id_delivery,
             "google_maps_link": google_maps_link,
+            "duration" : duration
         }

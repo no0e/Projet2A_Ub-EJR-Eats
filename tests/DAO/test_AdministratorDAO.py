@@ -1,6 +1,5 @@
 import pytest
 
-
 from src.DAO.AdministratorDAO import AdministratorDAO
 from src.DAO.DBConnector import DBConnector
 from src.DAO.UserDAO import UserDAO

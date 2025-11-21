@@ -13,10 +13,12 @@ from src.Service.CustomerService import CustomerService
 
 from .init_app import user_service
 
-customer_router = APIRouter(prefix="/customer", tags=["Customer"])
-# remplacer cette ligne par :
-# customer_router = APIRouter(prefix="/customer", tags=["Customer"], dependencies=[Depends(require_account_type("Customer"))])
-# pour limiter les actions aux customer
+customer_router = APIRouter(
+    prefix="/customer",
+     tags=["Customer"],
+      dependencies=[Depends(require_account_type("Customer"))]
+      )
+
 customer_service = CustomerService()
 
 

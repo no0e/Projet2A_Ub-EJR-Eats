@@ -151,7 +151,7 @@ DROP TABLE IF EXISTS project_test_database.items CASCADE;
 CREATE TABLE project_test_database.items (
   id_item SERIAL PRIMARY KEY,
   name_item VARCHAR,
-  price FLOAT,
+  price INTEGER,
   category VARCHAR,
   stock INTEGER,
   exposed BOOLEAN

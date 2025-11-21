@@ -66,7 +66,8 @@ class CustomerDAO(UserDAO):
             raise TypeError("Username should be a string.")
         query = (
             """
-            SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password, c.address
+            SELECT c.username_customer as username, u.firstname, u.lastname, u.salt, u.account_type, u.password,
+            c.address
             FROM """
             + self.schema
             + """.customers as c
@@ -114,7 +115,7 @@ class CustomerDAO(UserDAO):
             return False
 
         query = (
-            f"""UPDATE """
+            """UPDATE """
             + self.schema
             + """.customers
             SET {", ".join(set_clause)}

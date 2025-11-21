@@ -1,6 +1,8 @@
-from src.Model.Delivery import Delivery
-from typing import Optional, List
+from typing import List, Optional
+
 import pytest
+
+from src.Model.Delivery import Delivery
 from src.Service.DeliveryService import DeliveryService
 
 
@@ -14,7 +16,7 @@ class MockDeliveryRepo:
              raise TypeError(f"The type of {delivery} should be Delivery.")
 
         new_id = self.auto_id
-        self.auto_id += 1 
+        self.auto_id += 1
 
         delivery.id_delivery = new_id
 
@@ -98,7 +100,7 @@ class MockGoogleMap:
         if "Lyon" in address:
             return {"lat": 45.7640, "lng": 4.8357}
         if "Unknown address" in address:
-            raise TypeError(f"The address is unfoundable")
+            raise TypeError("The address is unfoundable")
         return {"lat": 0.0, "lng": 0.0}
 
     def get_directions(self, destinations: List[dict], mode: str) -> dict:

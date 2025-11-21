@@ -23,12 +23,11 @@ from .init_app import (
     user_service,
 )
 
-administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"])
+administrator_router = APIRouter(
+ prefix="/administrator",
+ tags=["Administrator"], dependencies=[Depends(require_account_type("Admin"))]
+ )
 
-
-# remplacer cette ligne par :
-# administrator_router = APIRouter(prefix="/administrator", tags=["Administrator"], dependencies=[Depends(require_account_type("Admin"))])
-# pour limiter les actions aux admin
 
 
 @administrator_router.post("/Create_Accounts", status_code=status.HTTP_201_CREATED)
@@ -134,7 +133,7 @@ def Delete_User(username) -> bool:
         False otherwise
     """
     try:
-        user_deleted = administrator_router_service.delete_user(username)
+        user_deleted = admin_service.delete_user(username)
         return user_deleted
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e

@@ -1,9 +1,10 @@
 from typing import List, Optional
+
 import pytest
 
 from src.Model.Delivery import Delivery
-from src.Model.Order import Order
 from src.Model.DeliveryDriver import DeliveryDriver
+from src.Model.Order import Order
 from src.Service.DeliveryDriverService import DeliveryDriverService
 
 

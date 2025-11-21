@@ -129,11 +129,11 @@ def test_modify_price_success(item_service):
 
     assert new_item.id_item == 4
     assert new_item.name_item == "Burger"
-    assert new_item.price == 500
+    assert new_item.price == 50000
     assert new_item.category == "starter"
     assert new_item.stock == 50
     assert new_item.exposed == False
-    assert new_item == Item(id_item=4, name_item="Burger", price=500, category="starter", stock=50, exposed=False)
+    assert new_item == Item(id_item=4, name_item="Burger", price=50000, category="starter", stock=50, exposed=False)
 
 
 def test_modify_price_failed(item_service):

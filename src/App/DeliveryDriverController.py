@@ -32,7 +32,7 @@ deliverydriver_router = APIRouter(
 
 
 @deliverydriver_router.get("/Delivery", status_code=status.HTTP_200_OK)
-def view_available_deliveries() -> dict:
+def view_available_deliveries(credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())]) -> dict:
     """Function that shows the driver, all the non-accepted deliveries.
 
     Returns
@@ -40,7 +40,9 @@ def view_available_deliveries() -> dict:
     dict
         Returns a dict listing all the available deliveries.
     """
-    deliveries = delivery_service.get_available_deliveries()
+    username_driver = get_user_from_credentials(credentials).username
+    vehicle_driver = driver_dao.find_by_username(username_driver).vehicle
+    deliveries = delivery_service.get_available_deliveries(vehicle_driver)
     return {"available_deliveries": deliveries}
 
 

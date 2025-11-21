@@ -33,17 +33,30 @@ class DeliveryService:
         if not success:
             raise ValueError("Failed to create delivery in the database.")
         return delivery
+ 
+    def get_available_deliveries(self,vehicule) -> dict:
+        deliveries = self.delivery_repo.get_available_deliveries()
 
-    def get_available_deliveries(self) -> dict:
-        """Function that shows all non-accepted deliveries.
+        enriched = []
+        for d in deliveries:
+            base = d.__dict__.copy()
 
-        Returns
-        -------
-        dict
-            A dict summarising information of the available deliveries.
-        """
-       
-        return self.delivery_repo.get_available_deliveries()
+            # Transformation des adresses en coordonnées GPS
+            coords = [self.googlemap.geocoding_address(addr) for addr in d.stops]
+
+            # Vérifie qu'il y a au moins une coordonnée
+            if not coords:
+                continue
+
+            # Appel à Google Directions avec la bonne structure
+            route = self.googlemap.get_directions(destinations=coords, mode=vehicule)
+
+            base["duration_min"] = route["duration_min"]
+            base["distance_km"] = route["distance_km"]
+
+            enriched.append(base)
+
+        return enriched
 
     def accept_delivery(self, id_delivery: int, username_driver: str, vehicle: str) -> dict:
         """Function that allows a driver to accept a delivery, updates the database and provides a googlemap link.

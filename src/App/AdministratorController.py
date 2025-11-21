@@ -132,7 +132,7 @@ def Edit_Item(
 ) -> dict:
     """If you want to edit an item (name, price, quantity etc.)."""
     try:
-        item_service.update(name_item, new_name, int(new_price * 100), new_category, new_stock, availability)
+        item_service.update(name_item, new_name, new_price , new_category, new_stock, availability)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except (TypeError, ValueError) as e:

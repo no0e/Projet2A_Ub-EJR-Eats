@@ -130,7 +130,7 @@ class DeliveryDriverDAO(UserDAO):
         query = (
             """UPDATE """ + self.schema + f""".delivery_drivers
             SET {", ".join(set_clause)}"""
-            f"""WHERE username_delivery_driver = %(username)s
+            f""" WHERE username_delivery_driver = %(username)s
         """
         )
         self.db_connector.sql_query(query, params, return_type=None)

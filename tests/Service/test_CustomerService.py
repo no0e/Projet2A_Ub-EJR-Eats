@@ -201,20 +201,16 @@ def test_view_menu_success(customer_service):
     menu = customer_service.view_menu()
     assert menu == [
         {
-            "id_item": 1,
             "name_item": "galette saucisse",
             "price": 3.2,
             "category": "main course",
             "stock": 102,
-            "exposed": True,
         },
         {
-            "id_item": 3,
             "name_item": "cola",
             "price": 2.0,
             "category": "drink",
             "stock": 501,
-            "exposed": True,
         },
     ]
 

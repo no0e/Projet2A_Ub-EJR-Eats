@@ -24,10 +24,8 @@ from .init_app import (
 )
 
 administrator_router = APIRouter(
- prefix="/administrator",
- tags=["Administrator"], dependencies=[Depends(require_account_type("Administrator"))]
- )
-
+    prefix="/administrator", tags=["Administrator"], dependencies=[Depends(require_account_type("Administrator"))]
+)
 
 
 @administrator_router.post("/Create_Accounts", status_code=status.HTTP_201_CREATED)
@@ -38,27 +36,7 @@ def Create_Accounts(
     lastname: str,
     account_type: Literal["Administrator", "DeliveryDriver", "Customer"],
 ) -> APIUser:
-    """Function that calls the User creation function from an administrator point of view.
-
-    Parameters
-    ----------
-    username: str
-        user's username
-    password: str
-        user's password
-    firstname: str
-        user's firstname
-    lastname: str
-        user's lastname
-    account_type: str
-        user's account type
-
-
-    Returns
-    -------
-    APIUser
-        Returns the APIUser that has been created.
-    """
+    """If you want to create a customer, delivery driver or administrator account."""
     try:
         check_password_strength(password=password)
     except Exception as e:
@@ -80,23 +58,7 @@ def Create_Accounts(
 def Edit_Accounts(
     username: str, attribute: Literal["firstname", "lastname", "address", "vehicle"], new_value: str
 ) -> dict:
-    """Function that modify a user's attribute by calling the different DAO's methods.
-
-    Parameters
-    ----------
-    username: str
-        user's username
-    attribute: str
-        user's attribute to modify
-    new_value: str
-        user's new value for the attribute selected
-
-
-    Returns
-    -------
-    dict
-        Returns a dict that informs the user the modification has been done.
-    """
+    """If you want to edit another profile's attribute such as names for example."""
     if attribute == "address":
         if user_service.get_user(username).account_type != "Customer":
             raise ValueError("Only customers have an address.")
@@ -119,19 +81,7 @@ def Edit_Accounts(
 
 @administrator_router.delete("/Storage/Delete_User", status_code=status.HTTP_200_OK)
 def Delete_User(username) -> bool:
-    """Function that calls the function to delete a User.
-
-    Parameters
-    -------
-    username: str
-        username of the user
-
-    Returns
-    -------
-    bool
-        True the User that has been deleted.
-        False otherwise
-    """
+    """If you want to delete another user's account."""
     try:
         user_deleted = admin_service.delete_user(username)
         return user_deleted
@@ -143,13 +93,7 @@ def Delete_User(username) -> bool:
 
 @administrator_router.get("/Storage/View", status_code=status.HTTP_200_OK)
 def View_Storage() -> dict:
-    """Function that print the whole set of items and their quantities to the user.
-
-    Returns
-    -------
-    dict
-        Returns a dict containing an item's name associated with its quantity in storage.
-    """
+    """If you want to see the whole EJR current storage."""
     try:
         storage = item_service.view_storage()
         print("Storage fetched:", storage)
@@ -167,24 +111,7 @@ def Create_Item(
     stock: int,
     category: str = Query(..., description="Type of item", enum=["starter", "main course", "dessert", "drink"]),
 ) -> dict:
-    """Function that calls the function to create an item.
-
-    Parameters
-    -------
-    name_item: str
-        item's name
-    price: float
-        item's price
-    stock: int
-        item's quantity available
-    category: str
-        item's category
-
-    Returns
-    -------
-    dict
-        Returns a dict that informs the user the item has been created.
-    """
+    """If you want to create a new item."""
     try:
         new_item = item_service.create_item(name_item, int(price * 100), category, stock)
         return {"message": "Item created successfully ", "item": new_item}
@@ -203,28 +130,7 @@ def Edit_Item(
     new_stock: int = None,
     availability: bool = Query(None, description="Is the item available ?", enum=[True, False]),
 ) -> dict:
-    """Function that calls the function to update an item.
-
-    Parameters
-    -------
-    name_item: str
-        item's name
-    new_name: str
-        item's new name, by default None
-    new_price: float
-        item's new price, by default None
-    new_category: str
-        item's new category, by default None
-    new_stock: int
-        item's new quantity, by default None
-    availability: bool
-        item's availability, by default None
-
-    Returns
-    -------
-    dict
-        Returns a dict that informs the user the item has been updated.
-    """
+    """If you want to edit an item (name, price, quantity etc.)."""
     try:
         item_service.update(name_item, new_name, int(new_price * 100), new_category, new_stock, availability)
     except Exception as e:
@@ -269,41 +175,23 @@ def Delete_Item(name_item) -> str:
 
 
 @administrator_router.patch("/Storage/Edit_Profile", status_code=status.HTTP_200_OK)
-def edit_Profile(
+def Edit_Profile(
     firstname: Optional[str] = Query(None, description="First name"),
     lastname: Optional[str] = Query(None, description="Last name"),
     password: Optional[str] = Query(None, description="Password"),
     credentials: Annotated[HTTPAuthorizationCredentials, Depends(JWTBearer())] = None,
 ) -> dict:
-    """Function that calls the function to update the user's own profile
-
-    Parameters
-    -------
-    firstname: str
-        admin's new firstname, by default None
-    lastname: str
-        admin's new lastname, by default None
-    password: str
-        admin's new password, by default None
-    credentials: HTTPAuthorizationCredentials
-        admin's credentials, by default None
-
-    Returns
-    -------
-    dict
-        Returns the dict summarising all the administrator's new information.
-    """
+    """If you want to edit your own profile."""
 
     username = get_user_from_credentials(credentials).username
 
     try:
-        user_service.update_user(username, firstname, lastname, password)
+        user = user_service.update_user(username, firstname, lastname, password)
     except Exception as error:
         raise HTTPException(status_code=403, detail=f"Error updating profile: {error}") from error
 
     return {
         "detail": "Profile updated successfully",
-        "firstname": firstname,
-        "lastname": lastname,
-        "password": password,
+        "firstname": user.firstname,
+        "lastname": user.lastname,
     }

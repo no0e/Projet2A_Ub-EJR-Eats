@@ -62,12 +62,10 @@ class CustomerService:
 
         menu = [
             {
-                "id_item": item.id_item,
                 "name_item": item.name_item,
                 "price": float(round(item.price / 100, 2)),
                 "category": item.category,
                 "stock": item.stock,
-                "exposed": item.exposed,
             }
             for item in items
         ]

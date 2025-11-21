@@ -59,4 +59,8 @@ For the test database:
 
 > pdm run filldatabase test
 
-# To try every features here a admin credentials
+# To try every features here's a admin credentials
+
+Username : aliceasm
+
+Password : hardpwd123

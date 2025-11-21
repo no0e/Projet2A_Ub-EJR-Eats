@@ -22,9 +22,9 @@ driver_dao = DeliveryDriverDAO(db_connector)
 user_dao = UserDAO(db_connector)
 
 # Services instanciés avec les bons DAOs
-delivery_service = DeliveryService(delivery_dao)
-driver_service = DeliveryDriverService(driver_dao, delivery_dao, user_dao)
 google_service = GoogleMap()
+delivery_service = DeliveryService(delivery_dao, google_service)
+driver_service = DeliveryDriverService(driver_dao, delivery_dao, user_dao)
 
 deliverydriver_router = APIRouter(
     prefix="/delivery_driver", tags=["DeliveryDriver"], dependencies=[Depends(require_account_type("DeliveryDriver"))]

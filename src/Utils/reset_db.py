@@ -15,7 +15,7 @@ class ResetDatabase(metaclass=Singleton):
     """
 
     @log
-    def lancer(self, test_dao=False):
+    def launch(self, test_dao=False):
         """Lancement de la réinitialisation des données
         Si test_dao = True : réinitialisation des données de test"""
 
@@ -50,6 +50,6 @@ class ResetDatabase(metaclass=Singleton):
 
 
 if __name__ == "__main__":
-    ResetDatabase().lancer()
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch()
+    ResetDatabase().launch(True)
     print("Database was reset.")

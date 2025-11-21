@@ -6,15 +6,8 @@ from pydantic import BaseModel
 class Item(BaseModel):
     id_item: Optional[int] = None
     name_item: str
-    price: float
+    price: int
     category: str
     stock: int
     exposed: bool = False
 
-
-class ItemCreate(BaseModel):
-    name_item: str
-    price: float
-    category: str
-    stock: int
-    exposed: bool = False

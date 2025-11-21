@@ -26,7 +26,7 @@ def delivery_driver_dao(db_connector):
 
 
 def test_create(delivery_driver_dao, user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     user_to_be_driver = user_dao.get_by_username("futuredeliverydriver")
     driver_to_create = DeliveryDriver(
         username=user_to_be_driver.username,
@@ -42,14 +42,14 @@ def test_create(delivery_driver_dao, user_dao):
 
 
 def test_create_errors(delivery_driver_dao, user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     nonexistent_driver = None
     with pytest.raises(TypeError):
         delivery_driver_dao.create(nonexistent_driver)
 
 
 def test_find_by_username(delivery_driver_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     found_driver = delivery_driver_dao.find_by_username("ernesto")
     assert found_driver is not None
     assert found_driver.username == "ernesto"
@@ -58,7 +58,7 @@ def test_find_by_username(delivery_driver_dao):
 
 
 def test_update_delivery_driver(delivery_driver_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     to_be_updated_driver = delivery_driver_dao.find_by_username("ernesto1")
     updated_driver = delivery_driver_dao.update_delivery_driver(to_be_updated_driver.username, vehicle="driving")
     missing_driver = None
@@ -68,7 +68,7 @@ def test_update_delivery_driver(delivery_driver_dao):
 
 
 def test_delete(delivery_driver_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     driver_to_delete = delivery_driver_dao.find_by_username("ernesto")
     deletion = delivery_driver_dao.delete(driver_to_delete)
     missing_driver = None
@@ -78,7 +78,7 @@ def test_delete(delivery_driver_dao):
 
 
 def test_drivers_available(delivery_driver_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     available_drivers = delivery_driver_dao.drivers_available()
     assert isinstance(available_drivers, list)
     assert len(available_drivers) == 1
@@ -87,4 +87,4 @@ def test_drivers_available(delivery_driver_dao):
 
 if __name__ == "__main__":
     pytest.main()
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)

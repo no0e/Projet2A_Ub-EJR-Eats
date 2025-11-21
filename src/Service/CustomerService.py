@@ -62,7 +62,7 @@ class CustomerService:
             {
                 "id_item": item.id_item,
                 "name_item": item.name_item,
-                "price": item.price,
+                "price": round(item.price / 100, 2),
                 "category": item.category,
                 "stock": item.stock,
                 "exposed": item.exposed,
@@ -274,4 +274,4 @@ class CustomerService:
         items = self.item_dao.find_all_item()
         price_cart = sum(item.price * cart[item.name_item] for item in items if item.name_item in cart)
 
-        return {"cart": cart, "price": price_cart}
+        return {"cart": cart, "price": round(price_cart / 100, 2)}

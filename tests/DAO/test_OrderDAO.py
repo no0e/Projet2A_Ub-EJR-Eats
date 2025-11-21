@@ -18,7 +18,7 @@ def order_dao(db_connector):
 
 
 def test_create_order(order_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     order = Order(
         username_customer="bobbia",
         username_delivery_driver="ernesto",
@@ -29,7 +29,7 @@ def test_create_order(order_dao):
 
 
 def test_find_order_by_id(order_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     order = order_dao.find_order_by_id(1, test=True)
     assert order is not None
     assert order.id_order == 1
@@ -38,7 +38,7 @@ def test_find_order_by_id(order_dao):
 
 
 def test_find_order_by_user(order_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     orders = order_dao.find_order_by_user("bobbia", test=True)
     assert orders is not None
     for o in orders:
@@ -48,7 +48,7 @@ def test_find_order_by_user(order_dao):
 
 
 def test_update(order_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     order = Order(
         id_order=1,
         username_customer="bobbia",
@@ -63,7 +63,7 @@ def test_update(order_dao):
 
 
 def test_delete(order_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     order = Order(
         id_order=1,
         username_customer="bobbia",

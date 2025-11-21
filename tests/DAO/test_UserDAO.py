@@ -18,7 +18,7 @@ def user_dao(db_connector):
 
 
 def test_get_by_username(user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     user_alice = user_dao.get_by_username("aliceasm")
     missing_user = user_dao.get_by_username("missing user")
     assert user_alice is not None
@@ -30,7 +30,7 @@ def test_get_by_username(user_dao):
 
 
 def test_create_user(user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     to_be_created_user = User(
         username="created_user",
         firstname="Created",
@@ -47,7 +47,7 @@ def test_create_user(user_dao):
 
 
 def test_update_user(user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     new_lastname = "Vasselot"
     updated_user = user_dao.update_user(username="drdavid", lastname=new_lastname)
     missing_user = user_dao.update_user(username="missing user")
@@ -56,7 +56,7 @@ def test_update_user(user_dao):
 
 
 def test_delete_user(user_dao):
-    ResetDatabase().lancer(True)
+    ResetDatabase().launch(True)
     user_to_delete = user_dao.get_by_username("drdavid")
     missing_user = None
     true_deletion = user_dao.delete_user(user_to_delete)

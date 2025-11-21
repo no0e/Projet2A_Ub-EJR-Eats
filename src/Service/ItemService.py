@@ -22,15 +22,15 @@ class ItemService:
             storage[item.name_item] = item.stock
         return storage
 
-    def create_item(self, name_item: str, price: float, category: str, stock: int, exposed=False) -> Item:
+    def create_item(self, name_item: str, price: int, category: str, stock: int, exposed=False) -> Item:
         """Function that creates a new item.
 
         Parameters
         ----------
         name_item: str
             name of the item
-        price: float
-            price of the item
+        price: int
+            price of the item in cents
         category: str
             category of the item
         stock: int
@@ -88,7 +88,7 @@ class ItemService:
         self,
         name_item: str,
         new_name: Optional[str] = None,
-        price: Optional[float] = None,
+        price: Optional[int] = None,
         category: Optional[str] = None,
         stock: Optional[int] = None,
         exposed: Optional[bool] = None,
@@ -101,7 +101,7 @@ class ItemService:
             name of the item to modify
         new_name: str
             new value for its name, by default None
-        price: float
+        price: int
             new value for its price, by default None
         category: str
             new value for its category, by default None

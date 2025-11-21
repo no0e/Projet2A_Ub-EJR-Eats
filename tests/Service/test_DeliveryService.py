@@ -7,16 +7,35 @@ from src.Service.DeliveryService import DeliveryService
 class MockDeliveryRepo:
     def __init__(self):
         self.deliveries = {}
+        self.auto_id = 1
 
-    def create(self, delivery: Delivery):
-        delivery.id_item = self.auto_id
-        self.auto_id += 1
+    def create(self, delivery: Delivery) -> bool:
+        """
+        Simule la création d'une instance de livraison en base de données.
+        
+        Comportement simulé :
+        1. Lève TypeError si le type n'est pas Delivery.
+        2. Simule l'attribution d'un nouvel ID_delivery par la BDD.
+        3. Met à jour l'objet Delivery avec le nouvel ID.
+        4. Retourne True si l'insertion "réussit". (Simule le comportement de la BDD).
+        """
+        
+        # 1. Simuler la vérification de type (TypeError)
+        if not isinstance(delivery, Delivery):
+             # Simule l'erreur qui se produit avant l'appel à la BDD
+             raise TypeError(f"The type of {delivery} should be Delivery.")
 
-        for existing in self.deliveries.values():
-            if existing.name_item.lower() == delivery.name_item.lower():
-                return False
+        # 2. Simuler l'attribution de l'ID par la BDD (RETURNING id_delivery)
+        new_id = self.auto_id
+        self.auto_id += 1 
 
-        self.deliveries[delivery.id_item] = delivery
+        # 3. Mettre à jour l'objet (delivery.id_delivery = id_delivery)
+        delivery.id_delivery = new_id
+
+        # Simuler le stockage réussi dans la "base de données" interne
+        self.deliveries[new_id] = delivery
+        
+        # 4. Retourner True (Simule une insertion réussie)
         return True
 
     def find_by_username(self, username: str) -> Optional[Delivery]:
@@ -141,14 +160,14 @@ def delivery_repo():
             stops=["13 Main St.", "4 Salty Spring Av."],
             is_accepted=True,
         ),
-        2: Delivery(
-            id_delivery=2,
+        2: create(Delivery(
+            id_delivery=None,
             username_delivery_driver="ernesto1",
             duration="15",
             id_orders=[1],
             stops=["13 Main St."],
             is_accepted=False,
-        ),
+        )),
         3: Delivery(
             id_delivery=3,
             username_delivery_driver="driver_test",
@@ -183,3 +202,5 @@ def test_create_success(delivery_service):
     delivery = delivery_service.create([1, 2], ["13 Main St.", "4 Salty Spring Av."])
     assert delivery.id_orders == [1, 2]
     assert delivery.stops == ["13 Main St.", "4 Salty Spring Av."]
+    assert delivery.id_delivery == 5
+

@@ -7,15 +7,21 @@ from src.Service.UserService import UserService
 
 
 class MockUserRepo:
-    def __init__(self):
+    def __init__(self, customer_repo, admin_repo, driver_repo):
         self.users = {}
-        self.customers: MockCustomerRepo = {}
-        self.admins: MockAdminRepo = {}
-        self.drivers: MockDriverRepo = {}
+        self.customer_repo = customer_repo
+        self.admin_repo = admin_repo
+        self.driver_repo = driver_repo
 
     def create_user(self, user: User) -> bool:
         self.users[user.username] = user
-        self.customers[user.username] = user
+
+        if user.account_type == "Customer":
+            self.customer_repo.create(user)
+        elif user.account_type == "Administrator":
+            self.admin_repo.create(user)
+        elif user.account_type == "DeliveryDriver":
+            self.driver_repo.create(user)
         return True
 
     def get_by_username(self, username: str) -> Optional[User]:
@@ -57,17 +63,21 @@ class MockCustomerRepo:
     def create(self, customer):
         self.customers[customer.username] = customer
 
-    def delete(self, username):
-        self.customers.pop(username, None)
+    def delete(self, customer):
+        if isinstance(customer, Customer) or hasattr(customer, "username"):
+            key = customer.username
+        else:
+            key = customer
+        self.customers.pop(key, None)
 
     def find_by_username(self, username):
-        return self.customers[username]
+        return self.customers.get(username)
 
 
-user_repo = MockUserRepo()
 admin_repo = MockAdminRepo()
 driver_repo = MockDriverRepo()
 customer_repo = MockCustomerRepo()
+user_repo = MockUserRepo(customer_repo, admin_repo, driver_repo)
 
 service = UserService(user_repo, admin_repo, driver_repo, customer_repo)
 
@@ -147,5 +157,7 @@ def test_delete_user():
         User(username="delete_me", firstname="Del", lastname="Me", salt="s", password="p", account_type="Customer")
     )
     assert user_repo.get_by_username("delete_me") is not None
+    assert customer_repo.find_by_username("delete_me") is not None
     service.delete_user("delete_me")
     assert user_repo.get_by_username("delete_me") is None
+    assert customer_repo.find_by_username("delete_me") is None

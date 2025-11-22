@@ -57,14 +57,14 @@ class MockDeliveryRepo:
 
         last_order_id = delivery.id_orders[-1]
         if str(last_order_id) not in self.orders:
+            # mock 
             self.orders[str(last_order_id)] = {"id_order": last_order_id}
 
         self.orders[str(last_order_id)]["username_delivery_driver"] = username_delivery_driver
 
-        
         destinations = [
             {
-                "lat": 48.117266,  
+                "lat": 48.117266,
                 "lng": -1.6777926,
                 "address": stop,
             }
@@ -82,8 +82,6 @@ class MockDeliveryRepo:
         success = self.delivery_repo.set_delivery_accepted(delivery_id, driver_username)
         if not success:
             raise ValueError("Delivery could not be accepted")
-
-  
 
         if delivery.stops:
             destinations_for_map = delivery.stops
@@ -105,11 +103,9 @@ class MockGoogleRepo:
 
         origin = f"{self.restaurant_coords['lat']},{self.restaurant_coords['lng']}"
 
-   
         destination = ""
         waypoints = ""
 
-   
         if isinstance(destinations, list) and all(isinstance(d, str) for d in destinations):
             destination = destinations[-1]
             waypoints = "|".join(destinations[:-1])

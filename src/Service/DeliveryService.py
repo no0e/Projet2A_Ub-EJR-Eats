@@ -5,7 +5,6 @@ from src.Model.Delivery import Delivery
 from src.Service.GoogleMapService import GoogleMap
 
 
-
 class DeliveryService:
     """Service métier pour la gestion des livraisons."""
 
@@ -33,8 +32,8 @@ class DeliveryService:
         if not success:
             raise ValueError("Failed to create delivery in the database.")
         return delivery
- 
-    def get_available_deliveries(self,vehicule) -> dict:
+
+    def get_available_deliveries(self, vehicule) -> dict:
         deliveries = self.delivery_repo.get_available_deliveries()
 
         enriched = []
@@ -80,9 +79,7 @@ class DeliveryService:
         if delivery.is_accepted:
             raise ValueError("Delivery already accepted")
 
-        dests: List[dict] = []
-        for i in delivery.stops:
-            dests.append(self.googlemap.geocoding_address(i))
+        dests: List[dict] = [self.googlemap.geocoding_address(stop) for stop in delivery.stops]
         duration = self.googlemap.get_directions(destinations=dests, mode=vehicle)["duration_min"]
         self.delivery_repo.set_delivery_accepted(id_delivery, username_driver)
 
@@ -98,5 +95,6 @@ class DeliveryService:
         return {
             "message": "Delivery accepted successfully",
             "delivery_id": id_delivery,
+            "duration": duration,
             "google_maps_link": google_maps_link,
         }

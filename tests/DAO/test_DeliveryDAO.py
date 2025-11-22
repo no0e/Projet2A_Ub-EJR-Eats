@@ -1,4 +1,3 @@
-
 import pytest
 
 from src.DAO.DBConnector import DBConnector
@@ -59,6 +58,28 @@ def test_set_delivery_accepted(delivery_dao):
     assert update is None
     updated_delivery = delivery_dao.get_by_id(2)
     assert updated_delivery.is_accepted is True
+
+
+def test_find_delivery_by_driver(delivery_dao):
+    ResetDatabase().launch(True)
+    deliveries = delivery_dao.find_delivery_by_driver("ernesto1", test=True)
+    assert deliveries is not None
+    for d in deliveries:
+        assert d.username_delivery_driver == "ernesto1"
+    assert delivery_dao.find_delivery_by_driver("unknown_user", test=True) is None
+
+    def test_delete(order_dao):
+        ResetDatabase().launch(True)
+        delivery = Delivery(
+            id_delivery=1,
+            username_delivery_driver="ernesto",
+            duration=50,
+            id_orders=[1, 2],
+            stops=["13 Main St.", "4 Salty Spring Av."],
+            is_accepted=True,
+        )
+        assert delivery_dao.delete(delivery, test=True) is True
+        assert delivery_dao.find_delivery_by_id(1, test=True) is None
 
 
 if __name__ == "__main__":

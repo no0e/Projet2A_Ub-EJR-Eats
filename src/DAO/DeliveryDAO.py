@@ -196,18 +196,17 @@ class DeliveryDAO:
         if not raw_deliveries:
             return None
 
-        deliveries = list[Delivery]
-        for raw_delivery in raw_deliveries:
-            deliveries.append(
-                Delivery(
-                    id_order=raw_delivery["id_delivery"],
-                    username_delivery_driver=raw_delivery["username_delivery_driver"],
-                    duration=raw_delivery["duration"],
-                    id_orders=raw_delivery["id_orders"],
-                    stops=raw_delivery["stops"],
-                    is_accepted=raw_delivery["is_accepted"],
-                )
+        deliveries = [
+            Delivery(
+                id_order=d["id_delivery"],
+                username_delivery_driver=d["username_delivery_driver"],
+                duration=d["duration"],
+                id_orders=d["id_orders"],
+                stops=d["stops"],
+                is_accepted=d["is_accepted"],
             )
+            for d in raw_deliveries
+        ]
         return deliveries
 
     def delete(self, delivery: Delivery, test: bool = False) -> bool:

@@ -59,7 +59,7 @@ For the test database:
 
 > pdm run filldatabase test
 
-# To try every features here's a admin credentials
+# To try every features here are an admin's credentials
 
 Username : aliceasm
 

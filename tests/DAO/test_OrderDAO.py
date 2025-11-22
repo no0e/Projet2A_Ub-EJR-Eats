@@ -47,6 +47,16 @@ def test_find_order_by_user(order_dao):
     assert order_dao.find_order_by_user("unknown_user", test=True) is None
 
 
+def test_find_order_by_driver(order_dao):
+    ResetDatabase().launch(True)
+    orders = order_dao.find_order_by_driver("ernesto1", test=True)
+    assert orders is not None
+    for o in orders:
+        assert o.username_delivery_driver == "ernesto1"
+        assert isinstance(o.items, dict)
+    assert order_dao.find_order_by_driver("unknown_user", test=True) is None
+
+
 def test_update(order_dao):
     ResetDatabase().launch(True)
     order = Order(
@@ -71,5 +81,5 @@ def test_delete(order_dao):
         address="123 Test St",
         items={"galette saucisse": 2},
     )
-    assert order_dao.delete(order, test=True)
+    assert order_dao.delete(order, test=True) is True
     assert order_dao.find_order_by_id(1, test=True) is None

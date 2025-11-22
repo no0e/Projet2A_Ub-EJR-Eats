@@ -57,11 +57,11 @@ class MockDeliveryRepo:
 
         last_order_id = delivery.id_orders[-1]
         if str(last_order_id) not in self.orders:
-            # mock 
             self.orders[str(last_order_id)] = {"id_order": last_order_id}
 
         self.orders[str(last_order_id)]["username_delivery_driver"] = username_delivery_driver
 
+        
         destinations = [
             {
                 "lat": 48.117266,

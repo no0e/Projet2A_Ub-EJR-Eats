@@ -52,14 +52,11 @@ class MockDeliveryRepo:
         if not delivery.id_orders:
             raise ValueError("Orders not found for delivery")
 
-        # Simulate : is_accepted = TRUE + driver assigned
         delivery.is_accepted = True
         delivery.username_delivery_driver = username_delivery_driver
 
-        # Simulate : UPDATE orders SET username_delivery_driver
         last_order_id = delivery.id_orders[-1]
         if str(last_order_id) not in self.orders:
-            # mock 
             self.orders[str(last_order_id)] = {"id_order": last_order_id}
 
         self.orders[str(last_order_id)]["username_delivery_driver"] = username_delivery_driver
@@ -89,14 +86,11 @@ class MockDeliveryRepo:
   
 
         if delivery.stops:
-            destinations_for_map = delivery.stops  # Passe ['13 Main St.']
+            destinations_for_map = delivery.stops
         else:
-            # Fallback (doit être cohérent avec ce que le mock attend - ici, un dict unique)
-            # MAIS ATTENTION : Si le mock attend une liste (Cas 1 ou 2), il faut encapsuler !
             destinations_for_map = [{"lat": 48.050245, "lng": -1.741515}]
 
         link = self.google_service.generate_google_maps_link(destinations_for_map)
-        # ----------------------------------------------------------------------
 
         return {"delivery_id": delivery_id, "google_maps_link": link}
 

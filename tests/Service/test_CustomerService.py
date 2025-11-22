@@ -139,7 +139,6 @@ def customer_repo():
 def order_repo():
     repo = MockOrderRepo()
 
-    # Orders from SQL
     repo.create_order(
         Order(
             id_order=None,

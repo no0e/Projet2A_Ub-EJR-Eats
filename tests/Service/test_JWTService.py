@@ -20,7 +20,7 @@ def test_encode_jwt():
     expected_payload = {
         "username": "Noé",
         "account_type": "customer",
-        "expiry_timestamp": 1724674200.0,  # 12:00:00 + 600s
+        "expiry_timestamp": 1724674200.0,
     }
 
     decoded = jwt.decode(jwtResponse.access_token, "mysecret", algorithms=["HS256"])
@@ -63,7 +63,7 @@ def test_validate_user_jwt_expired():
     payload = {
         "username": "Noé",
         "account_type": "customer",
-        "expiry_timestamp": 1724674200.0,  # expire 12:10
+        "expiry_timestamp": 1724674200.0,
     }
 
     token = jwt.encode(payload, "mysecret", algorithm="HS256")

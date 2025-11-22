@@ -33,44 +33,6 @@ class MockDeliveryRepo:
     def get_by_id(self, id_delivery) -> Delivery:
         return self.deliveries.get(id_delivery)
 
-    """def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
-        if id_delivery == 4:
-            return False
-
-        delivery = self.deliveries.get(id_delivery)
-
-        if not delivery:
-            raise ValueError("Delivery not found")
-
-        if not delivery.id_orders:
-            raise ValueError("Orders not found for delivery")
-
-        delivery.is_accepted = True
-        delivery.username_delivery_driver = username_delivery_driver
-        delivery = self.deliveries.get(id_delivery)
-
-        if not delivery:
-            raise ValueError("Delivery not found")
-
-        if not delivery.id_orders:
-            raise ValueError("Orders not found for delivery")
-        delivery.is_accepted = True
-        delivery.username_delivery_driver = username_delivery_driver
-        last_order_id = delivery.id_orders[-1]
-        if str(last_order_id) not in self.orders:
-            self.orders[str(last_order_id)] = {"id_order": last_order_id}
-
-        self.orders[str(last_order_id)]["username_delivery_driver"] = username_delivery_driver
-        destinations = [
-            {
-                "lat": 48.117266,
-                "lng": -1.6777926,
-                "address": stop,
-            }
-            for stop in delivery.stops
-        ]
-
-        return delivery, destinations"""
 
     def set_delivery_accepted(self, id_delivery: int, username_delivery_driver: str):
         if id_delivery == 4:

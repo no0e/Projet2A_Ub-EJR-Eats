@@ -2,6 +2,7 @@ from typing import Optional
 
 import pytest
 
+from src.Model.Customer import Customer
 from src.Model.User import User
 from src.Service.UserService import UserService
 

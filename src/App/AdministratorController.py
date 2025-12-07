@@ -78,7 +78,7 @@ def Edit_Accounts(
     }
 
 
-@administrator_router.delete("/Storage/Delete_User", status_code=status.HTTP_200_OK)
+@administrator_router.delete("/Delete_User", status_code=status.HTTP_200_OK)
 def Delete_User(username) -> bool:
     """If you want to delete another user's account."""
     try:
@@ -131,7 +131,7 @@ def Edit_Item(
 ) -> dict:
     """If you want to edit an item (name, price, quantity etc.)."""
     try:
-        item_service.update(name_item, new_name, new_price , new_category, new_stock, availability)
+        item_service.update(name_item, new_name, new_price, new_category, new_stock, availability)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
     except (TypeError, ValueError) as e:

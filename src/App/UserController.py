@@ -42,9 +42,7 @@ def login(username: str, password: str) -> JWTResponse:
     try:
         user = validate_username_password(username=username.lower(), password=password, user_repo=user_repo)
     except Exception as error:
-        raise HTTPException(
-            status_code=403, detail=f"Invalid username and password combination mais la vraie erreur est : {error}"
-        ) from error
+        raise HTTPException(status_code=403, detail=f"{error}") from error
 
     return jwt_service.encode_jwt(user.username.lower(), user.account_type)
 

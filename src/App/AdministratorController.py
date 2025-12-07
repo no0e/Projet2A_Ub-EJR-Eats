@@ -173,7 +173,7 @@ def Delete_Item(name_item) -> str:
         raise HTTPException(status_code=400, detail=str(e)) from e
 
 
-@administrator_router.patch("/Storage/Edit_Profile", status_code=status.HTTP_200_OK)
+@administrator_router.patch("/Edit_Profile", status_code=status.HTTP_200_OK)
 def Edit_Profile(
     firstname: Optional[str] = Query(None, description="First name"),
     lastname: Optional[str] = Query(None, description="Last name"),

@@ -107,11 +107,6 @@ class UserService:
                 )
             )
         else:
-            try:
-                google_service.geocoding_address(address)
-            except TypeError:
-                self.delete_user(username)
-                raise
             self.customer_repo.create(
                 Customer(
                     username=username,
@@ -123,6 +118,11 @@ class UserService:
                     address=address,
                 )
             )
+            try:
+                google_service.geocoding_address(address)
+            except TypeError as e:
+                self.delete_user(username)
+                raise ValueError("Adresse non valide.") from e
         return User(
             username=username,
             firstname=firstname,
